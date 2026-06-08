@@ -100,30 +100,31 @@ body {
   width: 55vw;
   height: 55vw;
   border-radius: 50%;
-  mix-blend-mode: screen;
-  filter: blur(120px);
-  opacity: 0.4;
-  animation: drift 18s infinite alternate ease-in-out;
+  filter: blur(100px);
+  opacity: 0.32;
+  animation: drift 22s infinite alternate ease-in-out;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
 }
 
 :root.light .aurora-blob {
-  mix-blend-mode: multiply;
-  filter: blur(140px);
-  opacity: 0.22;
+  filter: blur(120px);
+  opacity: 0.18;
 }
 
 .aurora-blob-1 {
   background: radial-gradient(circle, var(--neon-primary) 0%, rgba(0,0,0,0) 70%);
   top: -15%;
   left: -10%;
-  animation-duration: 22s;
+  animation-duration: 25s;
 }
 
 .aurora-blob-2 {
   background: radial-gradient(circle, var(--neon-secondary) 0%, rgba(0,0,0,0) 70%);
   bottom: -15%;
   right: -10%;
-  animation-duration: 28s;
+  animation-duration: 32s;
   animation-delay: -5s;
 }
 
@@ -133,19 +134,19 @@ body {
   left: 45%;
   width: 40vw;
   height: 40vw;
-  animation-duration: 25s;
+  animation-duration: 28s;
   animation-delay: -10s;
 }
 
 @keyframes drift {
   0% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
   }
   50% {
-    transform: translate(12%, 18%) scale(1.18) rotate(180deg);
+    transform: translate3d(8%, 12%, 0) scale(1.1) rotate(180deg);
   }
   100% {
-    transform: translate(-6%, -12%) scale(0.88) rotate(360deg);
+    transform: translate3d(-4%, -8%, 0) scale(0.9) rotate(360deg);
   }
 }
 
@@ -172,18 +173,19 @@ body {
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 60px 60px;
-  transform: rotateX(68deg);
+  transform: rotateX(68deg) translate3d(0, 0, 0);
   animation: scrollGrid 35s linear infinite;
   transform-origin: center center;
   opacity: 0.85;
+  will-change: transform;
 }
 
 @keyframes scrollGrid {
   0% {
-    background-position: 0 0;
+    transform: rotateX(68deg) translate3d(0, 0, 0);
   }
   100% {
-    background-position: 0 360px; /* Loop matches grid size multiples */
+    transform: rotateX(68deg) translate3d(0, 60px, 0); /* Loops seamlessly over background-size unit */
   }
 }
 
