@@ -36,20 +36,4 @@ router.post('/admin/register-student', authenticateToken, requireRole('trainer')
 router.get('/admin/students', authenticateToken, requireRole('trainer'), getStudentsList);
 router.delete('/admin/students/:studentId', authenticateToken, requireRole('trainer'), deleteStudent);
 
-// Temporary diagnostics route to see which models Google allows for this API key
-router.get('/test-gemini-models', async (req, res) => {
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      res.status(400).json({ error: 'GEMINI_API_KEY is not set on the server environment.' });
-      return;
-    }
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 export default router;
