@@ -6,7 +6,7 @@ import { getSubmissions, submitTask, reviewSubmission } from '../controllers/sub
 import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } from '../controllers/adminController.js';
 import { handleChat } from '../controllers/chatController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { upload } from '../middleware/upload.js';
+import { upload, uploadRoster } from '../middleware/upload.js';
 
 const router = Router();
 
@@ -31,7 +31,7 @@ router.post('/submissions', authenticateToken, requireRole('student'), upload.si
 router.put('/submissions/:submissionId/review', authenticateToken, requireRole('trainer'), reviewSubmission);
 
 // Admin / Bulk importing & Manual Student Onboarding & Metrics Directory
-router.post('/admin/import-students', authenticateToken, requireRole('trainer'), upload.single('file'), bulkImportStudents);
+router.post('/admin/import-students', authenticateToken, requireRole('trainer'), uploadRoster.single('file'), bulkImportStudents);
 router.post('/admin/register-student', authenticateToken, requireRole('trainer'), registerStudent);
 router.get('/admin/students', authenticateToken, requireRole('trainer'), getStudentsList);
 router.delete('/admin/students/:studentId', authenticateToken, requireRole('trainer'), deleteStudent);

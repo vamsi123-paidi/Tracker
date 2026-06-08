@@ -19,3 +19,11 @@ export const upload = multer({
   },
   fileFilter
 });
+
+// Separate upload middleware for rosters (allows CSV, Excel, JSON)
+export const uploadRoster = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10 MB limit
+  }
+});
