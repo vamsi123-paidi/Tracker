@@ -1,0 +1,5 @@
+name,email,password,collegeCode,collegeName
+John Doe,john.doe@mit.edu,StudentPass123,MIT,Massachusetts Institute of Technology
+Jane Smith,jane.smith@mit.edu,StudentPass456,MIT,Massachusetts Institute of Technology
+Bob Johnson,bob.j@stanford.edu,StanfordPass789,STANFORD,Stanford University
+Alice Green,alice.g@stanford.edu,StanfordPass101,STANFORD,Stanford University

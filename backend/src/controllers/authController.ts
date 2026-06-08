@@ -1,0 +1,228 @@
+import { Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
+import fs from 'fs';
+import path from 'path';
+import { User } from '../models/User.js';
+import { College } from '../models/College.js';
+import { AuthRequest } from '../middleware/auth.js';
+
+// Setup Cloudinary if credentials are provided
+const useCloudinary = !!(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (useCloudinary) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+}
+
+// Ensure local uploads directory exists for fallback
+const localUploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(localUploadsDir)) {
+  fs.mkdirSync(localUploadsDir, { recursive: true });
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkeychangeinproduction';
+
+// Unified Login
+export const login = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required' });
+      return;
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        college: user.college
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        college: user.college
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Login failed', error: error.message });
+  }
+};
+
+// Trainer Signup (Standard signup for trainer)
+export const registerTrainer = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, code } = req.body;
+
+    // Optional signup secret check to protect Trainer registration
+    const trainerSignupSecret = process.env.TRAINER_SIGNUP_SECRET || 'holo-admin-secret';
+    if (code !== trainerSignupSecret) {
+      res.status(403).json({ message: 'Invalid registration credentials' });
+      return;
+    }
+
+    if (!name || !email || !password) {
+      res.status(400).json({ message: 'All fields are required' });
+      return;
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      res.status(400).json({ message: 'Email already registered' });
+      return;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const newTrainer = new User({
+      name,
+      email: normalizedEmail,
+      passwordHash,
+      role: 'trainer'
+    });
+
+    await newTrainer.save();
+
+    res.status(201).json({ message: 'Trainer registered successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Registration failed', error: error.message });
+  }
+};
+
+// Get current logged in user details
+export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const user = await User.findById(req.user.id).select('-passwordHash').populate('college');
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error retrieving user info', error: error.message });
+  }
+};
+
+// Update User Profile
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const userId = req.user.id;
+    const { name, email, password } = req.body;
+    const file = req.file;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // If email is changing, make sure it's not taken by another user
+    if (email && email.toLowerCase().trim() !== user.email) {
+      const normalizedEmail = email.toLowerCase().trim();
+      const existingUser = await User.findOne({ email: normalizedEmail });
+      if (existingUser) {
+        res.status(400).json({ message: 'Email is already taken by another account' });
+        return;
+      }
+      user.email = normalizedEmail;
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.passwordHash = await bcrypt.hash(password, salt);
+    }
+
+    // Process profile image upload
+    if (file) {
+      let profileImageUrl = '';
+      if (useCloudinary) {
+        try {
+          profileImageUrl = await new Promise<string>((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: 'holotrack_profiles' },
+              (error, result) => {
+                if (error) return reject(error);
+                if (!result) return reject(new Error('Cloudinary upload result was undefined'));
+                resolve(result.secure_url);
+              }
+            );
+            Readable.from(file.buffer).pipe(stream);
+          });
+        } catch (uploadError: any) {
+          console.error('Cloudinary upload failed for profile image, falling back to local:', uploadError);
+          const fileName = `profile-${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
+          const filePath = path.join(localUploadsDir, fileName);
+          await fs.promises.writeFile(filePath, file.buffer);
+          profileImageUrl = `/uploads/${fileName}`;
+        }
+      } else {
+        const fileName = `profile-${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
+        const filePath = path.join(localUploadsDir, fileName);
+        await fs.promises.writeFile(filePath, file.buffer);
+        profileImageUrl = `/uploads/${fileName}`;
+      }
+      user.profileImage = profileImageUrl;
+    }
+
+    await user.save();
+
+    // Populate college details to return a complete user object
+    const updatedUser = await User.findById(userId).select('-passwordHash').populate('college');
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: updatedUser
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Failed to update profile', error: error.message });
+  }
+};

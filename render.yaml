@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: holotrack-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false # User must set this manually in Render Dashboard
+      - key: JWT_SECRET
+        sync: false # User must set this manually in Render Dashboard
+      - key: GEMINI_API_KEY
+        sync: false # User must set this manually in Render Dashboard (optional)
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false # User must set this manually in Render Dashboard (optional)
+      - key: CLOUDINARY_API_KEY
+        sync: false # User must set this manually in Render Dashboard (optional)
+      - key: CLOUDINARY_API_SECRET
+        sync: false # User must set this manually in Render Dashboard (optional)
