@@ -13,7 +13,7 @@
 
   --neon-primary: #f59e0b;       /* Solar Gold */
   --neon-secondary: #10b981;     /* Plasma Emerald */
-  --neon-blue: #3b82f6;          /* Sapphire Blue */
+  --neon-blue: #ec4899;          /* Vibrant Pink/Magenta (Replaced Blue) */
   --neon-green: #10b981;         /* Emerald */
   --neon-red: #ef4444;           /* Crimson */
   --neon-yellow: #f59e0b;        /* Amber */
@@ -43,8 +43,8 @@
   --border-glass-hover: rgba(255, 87, 34, 0.45);
 
   --neon-primary: #ff5722;       /* Coral Orange */
-  --neon-secondary: #00a8cc;     /* Ocean Teal */
-  --neon-blue: #2979ff;          /* Electric Blue */
+  --neon-secondary: #10b981;     /* Vibrant Green (Replaced Teal/Blue) */
+  --neon-blue: #ff1744;          /* Vibrant Red (Replaced Blue) */
   --neon-green: #00c853;         /* Vibrant Green */
   --neon-red: #ff1744;           /* Vibrant Red */
   --neon-yellow: #ffc400;        /* Vibrant Yellow */
@@ -54,7 +54,7 @@
   --text-muted: #8a9bb0;
 
   --glow-primary: 0 0 18px rgba(255, 87, 34, 0.35);
-  --glow-secondary: 0 0 18px rgba(0, 168, 204, 0.35);
+  --glow-secondary: 0 0 18px rgba(16, 185, 129, 0.35);
   --glow-green: 0 0 18px rgba(0, 200, 83, 0.35);
   --glow-red: 0 0 18px rgba(255, 23, 68, 0.35);
   --glow-yellow: 0 0 18px rgba(255, 196, 0, 0.35);
@@ -92,8 +92,8 @@ body {
   background-color: var(--bg-dark);
   background-image: 
     radial-gradient(at 0% 0%, rgba(255, 87, 34, 0.06) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(0, 168, 204, 0.06) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(41, 121, 255, 0.04) 0, transparent 50%);
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.06) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.04) 0, transparent 50%);
 }
 
 /* Aurora Background container */

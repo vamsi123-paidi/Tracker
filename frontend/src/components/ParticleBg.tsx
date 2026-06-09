@@ -69,7 +69,7 @@ export const ParticleBg: React.FC = () => {
       return {
         particleColor: isLight ? 'rgba(255, 87, 34, 0.4)' : 'rgba(245, 158, 11, 0.45)',
         linkColor: isLight ? 'rgba(255, 87, 34, 0.07)' : 'rgba(245, 158, 11, 0.08)',
-        mouseLinkColor: isLight ? 'rgba(0, 168, 204, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+        mouseLinkColor: 'rgba(16, 185, 129, 0.15)',
       };
     };
 

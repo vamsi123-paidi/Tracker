@@ -1543,7 +1543,7 @@ export default function StudentDashboard() {
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
       ),
-      color: '#00f2fe'
+      color: '#f59e0b'
     },
     {
       id: 'master',
@@ -1606,7 +1606,7 @@ export default function StudentDashboard() {
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z" />
         </svg>
       ),
-      color: '#0052ff'
+      color: '#ec4899'
     }
   ];
 
@@ -1844,7 +1844,7 @@ export default function StudentDashboard() {
               <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
                 <div className="glass-panel">
                   <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>ASSIGNED_TASKS</p>
-                  <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#00f2fe' }}>{totalTasks}</h3>
+                  <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{totalTasks}</h3>
                 </div>
                 <div className="glass-panel">
                   <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>COMPLETED_APPROVED</p>
@@ -1861,7 +1861,7 @@ export default function StudentDashboard() {
               </div>
 
               {/* Tasks List */}
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'monospace', color: '#00f2fe' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'monospace', color: 'var(--neon-secondary)' }}>
                 TASKS_LISTING_WORKSPACE
               </h3>
 
@@ -1936,7 +1936,7 @@ export default function StudentDashboard() {
                           <div style={{
                             marginTop: '1rem',
                             fontSize: '0.85rem',
-                            color: '#00f2fe',
+                            color: 'var(--neon-secondary)',
                             textAlign: 'right',
                             fontWeight: 600
                           }}>
@@ -1957,7 +1957,7 @@ export default function StudentDashboard() {
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-mono)', color: '#00f2fe', margin: 0 }}>
+                  <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-mono)', color: 'var(--neon-secondary)', margin: 0 }}>
                     SECURE_QUIZ_HUB
                   </h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
@@ -2336,7 +2336,7 @@ export default function StudentDashboard() {
             <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', fontFamily: 'monospace', color: '#00f2fe', margin: 0 }}>
+                  <h3 style={{ fontSize: '1.25rem', fontFamily: 'monospace', color: 'var(--neon-secondary)', margin: 0 }}>
                     Code Playground Sandbox
                   </h3>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -2561,7 +2561,7 @@ export default function StudentDashboard() {
                 <div style={{ display: 'flex', gap: '1.5rem' }}>
                   <div className="assessment-stats-card total-score">
                     <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>TOTAL_SCORE</span>
-                    <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: '#00f2fe', textShadow: '0 0 12px rgba(0, 242, 254, 0.5)' }}>
+                    <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>
                       {assessmentTotalPoints} <span style={{ fontSize: '0.9rem', fontWeight: 400, color: 'var(--text-muted)' }}>pts</span>
                     </h4>
                   </div>
@@ -2859,7 +2859,7 @@ export default function StudentDashboard() {
                             <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', margin: 0 }}>{selectedAssessment.title}</h4>
                             <span style={{ 
                               fontSize: '0.75rem', 
-                              color: '#00f2fe', 
+                              color: 'var(--neon-secondary)', 
                               background: 'rgba(0, 242, 254, 0.05)', 
                               border: '1px solid rgba(0, 242, 254, 0.25)', 
                               padding: '4px 12px', 
@@ -2902,7 +2902,7 @@ export default function StudentDashboard() {
                                 <div style={{ display: 'flex', gap: '2px' }}>
                                   {[
                                     { id: 'html', file: 'index.html', color: '#e34f26' },
-                                    { id: 'css', file: 'styles.css', color: '#00f2fe' },
+                                    { id: 'css', file: 'styles.css', color: 'var(--neon-primary)' },
                                     { id: 'js', file: 'app.js', color: '#ffd000' }
                                   ].map(t => {
                                     const isActive = assessmentActiveEditor === t.id;
@@ -3076,7 +3076,7 @@ export default function StudentDashboard() {
                               </div>
 
                               <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-glass)', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden', background: '#14151f' }}>
-                                <div style={{ background: '#0a0b12', padding: '6px 12px', borderBottom: '1px solid var(--border-glass)', color: '#00f2fe', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                                <div style={{ background: '#0a0b12', padding: '6px 12px', borderBottom: '1px solid var(--border-glass)', color: 'var(--neon-secondary)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
                                   styles.css
                                 </div>
                                 <div style={{ flex: 1 }}>
@@ -3360,7 +3360,7 @@ export default function StudentDashboard() {
                                 <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 600, color: 'var(--text-secondary)' }}>
                                   {row.solvedCount}
                                 </td>
-                                <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 800, color: '#00f2fe', fontSize: '0.95rem', fontFamily: 'var(--font-mono)', textShadow: '0 0 8px rgba(0, 242, 254, 0.3)' }}>
+                                <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 800, color: 'var(--neon-secondary)', fontSize: '0.95rem', fontFamily: 'var(--font-mono)', textShadow: '0 0 8px rgba(16, 185, 129, 0.3)' }}>
                                   {row.totalPoints} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>pts</span>
                                 </td>
                               </tr>
@@ -3764,7 +3764,7 @@ export default function StudentDashboard() {
 
                 {/* 2. 3D Revision Flashcards Section */}
                 <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '320px', flex: 1 }}>
-                  <span style={{ fontSize: '0.8rem', color: '#00f2fe', fontFamily: 'monospace', display: 'block', marginBottom: '1.25rem' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'block', marginBottom: '1.25rem' }}>
                     3D_REVISION_FLASHCARDS
                   </span>
 
@@ -3848,7 +3848,7 @@ export default function StudentDashboard() {
           {/* TAB 5: ACHIEVEMENTS BADGE SHELF */}
           {activeTab === 'achievements' && (
             <div className="glass-panel">
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontFamily: 'monospace', color: '#00f2fe' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontFamily: 'monospace', color: 'var(--neon-secondary)' }}>
                 Achievement Shelf
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '2rem' }}>
@@ -4026,9 +4026,9 @@ export default function StudentDashboard() {
                 
                 {/* Timer Clock */}
                 <div style={{
-                  background: timeRemaining <= 60 ? 'rgba(255,0,85,0.1)' : 'rgba(0,242,254,0.08)',
+                  background: timeRemaining <= 60 ? 'rgba(255,0,85,0.1)' : 'rgba(16, 185, 129, 0.08)',
                   border: `1.5px solid ${timeRemaining <= 60 ? '#ff0055' : 'var(--neon-primary)'}`,
-                  color: timeRemaining <= 60 ? '#ff0055' : '#00f2fe',
+                  color: timeRemaining <= 60 ? '#ff0055' : 'var(--neon-secondary)',
                   padding: '8px 16px',
                   borderRadius: '8px',
                   fontFamily: 'monospace',
@@ -4265,7 +4265,7 @@ export default function StudentDashboard() {
                   type="submit"
                   disabled={isSubmitting || !screenshotFile}
                   className="btn-neon btn-transmit"
-                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff', gap: '8px' }}
+                  style={{ color: '#fff', gap: '8px' }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
                     <line x1="22" y1="2" x2="11" y2="13" />
@@ -4450,7 +4450,7 @@ export default function StudentDashboard() {
                   type="submit"
                   disabled={isUpdatingProfile}
                   className="btn-neon btn-save"
-                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff', gap: '8px' }}
+                  style={{ color: '#fff', gap: '8px' }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />

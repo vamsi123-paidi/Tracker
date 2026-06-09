@@ -40,17 +40,17 @@ export default function Home() {
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.4rem', color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)', animation: 'pulseScale 2s infinite' }}>✦</span>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(to right, #00f2fe, #ff007f)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(to right, var(--neon-primary), var(--neon-blue))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'var(--font-mono)' }}>
             OmniSync.io
           </span>
         </div>
-
+ 
         {/* Desktop Quick Nav Links */}
         <nav className="desktop-nav" style={{ display: 'flex', gap: '2rem' }}>
-          <a href="#features" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#00f2fe'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+          <a href="#features" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--neon-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
             Features
           </a>
-          <a href="#statistics" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#00f2fe'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'} onClick={(e) => { e.preventDefault(); document.getElementById('statistics')?.scrollIntoView({ behavior: 'smooth' }); }}>
+          <a href="#statistics" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--neon-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'} onClick={(e) => { e.preventDefault(); document.getElementById('statistics')?.scrollIntoView({ behavior: 'smooth' }); }}>
             Portal Stats
           </a>
           <a href="/login" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#ff007f'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
