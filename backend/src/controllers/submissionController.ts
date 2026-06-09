@@ -94,19 +94,14 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
       try {
         screenshotUrl = await uploadToCloudinary(file.buffer);
       } catch (uploadError: any) {
-        console.error('Cloudinary upload failed, falling back to local storage:', uploadError);
-        // Fallback to local storage if Cloudinary fails
-        const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-        const filePath = path.join(localUploadsDir, fileName);
-        await fs.promises.writeFile(filePath, file.buffer);
-        screenshotUrl = `/uploads/${fileName}`;
+        console.error('Cloudinary upload failed, falling back to Base64 data URL:', uploadError);
+        const base64Data = file.buffer.toString('base64');
+        screenshotUrl = `data:${file.mimetype};base64,${base64Data}`;
       }
     } else {
-      // Local file upload fallback
-      const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-      const filePath = path.join(localUploadsDir, fileName);
-      await fs.promises.writeFile(filePath, file.buffer);
-      screenshotUrl = `/uploads/${fileName}`;
+      // Base64 data URL fallback
+      const base64Data = file.buffer.toString('base64');
+      screenshotUrl = `data:${file.mimetype};base64,${base64Data}`;
     }
 
     // Create or update submission
@@ -250,7 +245,17 @@ export const autoReviewSubmission = async (req: AuthRequest, res: Response): Pro
         feedback = `[AI Auto-Review (Offline Fallback)]: No valid project URL links detected in your notes. The milestone task "${task.title}" requires a GitHub repository or live deployment link. Please revise and provide a valid link in your notes.`;
       }
 
-      res.status(200).json({ status, feedback });
+      submission.status = status;
+      submission.feedback = feedback;
+      submission.reviewedAt = new Date();
+      await submission.save();
+
+      res.status(200).json({
+        message: `Submission ${status} automatically reviewed and saved`,
+        submission,
+        status,
+        feedback
+      });
       return;
     }
 
@@ -299,18 +304,30 @@ export const autoReviewSubmission = async (req: AuthRequest, res: Response): Pro
     // Clean up JSON block formatting if returned by LLM
     rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
 
+    let status: 'approved' | 'rejected' = 'rejected';
+    let feedback = '';
+
     try {
       const parsedResult = JSON.parse(rawText);
-      const status = parsedResult.status === 'approved' ? 'approved' : 'rejected';
-      const feedback = parsedResult.feedback || 'Evaluated by HoloTrack AI.';
-      res.status(200).json({ status, feedback });
+      status = parsedResult.status === 'approved' ? 'approved' : 'rejected';
+      feedback = parsedResult.feedback || 'Evaluated by HoloTrack AI.';
     } catch (parseErr) {
       const isApproved = rawText.toLowerCase().includes('approved') || rawText.toLowerCase().includes('"status": "approved"');
-      res.status(200).json({
-        status: isApproved ? 'approved' : 'rejected',
-        feedback: rawText || 'Evaluated by HoloTrack AI.'
-      });
+      status = isApproved ? 'approved' : 'rejected';
+      feedback = rawText || 'Evaluated by HoloTrack AI.';
     }
+
+    submission.status = status;
+    submission.feedback = feedback;
+    submission.reviewedAt = new Date();
+    await submission.save();
+
+    res.status(200).json({
+      message: `Submission ${status} automatically reviewed and saved`,
+      submission,
+      status,
+      feedback
+    });
   } catch (error: any) {
     console.error('Submission auto-review error:', error);
     res.status(500).json({ message: 'AI Auto-review failed', error: error.message });

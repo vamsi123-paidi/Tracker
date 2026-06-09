@@ -678,8 +678,22 @@ export default function TrainerDashboard() {
 
     try {
       const res = await api.post(`/submissions/${selectedSubmission._id}/auto-review`, {});
-      setReviewFeedback(res.feedback);
-      setSuccessMsg(`AI Assessment Complete! Suggested: ${res.status.toUpperCase()}. Review feedback was pre-populated.`);
+      const updatedSubmission = res.submission || { ...selectedSubmission, status: res.status, feedback: res.feedback };
+      
+      setSubmissions(
+        submissions.map((sub) =>
+          sub._id === selectedSubmission._id
+            ? updatedSubmission
+            : sub
+        )
+      );
+
+      // Re-trigger counts
+      fetchDashboardData();
+
+      setSelectedSubmission(null);
+      setReviewFeedback('');
+      setSuccessMsg(`AI Auto-Review completed and committed: ${res.status.toUpperCase()}!`);
     } catch (err: any) {
       setErrorMsg(err.message || 'AI Auto-review failed.');
     } finally {
@@ -1964,7 +1978,7 @@ export default function TrainerDashboard() {
             <div style={{ marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', overflow: 'hidden', textAlign: 'center', background: '#000', padding: imageError ? '2rem 1.5rem' : '0' }}>
               {!imageError ? (
                 <img
-                  src={selectedSubmission.screenshotUrl.startsWith('http')
+                  src={selectedSubmission.screenshotUrl.startsWith('http') || selectedSubmission.screenshotUrl.startsWith('data:')
                     ? selectedSubmission.screenshotUrl
                     : `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') : 'http://localhost:5000'}${selectedSubmission.screenshotUrl}`
                   }

@@ -50,7 +50,7 @@ interface Flashcard {
 
 const getImageUrl = (url?: string) => {
   if (!url) return '';
-  if (url.startsWith('http')) return url;
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
   const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '');
   return `${baseUrl}${url}`;
 };

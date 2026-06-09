@@ -198,17 +198,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
             Readable.from(file.buffer).pipe(stream);
           });
         } catch (uploadError: any) {
-          console.error('Cloudinary upload failed for profile image, falling back to local:', uploadError);
-          const fileName = `profile-${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-          const filePath = path.join(localUploadsDir, fileName);
-          await fs.promises.writeFile(filePath, file.buffer);
-          profileImageUrl = `/uploads/${fileName}`;
+          console.error('Cloudinary upload failed for profile image, falling back to Base64:', uploadError);
+          const base64Data = file.buffer.toString('base64');
+          profileImageUrl = `data:${file.mimetype};base64,${base64Data}`;
         }
       } else {
-        const fileName = `profile-${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-        const filePath = path.join(localUploadsDir, fileName);
-        await fs.promises.writeFile(filePath, file.buffer);
-        profileImageUrl = `/uploads/${fileName}`;
+        const base64Data = file.buffer.toString('base64');
+        profileImageUrl = `data:${file.mimetype};base64,${base64Data}`;
       }
       user.profileImage = profileImageUrl;
     }
