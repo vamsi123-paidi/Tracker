@@ -41,8 +41,11 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.4rem', color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)', animation: 'pulseScale 2s infinite' }}>✦</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 900, fontFamily: 'var(--font-mono)', letterSpacing: '-0.5px' }}>
-            <span style={{ color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)' }}>O</span>
-            <span style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>S</span>
+            <span style={{ color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)' }}>S</span>
+            <span style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>P</span>
+            <span style={{ color: 'var(--neon-blue)', textShadow: 'var(--glow-primary)' }}>A</span>
+            <span style={{ color: 'var(--neon-yellow)', textShadow: 'var(--glow-yellow)' }}>R</span>
+            <span style={{ color: 'var(--neon-green)', textShadow: 'var(--glow-green)' }}>K</span>
             <span style={{ color: 'var(--text-primary)', opacity: 0.85 }}>.io</span>
           </span>
         </div>
@@ -117,7 +120,7 @@ export default function Home() {
             marginBottom: '2.5rem',
             maxWidth: '540px'
           }}>
-            OS.io accelerates student progression by integrating high-fidelity task verifications, sandboxed multi-pane compilers, proctored examinations, and automated feedback engines inside a single secure portal.
+            SPARK (Student Progress, Assessment, Resources, & Knowledge) accelerates student progression by integrating high-fidelity task verifications, sandboxed multi-pane compilers, proctored examinations, and automated feedback engines inside a single secure portal.
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -212,7 +215,7 @@ export default function Home() {
             SYSTEM_CAPABILITIES
           </span>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginTop: '6px' }}>
-            What does OS.io provide?
+            What does SPARK.io provide?
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: '8px auto 0 auto', maxWidth: '600px' }}>
             Explore the core feature sets engineered to make training verifications fast, immersive, and responsive across all device sizes.
@@ -307,7 +310,7 @@ export default function Home() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            © {new Date().getFullYear()} OS.io Workspace Core. All rights reserved.
+            © {new Date().getFullYear()} SPARK.io Workspace Core. All rights reserved.
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
