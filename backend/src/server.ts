@@ -32,7 +32,7 @@ app.use('/api', apiRouter);
 
 // Fallback Route
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to HoloTrack.io Secure API Server' });
+  res.json({ message: 'Welcome to Task Tracker Secure API Server' });
 });
 
 // Start Server

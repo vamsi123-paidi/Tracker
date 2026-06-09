@@ -62,18 +62,18 @@ export default function Login() {
         <ThemeToggle />
       </div>
 
-      {/* Holographic Dual Panel Container */}
-      <div className="holo-container">
-        {/* Left Panel: Holographic Simulator Graphic */}
-        <div className="holo-left">
+      {/* Dual Panel Container */}
+      <div className="split-container">
+        {/* Left Panel: Info Panel */}
+        <div className="split-left">
           {/* Laser Scanner Bar */}
-          <div className="holo-scanner-bar" />
+          <div className="scanner-bar" />
 
           {/* Glowing rotating Concentric circles */}
-          <div className="holo-globe">
-            <div className="holo-circle" />
-            <div className="holo-circle-inner" />
-            <div className="holo-circle-center" />
+          <div className="tech-globe">
+            <div className="tech-circle" />
+            <div className="tech-circle-inner" />
+            <div className="tech-circle-center" />
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -81,16 +81,16 @@ export default function Login() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>Milestone Verification Core</p>
           </div>
           {/* Code Terminal Output lines */}
-          <div className="holo-terminal">
-            <div className="holo-line">&gt; DECRYPTING_SECURE_PORTALS... OK</div>
-            <div className="holo-line">&gt; SYSTEM_STATUS: ONLINE</div>
-            <div className="holo-line">&gt; CONNECTION: ENCRYPTED_JWT</div>
-            <div className="holo-line">&gt; SHIELD_CORE_INTEGRITY: 100%</div>
+          <div className="info-terminal">
+            <div className="terminal-line">&gt; DECRYPTING_SECURE_PORTALS... OK</div>
+            <div className="terminal-line">&gt; SYSTEM_STATUS: ONLINE</div>
+            <div className="terminal-line">&gt; CONNECTION: ENCRYPTED_JWT</div>
+            <div className="terminal-line">&gt; SHIELD_CORE_INTEGRITY: 100%</div>
           </div>
         </div>
 
         {/* Right Panel: Secure Login Form */}
-        <div className="holo-right">
+        <div className="split-right">
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <h2 className="text-neon-cyan" style={{ fontSize: '2.2rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
               Secure Login

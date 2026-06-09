@@ -33,7 +33,7 @@ if (!fs.existsSync(localUploadsDir)) {
 const uploadToCloudinary = (buffer: Buffer): Promise<string> => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: 'holotrack_submissions' },
+      { folder: 'tracker_submissions' },
       (error, result) => {
         if (error) {
           return reject(error);

@@ -28,10 +28,10 @@ export default function Home() {
         <ThemeToggle />
       </div>
 
-      {/* Hero Hologram Dual Panel Container */}
-      <div className="holo-container" style={{ marginBottom: '4rem' }}>
+      {/* Hero Dual Panel Container */}
+      <div className="split-container" style={{ marginBottom: '4rem' }}>
         {/* Left Side: Marketing Info */}
-        <div className="holo-right" style={{ flex: 1.1, animationName: 'slideFromLeft', width: 'auto' }}>
+        <div className="split-right" style={{ flex: 1.1, animationName: 'slideFromLeft', width: 'auto' }}>
           <div style={{
             display: 'inline-block',
             padding: '6px 14px',
@@ -67,7 +67,7 @@ export default function Home() {
             lineHeight: '1.6',
             marginBottom: '2.5rem'
           }}>
-            A futuristic, high-fidelity secure workspace for students and trainers. Track deliverables, upload verification proofs, and review progression milestones with instant 3D analytics.
+            A modern, high-fidelity secure workspace for students and trainers. Track deliverables, upload verification proofs, and review progression milestones with instant 3D analytics.
           </p>
 
           <div style={{
@@ -92,16 +92,16 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Side: Animated Hologram Graphic */}
-        <div className="holo-left" style={{ borderRight: 'none', borderLeft: '1px solid var(--border-glass)', animationName: 'slideFromRight' }}>
+        {/* Right Side: Animated Tech Graphic */}
+        <div className="split-left" style={{ borderRight: 'none', borderLeft: '1px solid var(--border-glass)', animationName: 'slideFromRight' }}>
           {/* Laser Scanner Bar */}
-          <div className="holo-scanner-bar" />
+          <div className="scanner-bar" />
 
           {/* Rotating tech circles */}
-          <div className="holo-globe">
-            <div className="holo-circle" style={{ borderColor: 'var(--neon-secondary)' }} />
-            <div className="holo-circle-inner" style={{ borderColor: 'var(--neon-primary)' }} />
-            <div className="holo-circle-center" />
+          <div className="tech-globe">
+            <div className="tech-circle" style={{ borderColor: 'var(--neon-secondary)' }} />
+            <div className="tech-circle-inner" style={{ borderColor: 'var(--neon-primary)' }} />
+            <div className="tech-circle-center" />
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -110,10 +110,10 @@ export default function Home() {
           </div>
 
           {/* terminal readout */}
-          <div className="holo-terminal" style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>
-            <div className="holo-line">&gt; SEEDING_SYSTEM_CORE... ACTIVE</div>
-            <div className="holo-line">&gt; LOAD_CAPACITY: NOMINAL</div>
-            <div className="holo-line">&gt; ENCRYPTED_BARRIER: STABLE</div>
+          <div className="info-terminal" style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>
+            <div className="terminal-line">&gt; SEEDING_SYSTEM_CORE... ACTIVE</div>
+            <div className="terminal-line">&gt; LOAD_CAPACITY: NOMINAL</div>
+            <div className="terminal-line">&gt; ENCRYPTED_BARRIER: STABLE</div>
           </div>
         </div>
       </div>

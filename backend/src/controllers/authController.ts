@@ -87,7 +87,7 @@ export const registerTrainer = async (req: AuthRequest, res: Response): Promise<
     const { name, email, password, code } = req.body;
 
     // Optional signup secret check to protect Trainer registration
-    const trainerSignupSecret = process.env.TRAINER_SIGNUP_SECRET || 'holo-admin-secret';
+    const trainerSignupSecret = process.env.TRAINER_SIGNUP_SECRET || 'tracker-admin-secret';
     if (code !== trainerSignupSecret) {
       res.status(403).json({ message: 'Invalid registration credentials' });
       return;
@@ -188,7 +188,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
         try {
           profileImageUrl = await new Promise<string>((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
-              { folder: 'holotrack_profiles' },
+              { folder: 'tracker_profiles' },
               (error, result) => {
                 if (error) return reject(error);
                 if (!result) return reject(new Error('Cloudinary upload result was undefined'));

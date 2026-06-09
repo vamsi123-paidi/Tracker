@@ -458,8 +458,8 @@ body {
   background: rgba(255, 255, 255, 0.02);
 }
 
-/* Hologram split container styling */
-.holo-container {
+/* Split container styling */
+.split-container {
   display: flex;
   width: 100%;
   max-width: 920px;
@@ -473,7 +473,7 @@ body {
   -webkit-backdrop-filter: blur(20px);
 }
 
-.holo-left {
+.split-left {
   flex: 1.1;
   background: rgba(0, 0, 0, 0.22);
   border-right: 1px solid var(--border-glass);
@@ -487,11 +487,11 @@ body {
   animation: slideFromLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-:root.light .holo-left {
+:root.light .split-left {
   background: rgba(255, 255, 255, 0.35);
 }
 
-.holo-right {
+.split-right {
   width: 440px;
   padding: 3rem 2.5rem;
   display: flex;
@@ -512,15 +512,15 @@ body {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Hologram Visual elements */
-.holo-globe {
+/* Tech Visual elements */
+.tech-globe {
   position: relative;
   width: 200px;
   height: 200px;
   margin-bottom: 2.5rem;
 }
 
-.holo-circle {
+.tech-circle {
   position: absolute;
   top: 0;
   left: 0;
@@ -533,7 +533,7 @@ body {
   animation: rotateCW 18s linear infinite;
 }
 
-.holo-circle-inner {
+.tech-circle-inner {
   position: absolute;
   top: 10%;
   left: 10%;
@@ -546,7 +546,7 @@ body {
   animation: rotateCCW 12s linear infinite;
 }
 
-.holo-circle-center {
+.tech-circle-center {
   position: absolute;
   top: 25%;
   left: 25%;
@@ -555,7 +555,7 @@ body {
   border-radius: 50%;
   border: 2px double var(--neon-blue);
   background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, rgba(0,0,0,0) 70%);
-  animation: pulseHolo 3.5s ease-in-out infinite;
+  animation: pulseGlobe 3.5s ease-in-out infinite;
 }
 
 @keyframes rotateCW {
@@ -568,12 +568,12 @@ body {
   to { transform: rotate(-360deg); }
 }
 
-@keyframes pulseHolo {
+@keyframes pulseGlobe {
   0%, 100% { transform: scale(1); opacity: 0.35; }
   50% { transform: scale(1.1); opacity: 0.85; }
 }
 
-.holo-scanner-bar {
+.scanner-bar {
   position: absolute;
   left: 0;
   width: 100%;
@@ -588,7 +588,7 @@ body {
   50% { top: 100%; }
 }
 
-.holo-terminal {
+.info-terminal {
   font-family: var(--font-mono);
   font-size: 0.82rem;
   color: var(--neon-primary);
@@ -600,7 +600,7 @@ body {
   opacity: 0.8;
 }
 
-.holo-line {
+.terminal-line {
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
@@ -628,16 +628,16 @@ body {
     padding: 20px;
   }
   
-  /* Hologram Container responsiveness */
-  .holo-container {
+  /* Container responsiveness */
+  .split-container {
     flex-direction: column;
     max-width: 420px;
     min-height: auto;
   }
-  .holo-left {
-    display: none; /* Hide holographic left visual panel to fit login form perfectly on phones */
+  .split-left {
+    display: none; /* Hide visual left panel to fit forms perfectly on phones */
   }
-  .holo-right {
+  .split-right {
     width: 100%;
     padding: 2.5rem 1.75rem;
   }

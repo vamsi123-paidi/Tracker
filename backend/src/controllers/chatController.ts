@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 
-// HoloBot AI Study Assistant controller
+// Study Assistant controller
 export const handleChat = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { message } = req.body;
@@ -16,7 +16,7 @@ export const handleChat = async (req: AuthRequest, res: Response): Promise<void>
     // Fallback if GEMINI_API_KEY is not set
     if (!apiKey) {
       const lowerMsg = message.toLowerCase().trim();
-      let reply = "Hello! I am HoloBot, your secure study assistant. ⚠️ The system administrator has not configured my Gemini API key (`GEMINI_API_KEY`) in the backend `.env` file, so I am running in local fallback mode.\n\n";
+      let reply = "Hello! I am your Study Assistant. ⚠️ The system administrator has not configured my API key (`GEMINI_API_KEY`) in the backend `.env` file, so I am running in local fallback mode.\n\n";
 
       if (lowerMsg.includes('study tips') || lowerMsg.includes('tip') || lowerMsg.includes('how to study')) {
         reply += "📚 **Study Tips in Fallback Mode**:\n1. Break tasks into 45-minute chunks with 5-minute breaks (Pomodoro technique).\n2. Write down your coding milestones before starting keyboard execution.\n3. Make sure to double check your submission screenshot details!";
@@ -34,7 +34,7 @@ export const handleChat = async (req: AuthRequest, res: Response): Promise<void>
 
     const promptText = 
       "SYSTEM INSTRUCTION:\n" +
-      "You are HoloBot, a study-only AI assistant built into the HoloTrack.io Student Portal. " +
+      "You are a Study Assistant built into the Student Portal. " +
       "Your sole purpose is to help students with academic subjects, study advice, homework guidance, coding, coursework, and task management. " +
       "If the user's message is NOT related to study, learning, programming, academics, or task work (for example: entertainment, pop culture, casual jokes, gossip, gaming, general conversation unrelated to education), " +
       "you must politely refuse to answer. Explain to the user that you are programmed strictly as an educational learning assistant and can only discuss study or task-related topics. " +

@@ -3,7 +3,7 @@ import { ParticleBg } from '@/components/ParticleBg';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'HoloTrack.io - Secure Student Task Tracker',
+  title: 'Task Tracker - Student Portal',
   description: 'An advanced, high-fidelity secure analytics dashboard for student tasks and reviews.',
 };
 
