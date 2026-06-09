@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, removeAuthToken, getAuthToken } from '@/utils/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Editor from '@monaco-editor/react';
 
 interface College {
   _id: string;
@@ -92,7 +93,7 @@ export default function StudentDashboard() {
   // HoloPlayground Sandbox States
   const [playgroundHtml, setPlaygroundHtml] = useState('<!-- Write your HTML here -->\n<div class="card">\n  <h2>HoloPlayground</h2>\n  <p>Modify HTML, CSS or JS and click Run Code!</p>\n  <button id="glow-btn">Interact</button>\n</div>');
   const [playgroundCss, setPlaygroundCss] = useState(`/* Write your CSS here */\nbody {\n  background: #0d0e15;\n  color: #fff;\n  font-family: sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  margin: 0;\n}\n.card {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  padding: 30px;\n  border-radius: 16px;\n  text-align: center;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  backdrop-filter: blur(10px);\n}\nh2 {\n  color: #00f2fe;\n  margin-top: 0;\n  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);\n}\nbutton {\n  background: linear-gradient(135deg, #00f2fe 0%, #bd00ff 100%);\n  color: white;\n  border: none;\n  padding: 10px 20px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);\n  transition: 0.3s;\n}\nbutton:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(189, 0, 255, 0.5);\n}`);
-  const [playgroundJs, setPlaygroundJs] = useState(`// Write your JavaScript here\ndocument.getElementById('glow-btn').addEventListener('click', () => {\n  alert('Greetings from HoloPlayground!');\n});`);
+  const [playgroundJs, setPlaygroundJs] = useState(`// Write your JavaScript here\nconst btn = document.getElementById('glow-btn');\nif (btn) {\n  btn.addEventListener('click', () => {\n    alert('Greetings from HoloPlayground!');\n  });\n}`);
   const [playgroundActiveEditor, setPlaygroundActiveEditor] = useState<'html' | 'css' | 'js'>('html');
   const [playgroundSrcDoc, setPlaygroundSrcDoc] = useState('');
 
@@ -134,6 +135,26 @@ export default function StudentDashboard() {
     }
   ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'vs-light'>('vs-dark');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isLight = document.documentElement.classList.contains('light');
+      setEditorTheme(isLight ? 'vs-light' : 'vs-dark');
+
+      const observer = new MutationObserver(() => {
+        const isLightNow = document.documentElement.classList.contains('light');
+        setEditorTheme(isLightNow ? 'vs-light' : 'vs-dark');
+      });
+
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+
+      return () => observer.disconnect();
+    }
+  }, []);
 
   // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -1024,7 +1045,7 @@ export default function StudentDashboard() {
                     HoloPlayground Sandbox
                   </h3>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Test HTML, CSS, and JS components inside a browser-sandboxed iframe
+                    Test HTML, CSS, and JS components inside a browser-sandboxed iframe (VSCode engine)
                   </span>
                 </div>
                 <button
@@ -1042,10 +1063,10 @@ export default function StudentDashboard() {
               </div>
 
               {/* Sandbox Split Interface */}
-              <div style={{ display: 'flex', gap: '1.5rem', flexDirection: 'column' }}>
+              <div className="playground-split" style={{ display: 'flex', gap: '1.5rem', width: '100%' }}>
                 
                 {/* Editor Tabs & Inputs */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ flex: 1.2, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
                     <button
                       onClick={() => setPlaygroundActiveEditor('html')}
@@ -1070,67 +1091,51 @@ export default function StudentDashboard() {
                     </button>
                   </div>
 
-                  {playgroundActiveEditor === 'html' && (
-                    <textarea
-                      value={playgroundHtml}
-                      onChange={(e) => setPlaygroundHtml(e.target.value)}
-                      style={{
-                        width: '100%',
-                        height: '240px',
-                        background: '#0d0e15',
-                        color: '#a0aec0',
-                        fontFamily: 'monospace',
-                        fontSize: '0.85rem',
-                        padding: '12px',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: '8px',
-                        outline: 'none'
+                  <div style={{ 
+                    borderRadius: '12px', 
+                    overflow: 'hidden', 
+                    border: '1.5px solid var(--border-glass)',
+                    background: '#1e1e1e',
+                    boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)'
+                  }}>
+                    <Editor
+                      height="500px"
+                      language={playgroundActiveEditor === 'js' ? 'javascript' : playgroundActiveEditor}
+                      theme={editorTheme}
+                      value={
+                        playgroundActiveEditor === 'html' ? playgroundHtml :
+                        playgroundActiveEditor === 'css' ? playgroundCss :
+                        playgroundJs
+                      }
+                      onChange={(val) => {
+                        const newVal = val || '';
+                        if (playgroundActiveEditor === 'html') setPlaygroundHtml(newVal);
+                        else if (playgroundActiveEditor === 'css') setPlaygroundCss(newVal);
+                        else setPlaygroundJs(newVal);
+                      }}
+                      options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        fontFamily: 'Consolas, "Courier New", monospace',
+                        tabSize: 2,
+                        automaticLayout: true,
+                        suggestOnTriggerCharacters: true,
+                        wordBasedSuggestions: 'allDocuments',
+                        snippetSuggestions: 'inline',
+                        quickSuggestions: { other: true, comments: true, strings: true },
+                        lineNumbers: 'on',
+                        scrollbar: {
+                          vertical: 'visible',
+                          horizontal: 'visible'
+                        }
                       }}
                     />
-                  )}
-
-                  {playgroundActiveEditor === 'css' && (
-                    <textarea
-                      value={playgroundCss}
-                      onChange={(e) => setPlaygroundCss(e.target.value)}
-                      style={{
-                        width: '100%',
-                        height: '240px',
-                        background: '#0d0e15',
-                        color: '#a0aec0',
-                        fontFamily: 'monospace',
-                        fontSize: '0.85rem',
-                        padding: '12px',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: '8px',
-                        outline: 'none'
-                      }}
-                    />
-                  )}
-
-                  {playgroundActiveEditor === 'js' && (
-                    <textarea
-                      value={playgroundJs}
-                      onChange={(e) => setPlaygroundJs(e.target.value)}
-                      style={{
-                        width: '100%',
-                        height: '240px',
-                        background: '#0d0e15',
-                        color: '#a0aec0',
-                        fontFamily: 'monospace',
-                        fontSize: '0.85rem',
-                        padding: '12px',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: '8px',
-                        outline: 'none'
-                      }}
-                    />
-                  )}
+                  </div>
                 </div>
 
                 {/* Preview Frame */}
-                <div>
-                  <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                  <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontFamily: 'monospace' }}>
                     LIVE_PREVIEW_IFRAME
                   </h4>
                   <div style={{
@@ -1138,7 +1143,9 @@ export default function StudentDashboard() {
                     overflow: 'hidden',
                     border: '1.5px solid var(--border-glass-hover)',
                     background: '#fff',
-                    boxShadow: 'var(--glow-primary)'
+                    boxShadow: 'var(--glow-primary)',
+                    flex: 1,
+                    display: 'flex'
                   }}>
                     <iframe
                       srcDoc={playgroundSrcDoc}
@@ -1146,7 +1153,7 @@ export default function StudentDashboard() {
                       sandbox="allow-scripts"
                       style={{
                         width: '100%',
-                        height: '320px',
+                        height: '500px',
                         border: 'none',
                         display: 'block'
                       }}
@@ -2267,6 +2274,12 @@ export default function StudentDashboard() {
           color: var(--neon-primary);
           transform: rotateY(180deg);
           border-color: var(--border-glass-hover);
+        }
+        
+        @media (max-width: 992px) {
+          .playground-split {
+            flex-direction: column !important;
+          }
         }
         
         @media (max-width: 768px) {
