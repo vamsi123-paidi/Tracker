@@ -1950,46 +1950,98 @@ export default function StudentDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               
               {/* Assessments Header & Overall Stats */}
-              <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', padding: '1.5rem 2rem' }}>
+              <div className="glass-panel" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1.5rem',
+                padding: '1.5rem 2rem',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.03) 100%)',
+                borderColor: 'var(--border-glass-hover)'
+              }}>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace', display: 'block', marginBottom: '4px' }}>CODE_CHALLENGE_WORKSPACE</span>
-                  <h3 style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0 }}>Coding Assessments</h3>
-                  <p style={{ color: '#a0aec0', fontSize: '0.9rem', margin: '4px 0 0' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
+                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CODE_CHALLENGE_WORKSPACE</span>
+                  <h3 style={{ fontSize: '1.65rem', fontWeight: 700, margin: 0, color: '#fff' }}>Coding Assessments</h3>
+                  <p style={{ color: '#a0aec0', fontSize: '0.9rem', margin: '6px 0 0', lineHeight: '1.5' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
                 </div>
                 
                 {/* Stats */}
                 <div style={{ display: 'flex', gap: '1.5rem' }}>
-                  <div className="glass-panel" style={{ padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '120px', borderColor: 'rgba(0, 242, 254, 0.2)' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
-                    <h4 style={{ fontSize: '1.5rem', margin: '4px 0 0', color: '#00f2fe', textShadow: '0 0 10px rgba(0, 242, 254, 0.3)' }}>{assessmentTotalPoints} pts</h4>
+                  <div className="assessment-stats-card total-score">
+                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>TOTAL_SCORE</span>
+                    <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: '#00f2fe', textShadow: '0 0 12px rgba(0, 242, 254, 0.5)' }}>
+                      {assessmentTotalPoints} <span style={{ fontSize: '0.9rem', fontWeight: 400, color: 'var(--text-muted)' }}>pts</span>
+                    </h4>
                   </div>
-                  <div className="glass-panel" style={{ padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '120px', borderColor: 'rgba(0, 255, 135, 0.2)' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>SOLVED</span>
-                    <h4 style={{ fontSize: '1.5rem', margin: '4px 0 0', color: '#00ff87', textShadow: '0 0 10px rgba(0, 255, 135, 0.3)' }}>
-                      {assessmentCompletedCount} / {assessmentsList.length}
+                  <div className="assessment-stats-card completed">
+                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>COMPLETED</span>
+                    <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: '#00ff87', textShadow: '0 0 12px rgba(0, 255, 135, 0.5)' }}>
+                      {assessmentCompletedCount} <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-muted)' }}>/ {assessmentsList.length}</span>
                     </h4>
                   </div>
                 </div>
               </div>
 
-              {/* Assessment Sub-Navigation (Challenges vs Leaderboard) */}
-              <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
+              {/* Assessment Sub-Navigation */}
+              <div style={{
+                display: 'inline-flex',
+                background: 'rgba(10, 11, 24, 0.6)',
+                border: '1px solid var(--border-glass)',
+                padding: '5px',
+                borderRadius: '30px',
+                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.4)',
+                gap: '5px',
+                width: 'fit-content'
+              }}>
                 <button
                   onClick={() => setAssessmentTab('challenges')}
-                  className={`btn-glass ${assessmentTab === 'challenges' ? 'btn-neon' : ''}`}
-                  style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                  style={{
+                    padding: '10px 28px',
+                    fontSize: '0.85rem',
+                    fontFamily: 'var(--font-mono)',
+                    borderRadius: '25px',
+                    background: assessmentTab === 'challenges' 
+                      ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      : 'transparent',
+                    border: assessmentTab === 'challenges'
+                      ? '1px solid rgba(0, 242, 254, 0.4)'
+                      : '1px solid transparent',
+                    color: assessmentTab === 'challenges' ? 'var(--neon-primary)' : 'var(--text-secondary)',
+                    textShadow: assessmentTab === 'challenges' ? '0 0 10px rgba(0, 242, 254, 0.5)' : 'none',
+                    boxShadow: assessmentTab === 'challenges' ? '0 0 15px rgba(0, 242, 254, 0.15)' : 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
-                  Challenges
+                  🎯 Challenges
                 </button>
                 <button
                   onClick={() => {
                     setAssessmentTab('leaderboard');
                     fetchLeaderboard();
                   }}
-                  className={`btn-glass ${assessmentTab === 'leaderboard' ? 'btn-neon' : ''}`}
-                  style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                  style={{
+                    padding: '10px 28px',
+                    fontSize: '0.85rem',
+                    fontFamily: 'var(--font-mono)',
+                    borderRadius: '25px',
+                    background: assessmentTab === 'leaderboard' 
+                      ? 'linear-gradient(135deg, rgba(189, 0, 255, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      : 'transparent',
+                    border: assessmentTab === 'leaderboard'
+                      ? '1px solid rgba(189, 0, 255, 0.4)'
+                      : '1px solid transparent',
+                    color: assessmentTab === 'leaderboard' ? 'var(--neon-secondary)' : 'var(--text-secondary)',
+                    textShadow: assessmentTab === 'leaderboard' ? '0 0 10px rgba(189, 0, 255, 0.5)' : 'none',
+                    boxShadow: assessmentTab === 'leaderboard' ? '0 0 15px rgba(189, 0, 255, 0.15)' : 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
-                  Leaderboard
+                  🏆 Leaderboard
                 </button>
               </div>
 
@@ -1999,71 +2051,139 @@ export default function StudentDashboard() {
                 </div>
               ) : assessmentTab === 'challenges' ? (
                 /* Challenges Grid Workspace */
-                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '2rem', alignItems: 'stretch' }}>
                   
                   {/* Left Column: Challenges List & Search */}
-                  <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', height: '650px' }}>
-                    <input
-                      type="text"
-                      className="glass-input"
-                      style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-                      placeholder="Search challenges..."
-                      value={assessmentSearchQuery}
-                      onChange={(e) => setAssessmentSearchQuery(e.target.value)}
-                    />
+                  <div className="glass-panel" style={{
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.25rem',
+                    height: '680px',
+                    background: 'rgba(10, 11, 24, 0.45)',
+                    backdropFilter: 'blur(20px)',
+                    borderColor: 'var(--border-glass-hover)'
+                  }}>
+                    {/* Search bar */}
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        className="glass-input"
+                        style={{
+                          padding: '12px 16px 12px 42px',
+                          fontSize: '0.85rem',
+                          width: '100%',
+                          background: 'rgba(10, 11, 24, 0.4)',
+                          borderColor: 'var(--border-glass)',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          outline: 'none',
+                          transition: 'all 0.3s ease'
+                        }}
+                        placeholder="Search challenges..."
+                        value={assessmentSearchQuery}
+                        onChange={(e) => setAssessmentSearchQuery(e.target.value)}
+                      />
+                      <svg
+                        style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
+                        width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+                      >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                    </div>
                     
                     {/* List */}
-                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
                       {assessmentsList
                         .filter(a => a.title.toLowerCase().includes(assessmentSearchQuery.toLowerCase()))
                         .map((a) => {
                           const isSelected = selectedAssessment?._id === a._id;
                           const isSolved = a.solvedStatus === 'solved';
-                          
-                          let borderCol = 'var(--border-glass)';
-                          if (isSelected) borderCol = 'var(--neon-primary)';
-                          else if (isSolved) borderCol = 'rgba(0, 255, 135, 0.2)';
-                          
-                          let badgeBg = 'rgba(255, 255, 255, 0.04)';
-                          let badgeTextCol = '#a0aec0';
-                          if (a.difficulty === 'easy') { badgeBg = 'rgba(0, 255, 135, 0.1)'; badgeTextCol = '#00ff87'; }
-                          else if (a.difficulty === 'medium') { badgeBg = 'rgba(255, 208, 0, 0.1)'; badgeTextCol = '#ffd000'; }
-                          else if (a.difficulty === 'hard') { badgeBg = 'rgba(255, 0, 85, 0.1)'; badgeTextCol = '#ff0055'; }
+
+                          let difficultyColor = 'var(--neon-green)';
+                          let difficultyBorder = 'rgba(0, 255, 135, 0.25)';
+                          let difficultyBg = 'rgba(0, 255, 135, 0.05)';
+                          if (a.difficulty === 'medium') {
+                            difficultyColor = 'var(--neon-yellow)';
+                            difficultyBorder = 'rgba(255, 208, 0, 0.25)';
+                            difficultyBg = 'rgba(255, 208, 0, 0.05)';
+                          } else if (a.difficulty === 'hard') {
+                            difficultyColor = 'var(--neon-red)';
+                            difficultyBorder = 'rgba(255, 0, 85, 0.25)';
+                            difficultyBg = 'rgba(255, 0, 85, 0.05)';
+                          }
 
                           return (
                             <div
                               key={a._id}
                               onClick={() => handleSelectAssessment(a)}
-                              className="glass-panel"
-                              style={{
-                                padding: '10px 12px',
-                                cursor: 'pointer',
-                                borderColor: borderCol,
-                                background: isSelected ? 'rgba(189, 0, 255, 0.06)' : 'var(--bg-glass)',
-                                transition: '0.2s',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '6px'
-                              }}
+                              className={`challenge-item-card ${isSelected ? 'selected' : ''} ${isSolved ? 'solved' : ''}`}
                             >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{
+                                  fontSize: '0.9rem',
+                                  fontWeight: 600,
+                                  color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '180px'
+                                }}>
                                   {a.title}
                                 </span>
                                 {isSolved && (
-                                  <span style={{ fontSize: '0.75rem', color: '#00ff87', fontWeight: 'bold' }}>
-                                    ✓ SOLVED
+                                  <span style={{
+                                    fontSize: '0.65rem',
+                                    color: 'var(--neon-green)',
+                                    fontWeight: 'bold',
+                                    background: 'rgba(0, 255, 135, 0.05)',
+                                    padding: '3px 10px',
+                                    borderRadius: '20px',
+                                    border: '1px solid rgba(0, 255, 135, 0.25)',
+                                    fontFamily: 'var(--font-mono)'
+                                  }}>
+                                    ✓ Solved
                                   </span>
                                 )}
                               </div>
-                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: badgeBg, color: badgeTextCol, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ 
+                                  fontSize: '0.65rem', 
+                                  padding: '3px 10px', 
+                                  borderRadius: '20px', 
+                                  background: difficultyBg, 
+                                  border: `1px solid ${difficultyBorder}`,
+                                  color: difficultyColor, 
+                                  fontFamily: 'var(--font-mono)',
+                                  fontWeight: 700, 
+                                  textTransform: 'uppercase', 
+                                  letterSpacing: '0.5px' 
+                                }}>
                                   {a.difficulty}
                                 </span>
-                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', fontWeight: 'bold' }}>
+                                <span style={{ 
+                                  fontSize: '0.65rem', 
+                                  padding: '3px 10px', 
+                                  borderRadius: '20px', 
+                                  background: 'rgba(0, 242, 254, 0.05)', 
+                                  border: '1px solid rgba(0, 242, 254, 0.25)',
+                                  color: 'var(--neon-primary)', 
+                                  fontFamily: 'var(--font-mono)',
+                                  fontWeight: 700 
+                                }}>
                                   +{a.points} pts
                                 </span>
-                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: '#a0aec0', fontFamily: 'monospace' }}>
+                                <span style={{ 
+                                  fontSize: '0.65rem', 
+                                  padding: '3px 10px', 
+                                  borderRadius: '20px', 
+                                  background: 'rgba(255,255,255,0.02)', 
+                                  border: '1px solid var(--border-glass)',
+                                  color: 'var(--text-muted)', 
+                                  fontFamily: 'var(--font-mono)', 
+                                  fontWeight: 600 
+                                }}>
                                   {a.type.toUpperCase()}
                                 </span>
                               </div>
@@ -2071,7 +2191,7 @@ export default function StudentDashboard() {
                           );
                         })}
                       {assessmentsList.filter(a => a.title.toLowerCase().includes(assessmentSearchQuery.toLowerCase())).length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: '#718096', fontSize: '0.85rem' }}>
+                        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#718096', fontSize: '0.85rem' }}>
                           No matching challenges.
                         </div>
                       )}
@@ -2079,61 +2199,147 @@ export default function StudentDashboard() {
                   </div>
 
                   {/* Right Column: Code Editor Workspace */}
-                  <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '650px' }}>
+                  <div className="glass-panel" style={{
+                    padding: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.5rem',
+                    height: '680px',
+                    background: 'rgba(10, 11, 24, 0.45)',
+                    backdropFilter: 'blur(20px)',
+                    borderColor: 'var(--border-glass-hover)'
+                  }}>
                     {!selectedAssessment ? (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#718096', gap: '10px' }}>
-                        <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <polyline points="16 18 22 12 16 6" />
-                          <polyline points="8 6 2 12 8 18" />
-                        </svg>
-                        <span>Select a challenge from the left to start coding!</span>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#718096', gap: '15px', textAlign: 'center' }}>
+                        <div style={{
+                          width: '70px',
+                          height: '70px',
+                          borderRadius: '50%',
+                          background: 'rgba(189, 0, 255, 0.05)',
+                          border: '1.5px dashed var(--neon-primary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'var(--neon-primary)',
+                          boxShadow: '0 0 20px rgba(189, 0, 255, 0.1)',
+                          animation: 'pulse 2s infinite'
+                        }}>
+                          <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 600, marginBottom: '4px' }}>Workspace Empty</h4>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Select a challenge from the left to load the code environment.</span>
+                        </div>
                       </div>
                     ) : (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
-                        {/* Title & Description */}
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{selectedAssessment.title}</h4>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Score Weight: <strong>+{selectedAssessment.points} pts</strong></span>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem', minHeight: 0 }}>
+                        {/* Title & Description Card */}
+                        <div style={{
+                          background: 'rgba(10, 11, 24, 0.4)',
+                          border: '1px solid var(--border-glass)',
+                          borderLeft: '4px solid var(--neon-primary)',
+                          padding: '16px 20px',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                            <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', margin: 0 }}>{selectedAssessment.title}</h4>
+                            <span style={{ 
+                              fontSize: '0.75rem', 
+                              color: '#00f2fe', 
+                              background: 'rgba(0, 242, 254, 0.05)', 
+                              border: '1px solid rgba(0, 242, 254, 0.25)', 
+                              padding: '4px 12px', 
+                              borderRadius: '20px', 
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-mono)'
+                            }}>
+                              Value: +{selectedAssessment.points} points
+                            </span>
                           </div>
-                          <p style={{ color: '#a0aec0', fontSize: '0.9rem', whiteSpace: 'pre-line', marginTop: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                          <p style={{
+                            color: 'var(--text-secondary)',
+                            fontSize: '0.9rem',
+                            lineHeight: '1.65',
+                            whiteSpace: 'pre-line',
+                            margin: '12px 0 0 0',
+                            fontFamily: 'var(--font-sans)'
+                          }}>
                             {selectedAssessment.description}
                           </p>
                         </div>
 
                         {/* Editor Tabs & Workspace */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              <button
-                                onClick={() => setAssessmentActiveEditor('html')}
-                                className={`btn-glass ${assessmentActiveEditor === 'html' ? 'btn-neon' : ''}`}
-                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                              >
-                                index.html
-                              </button>
-                              <button
-                                onClick={() => setAssessmentActiveEditor('css')}
-                                className={`btn-glass ${assessmentActiveEditor === 'css' ? 'btn-neon' : ''}`}
-                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                              >
-                                styles.css
-                              </button>
-                              <button
-                                onClick={() => setAssessmentActiveEditor('js')}
-                                className={`btn-glass ${assessmentActiveEditor === 'js' ? 'btn-neon' : ''}`}
-                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                              >
-                                app.js
-                              </button>
+                          
+                          {/* VSCode-style Tab bar */}
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            background: '#0a0b12',
+                            borderTopLeftRadius: '12px',
+                            borderTopRightRadius: '12px',
+                            border: '1px solid var(--border-glass)',
+                            borderBottom: 'none',
+                            padding: '0 8px'
+                          }}>
+                            <div style={{ display: 'flex', gap: '2px' }}>
+                              {[
+                                { id: 'html', file: 'index.html', color: '#e34f26' },
+                                { id: 'css', file: 'styles.css', color: '#00f2fe' },
+                                { id: 'js', file: 'app.js', color: '#ffd000' }
+                              ].map(t => {
+                                const isActive = assessmentActiveEditor === t.id;
+                                return (
+                                  <button
+                                    key={t.id}
+                                    onClick={() => setAssessmentActiveEditor(t.id as any)}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      padding: '12px 20px',
+                                      fontSize: '0.8rem',
+                                      fontFamily: 'var(--font-mono)',
+                                      border: 'none',
+                                      background: isActive ? '#14151f' : 'transparent',
+                                      color: isActive ? '#fff' : 'var(--text-muted)',
+                                      fontWeight: isActive ? 600 : 400,
+                                      cursor: 'pointer',
+                                      borderTopLeftRadius: '8px',
+                                      borderTopRightRadius: '8px',
+                                      borderBottom: isActive ? `2px solid ${t.color}` : '2px solid transparent',
+                                      transition: '0.2s'
+                                    }}
+                                  >
+                                    <span style={{ color: t.color, fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
+                                      ●
+                                    </span>
+                                    {t.file}
+                                  </button>
+                                );
+                              })}
                             </div>
                             
-                            <span style={{ fontSize: '0.75rem', color: '#bd00ff', fontFamily: 'monospace' }}>
-                              EDITING: {assessmentActiveEditor === 'html' ? 'index.html' : assessmentActiveEditor === 'css' ? 'styles.css' : 'app.js'}
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', paddingRight: '12px', letterSpacing: '0.5px' }}>
+                              {selectedAssessment.type.toUpperCase()}_WORKSPACE
                             </span>
                           </div>
 
-                          <div style={{ flex: 1, borderRadius: '8px', overflow: 'hidden', border: '1.5px solid var(--border-glass)', background: '#1e1e1e', minHeight: 0 }}>
+                          <div style={{
+                            flex: 1,
+                            borderBottomLeftRadius: '12px',
+                            borderBottomRightRadius: '12px',
+                            overflow: 'hidden',
+                            border: '1px solid var(--border-glass)',
+                            borderTop: 'none',
+                            background: '#14151f',
+                            minHeight: 0
+                          }}>
                             <Editor
                               height="100%"
                               language={assessmentActiveEditor === 'js' ? 'javascript' : assessmentActiveEditor}
@@ -2173,52 +2379,108 @@ export default function StudentDashboard() {
                         </div>
 
                         {/* Test Cases Run & Action Controls */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderTop: '1px solid var(--border-glass)', paddingTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          borderTop: '1px solid var(--border-glass)',
+                          paddingTop: '1.25rem',
+                          flexWrap: 'wrap',
+                          gap: '1.5rem'
+                        }}>
                           
-                          {/* Test Checklist */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>VERIFICATION_CHECKLIST:</span>
-                            {assessmentTestResults.map((tc, idx) => (
-                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
-                                {tc.run ? (
-                                  tc.passed ? (
-                                    <span style={{ color: '#00ff87', fontWeight: 'bold' }}>✓</span>
-                                  ) : (
-                                    <span style={{ color: '#ff0055', fontWeight: 'bold' }}>✗</span>
-                                  )
-                                ) : (
-                                  <span style={{ color: '#718096' }}>○</span>
-                                )}
-                                <span style={{ color: tc.run ? (tc.passed ? '#00ff87' : '#ff0055') : 'var(--text-secondary)' }}>
-                                  {tc.description}
-                                </span>
-                              </div>
-                            ))}
+                          {/* Test Checklist status pills */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: '240px' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>VERIFICATION_CHECKLIST:</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {assessmentTestResults.map((tc, idx) => {
+                                let pillBg = 'rgba(10, 11, 24, 0.4)';
+                                let pillBorder = 'var(--border-glass)';
+                                let pillColor = 'var(--text-secondary)';
+                                let icon = '⚡';
+                                let textGlow = 'none';
+                                
+                                if (tc.run) {
+                                  if (tc.passed) {
+                                    pillBg = 'rgba(0, 255, 135, 0.03)';
+                                    pillBorder = 'rgba(0, 255, 135, 0.3)';
+                                    pillColor = 'var(--neon-green)';
+                                    icon = '✓';
+                                    textGlow = '0 0 8px rgba(0, 255, 135, 0.4)';
+                                  } else {
+                                    pillBg = 'rgba(255, 0, 85, 0.03)';
+                                    pillBorder = 'rgba(255, 0, 85, 0.3)';
+                                    pillColor = 'var(--neon-red)';
+                                    icon = '✗';
+                                    textGlow = '0 0 8px rgba(255, 0, 85, 0.4)';
+                                  }
+                                }
+
+                                return (
+                                  <div key={idx} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    fontSize: '0.8rem',
+                                    background: pillBg,
+                                    border: '1px solid',
+                                    borderColor: pillBorder,
+                                    padding: '8px 14px',
+                                    borderRadius: '8px',
+                                    color: pillColor,
+                                    textShadow: textGlow,
+                                    fontFamily: 'var(--font-mono)',
+                                    transition: 'all 0.2s ease'
+                                  }}>
+                                    <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{icon}</span>
+                                    <span>{tc.description}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
 
                           {/* Trigger Buttons */}
-                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <button
                               onClick={executeTestCases}
                               className="btn-glass"
-                              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                              style={{
+                                padding: '12px 24px',
+                                fontSize: '0.85rem',
+                                borderRadius: '10px',
+                                fontWeight: 600,
+                                fontFamily: 'var(--font-mono)'
+                              }}
                             >
-                              Run Tests
+                              ⚙️ Run Tests
                             </button>
                             <button
                               onClick={handleAssessmentSubmit}
                               disabled={isSubmittingAssessment || assessmentTestResults.length === 0 || !assessmentTestResults.every(r => r.passed)}
                               className="btn-neon"
                               style={{
-                                padding: '8px 20px',
+                                padding: '12px 26px',
                                 fontSize: '0.85rem',
-                                background: 'linear-gradient(135deg, var(--neon-green) 0%, var(--neon-blue) 100%)',
-                                boxShadow: '0 4px 12px rgba(0, 255, 135, 0.2)',
+                                borderRadius: '10px',
+                                fontWeight: 700,
+                                fontFamily: 'var(--font-mono)',
+                                background: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed))
+                                  ? 'linear-gradient(135deg, var(--neon-green) 0%, var(--neon-blue) 100%)'
+                                  : 'rgba(255,255,255,0.03)',
+                                border: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed))
+                                  ? 'none'
+                                  : '1px solid var(--border-glass)',
+                                color: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed))
+                                  ? '#03030b'
+                                  : 'var(--text-muted)',
+                                boxShadow: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? '0 0 15px rgba(0, 255, 135, 0.4)' : 'none',
                                 opacity: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 1 : 0.5,
-                                cursor: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 'pointer' : 'not-allowed'
+                                cursor: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 'pointer' : 'not-allowed',
+                                transition: 'all 0.3s ease'
                               }}
                             >
-                              {isSubmittingAssessment ? 'Submitting...' : 'Submit Challenge'}
+                              🚀 {isSubmittingAssessment ? 'Submitting...' : 'Submit Challenge'}
                             </button>
                           </div>
 
@@ -2230,10 +2492,16 @@ export default function StudentDashboard() {
                 </div>
               ) : (
                 /* Leaderboard Table Workspace */
-                <div className="glass-panel" style={{ padding: '2rem' }}>
-                  <h4 style={{ fontSize: '1.25rem', fontFamily: 'monospace', color: '#00f2fe', marginBottom: '1.5rem' }}>
-                    GLOBAL_SCOREBOARD_LEADERBOARD
-                  </h4>
+                <div className="glass-panel" style={{
+                  padding: '2rem',
+                  background: 'rgba(10, 11, 24, 0.45)',
+                  backdropFilter: 'blur(20px)',
+                  borderColor: 'var(--border-glass-hover)'
+                }}>
+                  <div style={{ marginBottom: '2rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#00f2fe', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>GLOBAL_SCOREBOARD</span>
+                    <h4 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: '4px 0 0' }}>Performance Leaderboard</h4>
+                  </div>
                   
                   {isLeaderboardLoading && leaderboardList.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '3rem', color: '#a0aec0' }}>
@@ -2244,55 +2512,60 @@ export default function StudentDashboard() {
                       No submissions recorded on the leaderboard. Be the first to solve a challenge!
                     </div>
                   ) : (
-                    <div className="table-container">
-                      <table className="glass-table">
+                    <div className="table-container" style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-glass)' }}>
+                      <table className="glass-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                          <tr>
-                            <th style={{ width: '80px', textAlign: 'center' }}>Rank</th>
-                            <th>Student</th>
-                            <th>College Code</th>
-                            <th style={{ textAlign: 'center' }}>Challenges Solved</th>
-                            <th style={{ textAlign: 'center' }}>Total Score</th>
+                          <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border-glass)' }}>
+                            <th style={{ width: '90px', padding: '16px 20px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rank</th>
+                            <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Student</th>
+                            <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>College Code</th>
+                            <th style={{ padding: '16px 20px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Solved</th>
+                            <th style={{ padding: '16px 20px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Score</th>
                           </tr>
                         </thead>
                         <tbody>
                           {leaderboardList.map((row, idx) => {
                             const isTop3 = idx < 3;
                             let rowBg = 'transparent';
-                            let glowShadow = 'none';
                             let rankColor = 'var(--text-primary)';
+                            let rankBadge = '';
+                            let rankGlow = 'none';
                             
                             if (idx === 0) {
-                              rowBg = 'rgba(255, 208, 0, 0.05)';
-                              glowShadow = '0 0 10px rgba(255, 208, 0, 0.1)';
+                              rowBg = 'rgba(255, 208, 0, 0.03)';
                               rankColor = '#ffd000';
+                              rankBadge = '🥇';
+                              rankGlow = '0 0 12px rgba(255, 208, 0, 0.6)';
                             } else if (idx === 1) {
-                              rowBg = 'rgba(255, 255, 255, 0.03)';
-                              glowShadow = '0 0 10px rgba(255, 255, 255, 0.05)';
+                              rowBg = 'rgba(255, 255, 255, 0.015)';
                               rankColor = '#e2e8f0';
+                              rankBadge = '🥈';
+                              rankGlow = '0 0 12px rgba(226, 232, 240, 0.5)';
                             } else if (idx === 2) {
-                              rowBg = 'rgba(184, 115, 51, 0.05)';
-                              glowShadow = '0 0 10px rgba(184, 115, 51, 0.1)';
+                              rowBg = 'rgba(184, 115, 51, 0.02)';
                               rankColor = '#cd7f32';
+                              rankBadge = '🥉';
+                              rankGlow = '0 0 12px rgba(205, 127, 50, 0.5)';
                             }
 
                             return (
                               <tr 
                                 key={row._id} 
+                                className="leaderboard-row"
                                 style={{ 
                                   background: rowBg,
-                                  boxShadow: glowShadow,
-                                  borderLeft: isTop3 ? `3px solid ${rankColor}` : 'none'
+                                  borderBottom: '1px solid var(--border-glass)',
+                                  transition: 'background 0.2s ease'
                                 }}
                               >
-                                <td style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 800, color: rankColor }}>
-                                  {idx === 0 ? '👑 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
+                                <td style={{ padding: '16px 20px', textAlign: 'center', fontSize: '1rem', fontWeight: 800, color: rankColor, textShadow: rankGlow }}>
+                                  {rankBadge ? `${rankBadge}` : idx + 1}
                                 </td>
-                                <td>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <td style={{ padding: '16px 20px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                     <div style={{
-                                      width: '32px',
-                                      height: '32px',
+                                      width: '34px',
+                                      height: '34px',
                                       borderRadius: '50%',
                                       background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
                                       color: '#fff',
@@ -2301,24 +2574,35 @@ export default function StudentDashboard() {
                                       justifyContent: 'center',
                                       fontSize: '0.8rem',
                                       fontWeight: 700,
-                                      border: '1.5px solid rgba(255,255,255,0.1)'
+                                      border: isTop3 ? `1.5px solid ${rankColor}` : '1.5px solid rgba(255,255,255,0.1)',
+                                      boxShadow: isTop3 ? `0 0 10px ${rankColor}33` : 'none'
                                     }}>
                                       {row.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
                                     </div>
                                     <div>
-                                      <strong>{row.name}</strong>
-                                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#718096' }}>{row.email}</span>
+                                      <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{row.name}</strong>
+                                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{row.email}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td>
-                                  <span className="badge badge-not-submitted">{row.collegeCode || 'GLBL'}</span>
+                                <td style={{ padding: '16px 20px' }}>
+                                  <span className="badge badge-not-submitted" style={{ 
+                                    padding: '4px 10px', 
+                                    fontSize: '0.75rem', 
+                                    borderRadius: '6px',
+                                    fontFamily: 'var(--font-mono)',
+                                    background: 'rgba(255, 255, 255, 0.02)',
+                                    borderColor: 'var(--border-glass)',
+                                    color: 'var(--text-secondary)'
+                                  }}>
+                                    {row.collegeCode || 'GLBL'}
+                                  </span>
                                 </td>
-                                <td style={{ textAlign: 'center', fontWeight: 600 }}>
+                                <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 600, color: 'var(--text-secondary)' }}>
                                   {row.solvedCount}
                                 </td>
-                                <td style={{ textAlign: 'center', fontWeight: 800, color: '#00f2fe' }}>
-                                  {row.totalPoints} pts
+                                <td style={{ padding: '16px 20px', textAlign: 'center', fontWeight: 800, color: '#00f2fe', fontSize: '0.95rem', fontFamily: 'var(--font-mono)', textShadow: '0 0 8px rgba(0, 242, 254, 0.3)' }}>
+                                  {row.totalPoints} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>pts</span>
                                 </td>
                               </tr>
                             );

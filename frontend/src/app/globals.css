@@ -642,3 +642,92 @@ body {
     padding: 2.5rem 1.75rem;
   }
 }
+
+/* Coding Assessments Premium Styling */
+.assessment-stats-card {
+  padding: 1.25rem 1.75rem;
+  text-align: center;
+  min-width: 155px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-glass);
+}
+.assessment-stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: var(--glass-glare);
+  pointer-events: none;
+}
+.assessment-stats-card.total-score {
+  border-color: rgba(0, 242, 254, 0.25);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.04) 0%, rgba(0, 82, 255, 0.01) 100%);
+}
+.assessment-stats-card.total-score:hover {
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.18), inset 0 0 12px rgba(0, 242, 254, 0.05);
+  transform: translateY(-2px);
+}
+.assessment-stats-card.completed {
+  border-color: rgba(0, 255, 135, 0.25);
+  background: linear-gradient(135deg, rgba(0, 255, 135, 0.04) 0%, rgba(0, 82, 255, 0.01) 100%);
+}
+.assessment-stats-card.completed:hover {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 20px rgba(0, 255, 135, 0.18), inset 0 0 12px rgba(0, 255, 135, 0.05);
+  transform: translateY(-2px);
+}
+
+.challenge-item-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.01);
+  padding: 14px 16px;
+  cursor: pointer;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.challenge-item-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border-glass-hover);
+  box-shadow: 0 8px 25px rgba(0, 242, 254, 0.06);
+}
+.challenge-item-card.selected {
+  border-color: var(--neon-primary);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.06) 0%, rgba(189, 0, 255, 0.02) 100%);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.15), inset 0 0 10px rgba(0, 242, 254, 0.05);
+}
+.challenge-item-card.solved {
+  border-color: rgba(0, 255, 135, 0.25);
+  background: rgba(0, 255, 135, 0.01);
+}
+.challenge-item-card.solved:hover {
+  border-color: rgba(0, 255, 135, 0.5);
+  background: rgba(0, 255, 135, 0.03);
+  box-shadow: 0 8px 25px rgba(0, 255, 135, 0.06);
+}
+.challenge-item-card.selected.solved {
+  border-color: var(--neon-green);
+  background: linear-gradient(135deg, rgba(0, 255, 135, 0.06) 0%, rgba(0, 242, 254, 0.02) 100%);
+  box-shadow: 0 0 20px rgba(0, 255, 135, 0.15);
+}
+
+.leaderboard-row {
+  transition: all 0.25s ease;
+}
+.leaderboard-row:hover td {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #fff !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
