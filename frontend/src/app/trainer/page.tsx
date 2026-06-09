@@ -442,7 +442,7 @@ export default function TrainerDashboard() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'holotrack_quiz_template.csv');
+    link.setAttribute('download', 'quiz_template.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -693,9 +693,9 @@ export default function TrainerDashboard() {
 
       setSelectedSubmission(null);
       setReviewFeedback('');
-      setSuccessMsg(`AI Auto-Review completed and committed: ${res.status.toUpperCase()}!`);
+      setSuccessMsg(`Auto-Review completed and committed: ${res.status.toUpperCase()}!`);
     } catch (err: any) {
-      setErrorMsg(err.message || 'AI Auto-review failed.');
+      setErrorMsg(err.message || 'Auto-review failed.');
     } finally {
       setIsAiReviewing(false);
     }
@@ -758,7 +758,7 @@ export default function TrainerDashboard() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `holotrack_grades_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `grades_report_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -810,7 +810,7 @@ export default function TrainerDashboard() {
       }}>
         <div>
           <span style={{ fontFamily: 'monospace', color: '#00f2fe', fontSize: '0.9rem' }}>HOST_CONTROL</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>HoloTrack Trainer</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Trainer Portal</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
@@ -2038,7 +2038,7 @@ export default function TrainerDashboard() {
                   fontSize: '0.85rem'
                 }}
               >
-                {isAiReviewing ? 'AI Assessing...' : '✨ AI Auto-Review'}
+                {isAiReviewing ? 'Auto-Reviewing...' : '✨ Auto-Review'}
               </button>
 
               <button

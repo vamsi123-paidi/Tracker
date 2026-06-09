@@ -77,10 +77,9 @@ export default function Login() {
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h3 className="text-neon-cyan" style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '0.5px' }}>HoloTrack Interface</h3>
+            <h3 className="text-neon-cyan" style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '0.5px' }}>Task Tracker Interface</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>Milestone Verification Core</p>
           </div>
-
           {/* Code Terminal Output lines */}
           <div className="holo-terminal">
             <div className="holo-line">&gt; DECRYPTING_SECURE_PORTALS... OK</div>
@@ -97,7 +96,7 @@ export default function Login() {
               Secure Login
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '0.5rem' }}>
-              Access your HoloTrack Workspace
+              Access your student or trainer portal
             </p>
           </div>
 

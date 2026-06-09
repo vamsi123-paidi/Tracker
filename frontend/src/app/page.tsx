@@ -58,7 +58,7 @@ export default function Home() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            HoloTrack.io
+            TaskTracker.io
           </h1>
 
           <p style={{
@@ -111,7 +111,7 @@ export default function Home() {
 
           {/* terminal readout */}
           <div className="holo-terminal" style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>
-            <div className="holo-line">&gt; SEEDING_HOLO_CORE... ACTIVE</div>
+            <div className="holo-line">&gt; SEEDING_SYSTEM_CORE... ACTIVE</div>
             <div className="holo-line">&gt; LOAD_CAPACITY: NOMINAL</div>
             <div className="holo-line">&gt; ENCRYPTED_BARRIER: STABLE</div>
           </div>

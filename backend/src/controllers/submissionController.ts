@@ -128,7 +128,7 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
       await submission.save();
     }
 
-    // Automatically trigger AI auto-review directly on student submission
+    // Automatically trigger auto-review directly on student submission
     try {
       const taskDoc = await Task.findById(taskId);
       if (taskDoc) {
@@ -139,7 +139,7 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
         await submission.save();
       }
     } catch (aiError: any) {
-      console.error('Automatic AI submission review failed, leaving as pending:', aiError);
+      console.error('Automatic submission review failed, leaving as pending:', aiError);
     }
 
     res.status(201).json({ message: 'Task submitted and reviewed successfully', submission });
@@ -223,7 +223,7 @@ export const getSubmissions = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-// Helper function to perform AI evaluation logic
+// Helper function to perform automated evaluation logic
 export const evaluateSubmissionWithAi = async (
   submission: any,
   task: any
@@ -231,7 +231,7 @@ export const evaluateSubmissionWithAi = async (
   const notesText = (submission.notes || '').trim();
   const apiKey = process.env.GEMINI_API_KEY;
 
-  // Fallback Offline Rule-Based AI Evaluator
+  // Fallback Offline Rule-Based Evaluator
   if (!apiKey) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const hasUrl = urlRegex.test(notesText);
@@ -241,10 +241,10 @@ export const evaluateSubmissionWithAi = async (
 
     if (hasUrl) {
       status = 'approved';
-      feedback = `[AI Auto-Review (Offline Fallback)]: I detected a valid URL link in your notes/links field. This meets the submission requirements for the task "${task.title}". Approved.`;
+      feedback = `[Auto-Review (Fallback)]: I detected a valid URL link in your notes/links field. This meets the submission requirements for the task "${task.title}". Approved.`;
     } else {
       status = 'rejected';
-      feedback = `[AI Auto-Review (Offline Fallback)]: No valid project URL links detected in your notes. The milestone task "${task.title}" requires a GitHub repository or live deployment link. Please revise and provide a valid link in your notes.`;
+      feedback = `[Auto-Review (Fallback)]: No valid project URL links detected in your notes. The milestone task "${task.title}" requires a GitHub repository or live deployment link. Please revise and provide a valid link in your notes.`;
     }
 
     return { status, feedback };
@@ -253,7 +253,7 @@ export const evaluateSubmissionWithAi = async (
   // Call live Gemini 2.5 Flash API for automated evaluation
   const promptText = 
     "SYSTEM INSTRUCTION:\n" +
-    "You are an AI automated grading assistant for HoloTrack.io. Your purpose is to review student milestone submissions.\n" +
+    "You are an automated grading assistant. Your purpose is to review student milestone submissions.\n" +
     "Analyze the student's submission notes and links against the task requirements. Decide if it should be Approved or Rejected (needs revision) and explain why in the feedback.\n\n" +
     "TASK CRITERIA:\n" +
     `Title: ${task.title}\n` +
@@ -301,17 +301,17 @@ export const evaluateSubmissionWithAi = async (
   try {
     const parsedResult = JSON.parse(rawText);
     status = parsedResult.status === 'approved' ? 'approved' : 'rejected';
-    feedback = parsedResult.feedback || 'Evaluated by HoloTrack AI.';
+    feedback = parsedResult.feedback || 'Evaluated by system reviewer.';
   } catch (parseErr) {
     const isApproved = rawText.toLowerCase().includes('approved') || rawText.toLowerCase().includes('"status": "approved"');
     status = isApproved ? 'approved' : 'rejected';
-    feedback = rawText || 'Evaluated by HoloTrack AI.';
+    feedback = rawText || 'Evaluated by system reviewer.';
   }
 
   return { status, feedback };
 };
 
-// AI Automated Submission Reviewer (Trainer)
+// Automated Submission Reviewer (Trainer)
 export const autoReviewSubmission = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { submissionId } = req.params;
@@ -343,6 +343,6 @@ export const autoReviewSubmission = async (req: AuthRequest, res: Response): Pro
     });
   } catch (error: any) {
     console.error('Submission auto-review error:', error);
-    res.status(500).json({ message: 'AI Auto-review failed', error: error.message });
+    res.status(500).json({ message: 'Auto-review failed', error: error.message });
   }
 };

@@ -387,7 +387,8 @@ export default function StudentDashboard() {
   const [studentCollege, setStudentCollege] = useState<College | null>(null);
   
   // Sidebar tab control
-  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'tools' | 'achievements'>('milestones');
+  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'tools' | 'achievements'>('milestones');
+  const [compilerLang, setCompilerLang] = useState<'c' | 'cpp' | 'python'>('python');
   
   // Tasks/Milestones State
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -412,12 +413,13 @@ export default function StudentDashboard() {
     message?: string;
   } | null>(null);
 
-  // HoloPlayground Sandbox States
-  const [playgroundHtml, setPlaygroundHtml] = useState('<!-- Write your HTML here -->\n<div class="card">\n  <h2>HoloPlayground</h2>\n  <p>Modify HTML, CSS or JS and click Run Code!</p>\n  <button id="glow-btn">Interact</button>\n</div>');
+  // Code Playground Sandbox States
+  const [playgroundHtml, setPlaygroundHtml] = useState('<!-- Write your HTML here -->\n<div class="card">\n  <h2>Code Playground</h2>\n  <p>Modify HTML, CSS or JS and click Run Code!</p>\n  <button id="glow-btn">Interact</button>\n</div>');
   const [playgroundCss, setPlaygroundCss] = useState(`/* Write your CSS here */\nbody {\n  background: #0d0e15;\n  color: #fff;\n  font-family: sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  margin: 0;\n}\n.card {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  padding: 30px;\n  border-radius: 16px;\n  text-align: center;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  backdrop-filter: blur(10px);\n}\nh2 {\n  color: #00f2fe;\n  margin-top: 0;\n  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);\n}\nbutton {\n  background: linear-gradient(135deg, #00f2fe 0%, #bd00ff 100%);\n  color: white;\n  border: none;\n  padding: 10px 20px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);\n  transition: 0.3s;\n}\nbutton:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(189, 0, 255, 0.5);\n}`);
-  const [playgroundJs, setPlaygroundJs] = useState(`// Write your JavaScript here\nconst btn = document.getElementById('glow-btn');\nif (btn) {\n  btn.addEventListener('click', () => {\n    alert('Greetings from HoloPlayground!');\n  });\n}`);
+  const [playgroundJs, setPlaygroundJs] = useState(`// Write your JavaScript here\nconst btn = document.getElementById('glow-btn');\nif (btn) {\n  btn.addEventListener('click', () => {\n    alert('Greetings from Code Playground!');\n  });\n}`);
   const [playgroundActiveEditor, setPlaygroundActiveEditor] = useState<'html' | 'css' | 'js'>('html');
   const [playgroundSrcDoc, setPlaygroundSrcDoc] = useState('');
+  const [isEditorFullscreen, setIsEditorFullscreen] = useState(false);
 
   // Notepad States
   const [notepadText, setNotepadText] = useState('');
@@ -452,7 +454,7 @@ export default function StudentDashboard() {
   const [chatMessages, setChatMessages] = useState<{ sender: 'student' | 'bot'; text: string; timestamp: Date }[]>([
     {
       sender: 'bot',
-      text: 'Hello! I am HoloBot, your AI Study Assistant. Ask me anything about programming, study tips, recursion, or CSV file layouts!',
+      text: 'Hello! I am your Study Assistant. Ask me anything about programming, study tips, recursion, or CSV file layouts!',
       timestamp: new Date()
     }
   ]);
@@ -719,7 +721,7 @@ export default function StudentDashboard() {
     } catch (err: any) {
       const errorReply = {
         sender: 'bot' as const,
-        text: err.message || 'HoloBot is offline. Please configure the GEMINI_API_KEY on the backend server.',
+        text: err.message || 'Study Assistant is currently unavailable. Please verify the setup on the backend server.',
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, errorReply]);
@@ -1003,7 +1005,7 @@ export default function StudentDashboard() {
       }}>
         <div>
           <span style={{ fontFamily: 'monospace', color: '#bd00ff', fontSize: '0.9rem' }}>STUDENT_TERMINAL</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>HoloTrack Student</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Student Portal</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
           {studentCollege && (
@@ -1156,7 +1158,19 @@ export default function StudentDashboard() {
                 <polyline points="16 18 22 12 16 6" />
                 <polyline points="8 6 2 12 8 18" />
               </svg>
-              HoloPlayground
+              Code Playground
+            </button>
+
+            <button
+              onClick={() => setActiveTab('compiler')}
+              className={`sidebar-btn ${activeTab === 'compiler' ? 'active' : ''}`}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M6 10l3 2-3 2" />
+                <line x1="11" y1="14" x2="15" y2="14" />
+              </svg>
+              Code Compiler
             </button>
 
             <button
@@ -1369,13 +1383,13 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* TAB 3: HOLOPLAYGROUND */}
+          {/* TAB 3: CODE PLAYGROUND */}
           {activeTab === 'playground' && (
             <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
                   <h3 style={{ fontSize: '1.25rem', fontFamily: 'monospace', color: '#00f2fe', margin: 0 }}>
-                    HoloPlayground Sandbox
+                    Code Playground Sandbox
                   </h3>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     Test HTML, CSS, and JS components inside a browser-sandboxed iframe (VSCode engine)
@@ -1399,40 +1413,95 @@ export default function StudentDashboard() {
               <div className="playground-split" style={{ display: 'flex', gap: '1.5rem', width: '100%' }}>
                 
                 {/* Editor Tabs & Inputs */}
-                <div style={{ flex: 1.2, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
+                <div 
+                  style={isEditorFullscreen ? {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 9999,
+                    background: '#15161e',
+                    padding: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                  } : { 
+                    flex: 1.2, 
+                    minWidth: 0, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '0.75rem' 
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => setPlaygroundActiveEditor('html')}
+                        className={`btn-glass ${playgroundActiveEditor === 'html' ? 'btn-neon' : ''}`}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                      >
+                        index.html
+                      </button>
+                      <button
+                        onClick={() => setPlaygroundActiveEditor('css')}
+                        className={`btn-glass ${playgroundActiveEditor === 'css' ? 'btn-neon' : ''}`}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                      >
+                        styles.css
+                      </button>
+                      <button
+                        onClick={() => setPlaygroundActiveEditor('js')}
+                        className={`btn-glass ${playgroundActiveEditor === 'js' ? 'btn-neon' : ''}`}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                      >
+                        app.js
+                      </button>
+                    </div>
+
                     <button
-                      onClick={() => setPlaygroundActiveEditor('html')}
-                      className={`btn-glass ${playgroundActiveEditor === 'html' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                      onClick={() => setIsEditorFullscreen(!isEditorFullscreen)}
+                      className="btn-glass"
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '0.75rem',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        borderColor: isEditorFullscreen ? 'var(--neon-primary)' : 'rgba(255,255,255,0.1)'
+                      }}
                     >
-                      index.html
-                    </button>
-                    <button
-                      onClick={() => setPlaygroundActiveEditor('css')}
-                      className={`btn-glass ${playgroundActiveEditor === 'css' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
-                    >
-                      styles.css
-                    </button>
-                    <button
-                      onClick={() => setPlaygroundActiveEditor('js')}
-                      className={`btn-glass ${playgroundActiveEditor === 'js' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
-                    >
-                      app.js
+                      {isEditorFullscreen ? (
+                        <>
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                          </svg>
+                          Exit Fullscreen
+                        </>
+                      ) : (
+                        <>
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+                          </svg>
+                          Fullscreen
+                        </>
+                      )}
                     </button>
                   </div>
 
                   <div style={{ 
-                    borderRadius: '12px', 
+                    borderRadius: isEditorFullscreen ? '0' : '12px', 
                     overflow: 'hidden', 
-                    border: '1.5px solid var(--border-glass)',
+                    border: isEditorFullscreen ? 'none' : '1.5px solid var(--border-glass)',
                     background: '#1e1e1e',
-                    boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)'
+                    boxShadow: isEditorFullscreen ? 'none' : 'inset 0 0 10px rgba(0,0,0,0.5)',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}>
                     <Editor
-                      height="500px"
+                      height={isEditorFullscreen ? "calc(100vh - 100px)" : "500px"}
                       language={playgroundActiveEditor === 'js' ? 'javascript' : playgroundActiveEditor}
                       theme={editorTheme}
                       value={
@@ -1505,6 +1574,60 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
+              </div>
+            </div>
+          )}
+
+          {/* TAB: CODE COMPILER */}
+          {activeTab === 'compiler' && (
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Code Compiler</h3>
+                  <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Write and run C, C++, and Python code instantly using the embedded terminal runner.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => setCompilerLang('c')}
+                    className={`btn-glass ${compilerLang === 'c' ? 'btn-neon' : ''}`}
+                    style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                  >
+                    C
+                  </button>
+                  <button
+                    onClick={() => setCompilerLang('cpp')}
+                    className={`btn-glass ${compilerLang === 'cpp' ? 'btn-neon' : ''}`}
+                    style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                  >
+                    C++
+                  </button>
+                  <button
+                    onClick={() => setCompilerLang('python')}
+                    className={`btn-glass ${compilerLang === 'python' ? 'btn-neon' : ''}`}
+                    style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                  >
+                    Python
+                  </button>
+                </div>
+              </div>
+
+              <div style={{
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: '1.5px solid var(--border-glass)',
+                background: '#1a1b26',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                height: '650px'
+              }}>
+                <iframe
+                  src={`https://onecompiler.com/embed/${compilerLang === 'cpp' ? 'cpp' : compilerLang}?theme=dark&hideLanguageSelection=true&hideNew=true`}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  style={{ border: 'none', display: 'block' }}
+                  title="Code Compiler"
+                />
               </div>
             </div>
           )}
@@ -1751,7 +1874,7 @@ export default function StudentDashboard() {
           {activeTab === 'achievements' && (
             <div className="glass-panel">
               <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontFamily: 'monospace', color: '#00f2fe' }}>
-                HoloTrack Achievement Shelf
+                Achievement Shelf
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '2rem' }}>
                 Unlocked dynamically through study portal telemetry metrics
@@ -2379,7 +2502,7 @@ export default function StudentDashboard() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff87', boxShadow: 'var(--glow-green)' }} />
                 <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>HoloBot AI</h4>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Study Assistant</h4>
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>STUDY_ASSISTANT</span>
                 </div>
               </div>
@@ -2478,7 +2601,7 @@ export default function StudentDashboard() {
                 type="text"
                 className="glass-input"
                 style={{ padding: '10px 14px', fontSize: '0.85rem' }}
-                placeholder="Ask HoloBot study questions..."
+                placeholder="Ask a study question..."
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={isChatLoading}
