@@ -377,20 +377,116 @@ const setupMonacoSnippetsAndAutoClose = (editor: any, monaco: any) => {
   };
 };
 
-// Stable, memoized Compiler Iframe to prevent reloading/cancelling code execution on parent re-renders
-const CompilerIframe = memo(({ lang }: { lang: string }) => {
+// Stable, memoized Compiler Tab Panel to prevent reloading/cancelling code execution on parent re-renders (like Pomodoro timer updates)
+const CompilerTabPanel = memo(({ lang, isFullscreen, onLangChange, onFullscreenToggle }: {
+  lang: 'c' | 'cpp' | 'python' | 'java' | 'javascript' | 'go' | 'rust' | 'csharp' | 'php';
+  isFullscreen: boolean;
+  onLangChange: (lang: any) => void;
+  onFullscreenToggle: () => void;
+}) => {
   return (
-    <iframe
-      src={`https://onecompiler.com/embed/${lang === 'cpp' ? 'cpp' : lang === 'csharp' ? 'csharp' : lang}?theme=dark&hideLanguageSelection=true&hideNew=true`}
-      width="100%"
-      height="100%"
-      frameBorder="0"
-      style={{ border: 'none', display: 'block' }}
-      title="Code Compiler"
-    />
+    <div 
+      className={isFullscreen ? "" : "glass-panel"} 
+      style={isFullscreen ? {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        background: '#15161e',
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      } : { 
+        padding: '2rem' 
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Code Compiler</h3>
+          <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Write and run code in 9 languages instantly using the embedded terminal runner.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '520px' }}>
+            {[
+              { id: 'c', name: 'C' },
+              { id: 'cpp', name: 'C++' },
+              { id: 'python', name: 'Python' },
+              { id: 'java', name: 'Java' },
+              { id: 'javascript', name: 'JavaScript' },
+              { id: 'go', name: 'Go' },
+              { id: 'rust', name: 'Rust' },
+              { id: 'csharp', name: 'C#' },
+              { id: 'php', name: 'PHP' }
+            ].map((l) => (
+              <button
+                key={l.id}
+                onClick={() => onLangChange(l.id as any)}
+                className={`btn-glass ${lang === l.id ? 'btn-neon' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}
+              >
+                {l.name}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={onFullscreenToggle}
+            className="btn-glass"
+            style={{
+              padding: '6px 12px',
+              fontSize: '0.8rem',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              borderColor: isFullscreen ? 'var(--neon-primary)' : 'rgba(255,255,255,0.1)'
+            }}
+          >
+            {isFullscreen ? (
+              <>
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                </svg>
+                Exit Fullscreen
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+                </svg>
+                Fullscreen
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div style={{
+        borderRadius: isFullscreen ? '0' : '12px',
+        overflow: 'hidden',
+        border: isFullscreen ? 'none' : '1.5px solid var(--border-glass)',
+        background: '#1a1b26',
+        boxShadow: isFullscreen ? 'none' : '0 8px 32px rgba(0,0,0,0.5)',
+        flex: 1,
+        height: isFullscreen ? 'calc(100vh - 120px)' : '650px'
+      }}>
+        <iframe
+          src={`https://onecompiler.com/embed/${lang === 'cpp' ? 'cpp' : lang === 'csharp' ? 'csharp' : lang}?theme=dark&hideLanguageSelection=true&hideNew=true`}
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          style={{ border: 'none', display: 'block' }}
+          title="Code Compiler"
+        />
+      </div>
+    </div>
   );
-}, (prevProps, nextProps) => prevProps.lang === nextProps.lang);
-CompilerIframe.displayName = 'CompilerIframe';
+}, (prevProps, nextProps) => prevProps.lang === nextProps.lang && prevProps.isFullscreen === nextProps.isFullscreen);
+CompilerTabPanel.displayName = 'CompilerTabPanel';
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -1596,98 +1692,12 @@ export default function StudentDashboard() {
 
           {/* TAB: CODE COMPILER */}
           {activeTab === 'compiler' && (
-            <div 
-              className={isCompilerFullscreen ? "" : "glass-panel"} 
-              style={isCompilerFullscreen ? {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                zIndex: 9999,
-                background: '#15161e',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
-              } : { 
-                padding: '2rem' 
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Code Compiler</h3>
-                  <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Write and run code in 9 languages instantly using the embedded terminal runner.</p>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '520px' }}>
-                    {[
-                      { id: 'c', name: 'C' },
-                      { id: 'cpp', name: 'C++' },
-                      { id: 'python', name: 'Python' },
-                      { id: 'java', name: 'Java' },
-                      { id: 'javascript', name: 'JavaScript' },
-                      { id: 'go', name: 'Go' },
-                      { id: 'rust', name: 'Rust' },
-                      { id: 'csharp', name: 'C#' },
-                      { id: 'php', name: 'PHP' }
-                    ].map((lang) => (
-                      <button
-                        key={lang.id}
-                        onClick={() => setCompilerLang(lang.id as any)}
-                        className={`btn-glass ${compilerLang === lang.id ? 'btn-neon' : ''}`}
-                        style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}
-                      >
-                        {lang.name}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => setIsCompilerFullscreen(!isCompilerFullscreen)}
-                    className="btn-glass"
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '0.8rem',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      borderColor: isCompilerFullscreen ? 'var(--neon-primary)' : 'rgba(255,255,255,0.1)'
-                    }}
-                  >
-                    {isCompilerFullscreen ? (
-                      <>
-                        <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
-                        </svg>
-                        Exit Fullscreen
-                      </>
-                    ) : (
-                      <>
-                        <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
-                        </svg>
-                        Fullscreen
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div style={{
-                borderRadius: isCompilerFullscreen ? '0' : '12px',
-                overflow: 'hidden',
-                border: isCompilerFullscreen ? 'none' : '1.5px solid var(--border-glass)',
-                background: '#1a1b26',
-                boxShadow: isCompilerFullscreen ? 'none' : '0 8px 32px rgba(0,0,0,0.5)',
-                flex: 1,
-                height: isCompilerFullscreen ? 'calc(100vh - 120px)' : '650px'
-              }}>
-                <CompilerIframe lang={compilerLang} />
-              </div>
-            </div>
+            <CompilerTabPanel
+              lang={compilerLang}
+              isFullscreen={isCompilerFullscreen}
+              onLangChange={setCompilerLang}
+              onFullscreenToggle={() => setIsCompilerFullscreen(!isCompilerFullscreen)}
+            />
           )}
 
           {/* TAB 4: FOCUS & WORKSPACE TOOLS */}
