@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, removeAuthToken, getAuthToken } from '@/utils/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -376,6 +376,21 @@ const setupMonacoSnippetsAndAutoClose = (editor: any, monaco: any) => {
     changeListener.dispose();
   };
 };
+
+// Stable, memoized Compiler Iframe to prevent reloading/cancelling code execution on parent re-renders
+const CompilerIframe = memo(({ lang }: { lang: string }) => {
+  return (
+    <iframe
+      src={`https://onecompiler.com/embed/${lang === 'cpp' ? 'cpp' : lang === 'csharp' ? 'csharp' : lang}?theme=dark&hideLanguageSelection=true&hideNew=true`}
+      width="100%"
+      height="100%"
+      frameBorder="0"
+      style={{ border: 'none', display: 'block' }}
+      title="Code Compiler"
+    />
+  );
+}, (prevProps, nextProps) => prevProps.lang === nextProps.lang);
+CompilerIframe.displayName = 'CompilerIframe';
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -1670,14 +1685,7 @@ export default function StudentDashboard() {
                 flex: 1,
                 height: isCompilerFullscreen ? 'calc(100vh - 120px)' : '650px'
               }}>
-                <iframe
-                  src={`https://onecompiler.com/embed/${compilerLang === 'cpp' ? 'cpp' : compilerLang === 'csharp' ? 'csharp' : compilerLang}?theme=dark&hideLanguageSelection=true&hideNew=true`}
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  style={{ border: 'none', display: 'block' }}
-                  title="Code Compiler"
-                />
+                <CompilerIframe lang={compilerLang} />
               </div>
             </div>
           )}
