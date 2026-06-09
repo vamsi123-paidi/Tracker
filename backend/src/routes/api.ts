@@ -5,6 +5,7 @@ import { getTasks, createTask } from '../controllers/taskController.js';
 import { getSubmissions, submitTask, reviewSubmission } from '../controllers/submissionController.js';
 import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } from '../controllers/adminController.js';
 import { handleChat } from '../controllers/chatController.js';
+import { createQuiz, toggleQuizActive, getTrainerQuizzes, getQuizResultsForTrainer, getActiveQuizzes, submitQuiz } from '../controllers/quizController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { upload, uploadRoster } from '../middleware/upload.js';
 
@@ -35,5 +36,13 @@ router.post('/admin/import-students', authenticateToken, requireRole('trainer'),
 router.post('/admin/register-student', authenticateToken, requireRole('trainer'), registerStudent);
 router.get('/admin/students', authenticateToken, requireRole('trainer'), getStudentsList);
 router.delete('/admin/students/:studentId', authenticateToken, requireRole('trainer'), deleteStudent);
+
+// Quizzes
+router.post('/quizzes', authenticateToken, requireRole('trainer'), uploadRoster.single('file'), createQuiz);
+router.get('/quizzes', authenticateToken, requireRole('trainer'), getTrainerQuizzes);
+router.put('/quizzes/:quizId/toggle-active', authenticateToken, requireRole('trainer'), toggleQuizActive);
+router.get('/quizzes/:quizId/results', authenticateToken, requireRole('trainer'), getQuizResultsForTrainer);
+router.get('/quizzes/active', authenticateToken, requireRole('student'), getActiveQuizzes);
+router.post('/quizzes/:quizId/submit', authenticateToken, requireRole('student'), submitQuiz);
 
 export default router;
