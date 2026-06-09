@@ -128,7 +128,21 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
       await submission.save();
     }
 
-    res.status(201).json({ message: 'Task submitted successfully', submission });
+    // Automatically trigger AI auto-review directly on student submission
+    try {
+      const taskDoc = await Task.findById(taskId);
+      if (taskDoc) {
+        const reviewResult = await evaluateSubmissionWithAi(submission, taskDoc);
+        submission.status = reviewResult.status;
+        submission.feedback = reviewResult.feedback;
+        submission.reviewedAt = new Date();
+        await submission.save();
+      }
+    } catch (aiError: any) {
+      console.error('Automatic AI submission review failed, leaving as pending:', aiError);
+    }
+
+    res.status(201).json({ message: 'Task submitted and reviewed successfully', submission });
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to submit task', error: error.message });
   }
@@ -209,6 +223,94 @@ export const getSubmissions = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
+// Helper function to perform AI evaluation logic
+export const evaluateSubmissionWithAi = async (
+  submission: any,
+  task: any
+): Promise<{ status: 'approved' | 'rejected'; feedback: string }> => {
+  const notesText = (submission.notes || '').trim();
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  // Fallback Offline Rule-Based AI Evaluator
+  if (!apiKey) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const hasUrl = urlRegex.test(notesText);
+
+    let status: 'approved' | 'rejected' = 'rejected';
+    let feedback = '';
+
+    if (hasUrl) {
+      status = 'approved';
+      feedback = `[AI Auto-Review (Offline Fallback)]: I detected a valid URL link in your notes/links field. This meets the submission requirements for the task "${task.title}". Approved.`;
+    } else {
+      status = 'rejected';
+      feedback = `[AI Auto-Review (Offline Fallback)]: No valid project URL links detected in your notes. The milestone task "${task.title}" requires a GitHub repository or live deployment link. Please revise and provide a valid link in your notes.`;
+    }
+
+    return { status, feedback };
+  }
+
+  // Call live Gemini 2.5 Flash API for automated evaluation
+  const promptText = 
+    "SYSTEM INSTRUCTION:\n" +
+    "You are an AI automated grading assistant for HoloTrack.io. Your purpose is to review student milestone submissions.\n" +
+    "Analyze the student's submission notes and links against the task requirements. Decide if it should be Approved or Rejected (needs revision) and explain why in the feedback.\n\n" +
+    "TASK CRITERIA:\n" +
+    `Title: ${task.title}\n` +
+    `Description: ${task.description}\n\n` +
+    "STUDENT SUBMISSION NOTES/LINKS:\n" +
+    `${notesText || 'No notes or links provided.'}\n\n` +
+    "EVALUATION RULES:\n" +
+    "1. If the task description requires a website, deployment, source code, or repo, check if the student provided a valid URL in their notes.\n" +
+    "2. If they provided a URL that looks like a valid git repository or deployment URL, approve it and summarize why it is correct.\n" +
+    "3. If they did not provide a URL where one is expected, or if the text is placeholder/empty/irrelevant, reject it and state what they need to provide.\n\n" +
+    "OUTPUT FORMAT:\n" +
+    "You MUST respond ONLY with a raw JSON object matching this schema (do NOT wrap it in ```json blocks or include other text):\n" +
+    "{\n" +
+    "  \"status\": \"approved\" or \"rejected\",\n" +
+    "  \"feedback\": \"Constructive evaluation comments.\"\n" +
+    "}";
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [{ text: promptText }]
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini API call failed with status ${response.status}`);
+  }
+
+  const data = await response.json();
+  let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  
+  // Clean up JSON block formatting if returned by LLM
+  rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+  let status: 'approved' | 'rejected' = 'rejected';
+  let feedback = '';
+
+  try {
+    const parsedResult = JSON.parse(rawText);
+    status = parsedResult.status === 'approved' ? 'approved' : 'rejected';
+    feedback = parsedResult.feedback || 'Evaluated by HoloTrack AI.';
+  } catch (parseErr) {
+    const isApproved = rawText.toLowerCase().includes('approved') || rawText.toLowerCase().includes('"status": "approved"');
+    status = isApproved ? 'approved' : 'rejected';
+    feedback = rawText || 'Evaluated by HoloTrack AI.';
+  }
+
+  return { status, feedback };
+};
+
 // AI Automated Submission Reviewer (Trainer)
 export const autoReviewSubmission = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -226,96 +328,7 @@ export const autoReviewSubmission = async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    const notesText = (submission.notes || '').trim();
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    // Fallback Offline Rule-Based AI Evaluator
-    if (!apiKey) {
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const hasUrl = urlRegex.test(notesText);
-
-      let status: 'approved' | 'rejected' = 'rejected';
-      let feedback = '';
-
-      if (hasUrl) {
-        status = 'approved';
-        feedback = `[AI Auto-Review (Offline Fallback)]: I detected a valid URL link in your notes/links field. This meets the submission requirements for the task "${task.title}". Approved.`;
-      } else {
-        status = 'rejected';
-        feedback = `[AI Auto-Review (Offline Fallback)]: No valid project URL links detected in your notes. The milestone task "${task.title}" requires a GitHub repository or live deployment link. Please revise and provide a valid link in your notes.`;
-      }
-
-      submission.status = status;
-      submission.feedback = feedback;
-      submission.reviewedAt = new Date();
-      await submission.save();
-
-      res.status(200).json({
-        message: `Submission ${status} automatically reviewed and saved`,
-        submission,
-        status,
-        feedback
-      });
-      return;
-    }
-
-    // Call live Gemini 2.5 Flash API for automated evaluation
-    const promptText = 
-      "SYSTEM INSTRUCTION:\n" +
-      "You are an AI automated grading assistant for HoloTrack.io. Your purpose is to review student milestone submissions.\n" +
-      "Analyze the student's submission notes and links against the task requirements. Decide if it should be Approved or Rejected (needs revision) and explain why in the feedback.\n\n" +
-      "TASK CRITERIA:\n" +
-      `Title: ${task.title}\n` +
-      `Description: ${task.description}\n\n` +
-      "STUDENT SUBMISSION NOTES/LINKS:\n" +
-      `${notesText || 'No notes or links provided.'}\n\n` +
-      "EVALUATION RULES:\n" +
-      "1. If the task description requires a website, deployment, source code, or repo, check if the student provided a valid URL in their notes.\n" +
-      "2. If they provided a URL that looks like a valid git repository or deployment URL, approve it and summarize why it is correct.\n" +
-      "3. If they did not provide a URL where one is expected, or if the text is placeholder/empty/irrelevant, reject it and state what they need to provide.\n\n" +
-      "OUTPUT FORMAT:\n" +
-      "You MUST respond ONLY with a raw JSON object matching this schema (do NOT wrap it in ```json blocks or include other text):\n" +
-      "{\n" +
-      "  \"status\": \"approved\" or \"rejected\",\n" +
-      "  \"feedback\": \"Constructive evaluation comments.\"\n" +
-      "}";
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: promptText }]
-          }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Gemini API call failed with status ${response.status}`);
-    }
-
-    const data = await response.json();
-    let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
-    // Clean up JSON block formatting if returned by LLM
-    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-    let status: 'approved' | 'rejected' = 'rejected';
-    let feedback = '';
-
-    try {
-      const parsedResult = JSON.parse(rawText);
-      status = parsedResult.status === 'approved' ? 'approved' : 'rejected';
-      feedback = parsedResult.feedback || 'Evaluated by HoloTrack AI.';
-    } catch (parseErr) {
-      const isApproved = rawText.toLowerCase().includes('approved') || rawText.toLowerCase().includes('"status": "approved"');
-      status = isApproved ? 'approved' : 'rejected';
-      feedback = rawText || 'Evaluated by HoloTrack AI.';
-    }
+    const { status, feedback } = await evaluateSubmissionWithAi(submission, task);
 
     submission.status = status;
     submission.feedback = feedback;
