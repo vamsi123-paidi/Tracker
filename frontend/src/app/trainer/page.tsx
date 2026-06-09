@@ -308,7 +308,7 @@ export default function TrainerDashboard() {
 
           const appGradient = ctx.createLinearGradient(x, appY, x + barWidth, appY);
           appGradient.addColorStop(0, '#00ff87');
-          appGradient.addColorStop(1, '#60efff');
+          appGradient.addColorStop(1, '#f59e0b');
 
           ctx.fillStyle = appGradient;
           ctx.fillRect(x, appY, barWidth, approvedHeight);
@@ -400,7 +400,7 @@ export default function TrainerDashboard() {
 
           const appGradient = ctx.createLinearGradient(x, appY, x + barWidth, appY);
           appGradient.addColorStop(0, '#00ff87');
-          appGradient.addColorStop(1, '#bd00ff');
+          appGradient.addColorStop(1, '#10b981');
 
           ctx.fillStyle = appGradient;
           ctx.fillRect(x, appY, barWidth, approvedHeight);
@@ -851,7 +851,7 @@ export default function TrainerDashboard() {
         <div style={{
           background: 'rgba(255, 0, 85, 0.1)',
           border: '1px solid rgba(255, 0, 85, 0.2)',
-          color: '#ff0055',
+          color: '#ef4444',
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '2rem',
@@ -886,7 +886,7 @@ export default function TrainerDashboard() {
         </div>
         <div className="glass-panel">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>TOTAL_SUBMISSIONS</p>
-          <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#bd00ff' }}>{totalSubCount}</h3>
+          <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#10b981' }}>{totalSubCount}</h3>
         </div>
         <div className="glass-panel">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>APPROVAL_RATE</p>
@@ -1424,7 +1424,7 @@ export default function TrainerDashboard() {
 
                   {importResult.errors && importResult.errors.length > 0 && (
                     <div>
-                      <h4 style={{ fontSize: '0.9rem', color: '#ff0055', marginBottom: '0.5rem' }}>Warnings:</h4>
+                      <h4 style={{ fontSize: '0.9rem', color: '#ef4444', marginBottom: '0.5rem' }}>Warnings:</h4>
                       <div style={{
                         maxHeight: '150px',
                         overflowY: 'auto',
@@ -1751,7 +1751,7 @@ export default function TrainerDashboard() {
                     <button
                       type="button"
                       onClick={() => setQuizQuestionsManual([])}
-                      style={{ background: 'none', border: 'none', color: '#ff0055', cursor: 'pointer', fontSize: '0.75rem' }}
+                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem' }}
                     >
                       Clear Drafts
                     </button>
@@ -1938,7 +1938,7 @@ export default function TrainerDashboard() {
                           <td>
                             {Math.floor(res.timeTakenSeconds / 60)}m {res.timeTakenSeconds % 60}s
                           </td>
-                          <td style={{ color: res.tabSwitchCount >= 3 ? '#ff0055' : 'var(--text-primary)' }}>
+                          <td style={{ color: res.tabSwitchCount >= 3 ? '#ef4444' : 'var(--text-primary)' }}>
                             {res.tabSwitchCount} / 3 warnings
                           </td>
                           <td>
@@ -2066,7 +2066,7 @@ export default function TrainerDashboard() {
                 onClick={() => handleReviewSubmission('rejected')}
                 disabled={isReviewing || isAiReviewing}
                 className="btn-glass"
-                style={{ border: '1px solid rgba(255, 0, 85, 0.4)', color: '#ff0055', background: 'rgba(255, 0, 85, 0.05)', padding: '10px 20px', fontSize: '0.85rem' }}
+                style={{ border: '1px solid rgba(255, 0, 85, 0.4)', color: '#ef4444', background: 'rgba(255, 0, 85, 0.05)', padding: '10px 20px', fontSize: '0.85rem' }}
               >
                 Reject / Request Rev
               </button>
@@ -2074,7 +2074,7 @@ export default function TrainerDashboard() {
                 onClick={() => handleReviewSubmission('approved')}
                 disabled={isReviewing || isAiReviewing}
                 className="btn-neon"
-                style={{ background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)', color: '#03030b', padding: '10px 20px', fontSize: '0.85rem' }}
+                style={{ background: 'linear-gradient(135deg, #00ff87 0%, #f59e0b 100%)', color: '#03030b', padding: '10px 20px', fontSize: '0.85rem' }}
               >
                 Approve Submission
               </button>
@@ -2108,7 +2108,7 @@ export default function TrainerDashboard() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace' }}>STUDENT_PERFORMANCE_METRICS</span>
+                <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'monospace' }}>STUDENT_PERFORMANCE_METRICS</span>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>{selectedStudent.name}</h3>
                 <p style={{ color: '#a0aec0', fontSize: '0.9rem', marginTop: '2px' }}>
                   {selectedStudent.email} • {selectedStudent.college?.name || 'Global Portal'}
@@ -2157,12 +2157,12 @@ export default function TrainerDashboard() {
                         <path
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           fill="none"
-                          stroke="url(#gradCyanPurple)"
+                          stroke="url(#gradGoldGreen)"
                           strokeWidth="3.5"
                           strokeDasharray={`${selectedStudent.stats.totalTasksCount > 0 ? (selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100 : 0}, 100`}
                         />
                         <defs>
-                          <linearGradient id="gradCyanPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <linearGradient id="gradGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="var(--neon-secondary)" />
                             <stop offset="100%" stopColor="var(--neon-blue)" />
                           </linearGradient>
@@ -2195,7 +2195,7 @@ export default function TrainerDashboard() {
                       <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.pendingCount}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 0, 85, 0.05)', border: '1px solid rgba(255, 0, 85, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.9rem', color: '#ff0055', fontWeight: 600 }}>Rejected / Revision</span>
+                      <span style={{ fontSize: '0.9rem', color: '#ef4444', fontWeight: 600 }}>Rejected / Revision</span>
                       <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.rejectedCount}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2275,7 +2275,7 @@ export default function TrainerDashboard() {
                     
                     {/* Summary Metrics */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
-                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 242, 254, 0.2)' }}>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
                         <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-secondary)' }}>{studentAnalytics.totalPoints} pts</h4>
                       </div>
@@ -2283,9 +2283,9 @@ export default function TrainerDashboard() {
                         <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CHALLENGES_SOLVED</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#00ff87' }}>{studentAnalytics.solvedCount} / 100</h4>
                       </div>
-                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(189, 0, 255, 0.2)' }}>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
                         <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CLASS_CODING_RANK</span>
-                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#bd00ff' }}>#{studentAnalytics.rank}</h4>
+                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#10b981' }}>#{studentAnalytics.rank}</h4>
                       </div>
                       <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(255, 208, 0, 0.2)' }}>
                         <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>COMPLETION_RATE</span>

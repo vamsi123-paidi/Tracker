@@ -394,7 +394,7 @@ const CompilerTabPanel = memo(({ lang, isFullscreen, onLangChange, onFullscreenT
         width: '100vw',
         height: '100vh',
         zIndex: 9999,
-        background: '#15161e',
+        background: '#050508',
         padding: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
@@ -405,7 +405,7 @@ const CompilerTabPanel = memo(({ lang, isFullscreen, onLangChange, onFullscreenT
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
+          <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
           <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Code Compiler</h3>
           <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Write and run code in 9 languages instantly using the embedded terminal runner.</p>
         </div>
@@ -537,7 +537,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '3px dashed var(--neon-primary)',
           animation: 'rotateCW 10s linear infinite',
-          boxShadow: 'inset 0 0 15px rgba(0, 242, 254, 0.1)',
+          boxShadow: 'inset 0 0 15px rgba(245, 158, 11, 0.1)',
           opacity: 0.8
         }} />
         
@@ -549,7 +549,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '2px dotted var(--neon-secondary)',
           animation: 'rotateCCW 6s linear infinite',
-          boxShadow: '0 0 15px rgba(255, 0, 127, 0.15)',
+          boxShadow: '0 0 15px rgba(16, 185, 129, 0.15)',
           opacity: 0.7
         }} />
 
@@ -561,7 +561,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '3px double var(--neon-blue)',
           animation: 'rotateCW 3s linear infinite',
-          boxShadow: 'inset 0 0 10px rgba(0, 85, 255, 0.2)',
+          boxShadow: 'inset 0 0 10px rgba(255, 107, 53, 0.2)',
           opacity: 0.6
         }} />
 
@@ -627,7 +627,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
               color: idx === logIndex ? 'var(--neon-primary)' : 'var(--text-muted)',
               display: 'flex',
               gap: '6px',
-              textShadow: idx === logIndex ? '0 0 6px rgba(0, 242, 254, 0.3)' : 'none'
+              textShadow: idx === logIndex ? '0 0 6px rgba(245, 158, 11, 0.3)' : 'none'
             }}>
               <span>&gt;</span>
               <span>{log}</span>
@@ -678,7 +678,7 @@ export default function StudentDashboard() {
 
   // Code Playground Sandbox States
   const [playgroundHtml, setPlaygroundHtml] = useState('<!-- Write your HTML here -->\n<div class="card">\n  <h2>Code Playground</h2>\n  <p>Modify HTML, CSS or JS and click Run Code!</p>\n  <button id="glow-btn">Interact</button>\n</div>');
-  const [playgroundCss, setPlaygroundCss] = useState(`/* Write your CSS here */\nbody {\n  background: #0d0e15;\n  color: #fff;\n  font-family: sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  margin: 0;\n}\n.card {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  padding: 30px;\n  border-radius: 16px;\n  text-align: center;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  backdrop-filter: blur(10px);\n}\nh2 {\n  color: #00f2fe;\n  margin-top: 0;\n  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);\n}\nbutton {\n  background: linear-gradient(135deg, #00f2fe 0%, #bd00ff 100%);\n  color: white;\n  border: none;\n  padding: 10px 20px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);\n  transition: 0.3s;\n}\nbutton:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(189, 0, 255, 0.5);\n}`);
+  const [playgroundCss, setPlaygroundCss] = useState(`/* Write your CSS here */\nbody {\n  background: #030305;\n  color: #fff;\n  font-family: sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  margin: 0;\n}\n.card {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  padding: 30px;\n  border-radius: 16px;\n  text-align: center;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  backdrop-filter: blur(10px);\n}\nh2 {\n  color: #f59e0b;\n  margin-top: 0;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\nbutton {\n  background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);\n  color: white;\n  border: none;\n  padding: 10px 20px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);\n  transition: 0.3s;\n}\nbutton:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);\n}`);
   const [playgroundJs, setPlaygroundJs] = useState(`// Write your JavaScript here\nconst btn = document.getElementById('glow-btn');\nif (btn) {\n  btn.addEventListener('click', () => {\n    alert('Greetings from Code Playground!');\n  });\n}`);
   const [playgroundActiveEditor, setPlaygroundActiveEditor] = useState<'html' | 'css' | 'js'>('html');
   const [playgroundSrcDoc, setPlaygroundSrcDoc] = useState('');
@@ -1445,11 +1445,11 @@ export default function StudentDashboard() {
             container.style.left = '50%';
             container.style.transform = 'translateX(-50%)';
             container.style.padding = '10px 20px';
-            container.style.background = 'rgba(0, 242, 254, 0.95)';
+            container.style.background = 'rgba(245, 158, 11, 0.95)';
             container.style.color = '#020208';
             container.style.fontWeight = 'bold';
             container.style.borderRadius = '8px';
-            container.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.5)';
+            container.style.boxShadow = '0 0 15px rgba(245, 158, 11, 0.5)';
             container.style.fontFamily = 'sans-serif';
             container.style.zIndex = '9999';
             container.textContent = 'Sandbox Alert: ' + msg;
@@ -1460,7 +1460,7 @@ export default function StudentDashboard() {
           try {
             ${playgroundJs}
           } catch(err) {
-            document.body.innerHTML += '<div style="color: #ff0055; font-family: monospace; padding: 10px; border: 1px dashed #ff0055; margin-top: 15px;">JS Error: ' + err.message + '</div>';
+            document.body.innerHTML += '<div style="color: #ef4444; font-family: monospace; padding: 10px; border: 1px dashed #ef4444; margin-top: 15px;">JS Error: ' + err.message + '</div>';
           }
         </script>
       </body>
@@ -1492,7 +1492,7 @@ export default function StudentDashboard() {
     html = html.replace(/^## (.*$)/gim, '<h2 style="color:var(--neon-primary); border-bottom:1px dashed var(--border-glass); padding-bottom:4px; margin:20px 0 10px;">$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1 style="color:var(--neon-secondary); border-bottom:1px solid var(--border-glass); padding-bottom:6px; margin:25px 0 15px;">$1</h1>');
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-family:monospace; color:#bd00ff;">$1</code>');
+    html = html.replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:4px; font-family:monospace; color:#10b981;">$1</code>');
     html = html.replace(/^\- (.*$)/gim, '<li style="margin-left: 20px; margin-bottom: 6px;">$1</li>');
     html = html.replace(/\n/g, '<br>');
     
@@ -1581,7 +1581,7 @@ export default function StudentDashboard() {
           <polyline points="8 6 2 12 8 18" />
         </svg>
       ),
-      color: '#bd00ff'
+      color: '#10b981'
     },
     {
       id: 'pomodoro',
@@ -1594,7 +1594,7 @@ export default function StudentDashboard() {
           <polyline points="12 6 12 12 16 14" />
         </svg>
       ),
-      color: '#ff0055'
+      color: '#ef4444'
     },
     {
       id: 'scholar',
@@ -1627,7 +1627,7 @@ export default function StudentDashboard() {
         padding: '1rem 1.5rem'
       }}>
         <div>
-          <span style={{ fontFamily: 'monospace', color: '#bd00ff', fontSize: '0.9rem' }}>STUDENT_TERMINAL</span>
+          <span style={{ fontFamily: 'monospace', color: '#10b981', fontSize: '0.9rem' }}>STUDENT_TERMINAL</span>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Student Portal</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
@@ -1718,7 +1718,7 @@ export default function StudentDashboard() {
         <div style={{
           background: 'rgba(255, 0, 85, 0.1)',
           border: '1px solid rgba(255, 0, 85, 0.2)',
-          color: '#ff0055',
+          color: '#ef4444',
           padding: '12px',
           borderRadius: '8px',
           marginBottom: '2rem',
@@ -1856,7 +1856,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="glass-panel">
                   <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>REQUESTS_REVISION</p>
-                  <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ff0055' }}>{rejectedCount}</h3>
+                  <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ef4444' }}>{rejectedCount}</h3>
                 </div>
               </div>
 
@@ -1925,7 +1925,7 @@ export default function StudentDashboard() {
                             fontSize: '0.8rem',
                             color: '#a0aec0'
                           }}>
-                            <strong style={{ color: isRejected ? '#ff0055' : '#00ff87', display: 'block', marginBottom: '2px' }}>
+                            <strong style={{ color: isRejected ? '#ef4444' : '#00ff87', display: 'block', marginBottom: '2px' }}>
                               Trainer feedback:
                             </strong>
                             {task.submission.feedback}
@@ -1969,7 +1969,7 @@ export default function StudentDashboard() {
               {/* Sub tab navigation */}
               <div style={{
                 display: 'inline-flex',
-                background: 'rgba(10, 11, 24, 0.6)',
+                background: 'rgba(10, 10, 15, 0.6)',
                 border: '1px solid var(--border-glass)',
                 padding: '5px',
                 borderRadius: '30px',
@@ -1985,14 +1985,14 @@ export default function StudentDashboard() {
                     fontFamily: 'var(--font-mono)',
                     borderRadius: '25px',
                     background: quizSubTab === 'available' 
-                      ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(255, 107, 53, 0.15) 100%)' 
                       : 'transparent',
                     border: quizSubTab === 'available'
-                      ? '1px solid rgba(0, 242, 254, 0.4)'
+                      ? '1px solid rgba(245, 158, 11, 0.4)'
                       : '1px solid transparent',
                     color: quizSubTab === 'available' ? 'var(--neon-primary)' : 'var(--text-secondary)',
-                    textShadow: quizSubTab === 'available' ? '0 0 10px rgba(0, 242, 254, 0.5)' : 'none',
-                    boxShadow: quizSubTab === 'available' ? '0 0 15px rgba(0, 242, 254, 0.15)' : 'none',
+                    textShadow: quizSubTab === 'available' ? '0 0 10px rgba(245, 158, 11, 0.5)' : 'none',
+                    boxShadow: quizSubTab === 'available' ? '0 0 15px rgba(245, 158, 11, 0.15)' : 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -2011,14 +2011,14 @@ export default function StudentDashboard() {
                     fontFamily: 'var(--font-mono)',
                     borderRadius: '25px',
                     background: quizSubTab === 'results' 
-                      ? 'linear-gradient(135deg, rgba(189, 0, 255, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(255, 107, 53, 0.15) 100%)' 
                       : 'transparent',
                     border: quizSubTab === 'results'
-                      ? '1px solid rgba(189, 0, 255, 0.4)'
+                      ? '1px solid rgba(16, 185, 129, 0.4)'
                       : '1px solid transparent',
                     color: quizSubTab === 'results' ? 'var(--neon-secondary)' : 'var(--text-secondary)',
-                    textShadow: quizSubTab === 'results' ? '0 0 10px rgba(189, 0, 255, 0.5)' : 'none',
-                    boxShadow: quizSubTab === 'results' ? '0 0 15px rgba(189, 0, 255, 0.15)' : 'none',
+                    textShadow: quizSubTab === 'results' ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none',
+                    boxShadow: quizSubTab === 'results' ? '0 0 15px rgba(16, 185, 129, 0.15)' : 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -2050,7 +2050,7 @@ export default function StudentDashboard() {
                           justifyContent: 'space-between',
                           minHeight: '220px',
                           borderLeft: quiz.isCompleted ? '4px solid var(--neon-green)' : '4px solid var(--neon-primary)',
-                          background: 'rgba(10, 11, 24, 0.45)',
+                          background: 'rgba(10, 10, 15, 0.45)',
                           borderColor: quiz.isCompleted ? 'rgba(0, 255, 135, 0.25)' : 'var(--border-glass)'
                         }}
                       >
@@ -2190,7 +2190,7 @@ export default function StudentDashboard() {
                     maxHeight: '85vh',
                     display: 'flex',
                     flexDirection: 'column',
-                    background: 'rgba(15, 16, 28, 0.95)',
+                    background: 'rgba(5, 5, 8, 0.95)',
                     border: '1.5px solid var(--border-glass-hover)',
                     borderRadius: '16px',
                     padding: '1.5rem',
@@ -2199,7 +2199,7 @@ export default function StudentDashboard() {
                     {/* Modal Header */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
                       <div>
-                        <span style={{ fontSize: '0.75rem', color: '#bd00ff', fontFamily: 'var(--font-mono)', letterSpacing: '1px', textTransform: 'uppercase' }}>EXAM_SUBMISSION_DETAILS</span>
+                        <span style={{ fontSize: '0.75rem', color: '#10b981', fontFamily: 'var(--font-mono)', letterSpacing: '1px', textTransform: 'uppercase' }}>EXAM_SUBMISSION_DETAILS</span>
                         <h4 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '4px 0 0', color: '#fff' }}>
                           {selectedQuizResult.quiz?.title || 'Quiz Review'}
                         </h4>
@@ -2243,7 +2243,7 @@ export default function StudentDashboard() {
                               padding: '1.2rem',
                               border: '1px solid var(--border-glass)',
                               borderRadius: '12px',
-                              background: 'rgba(10, 11, 24, 0.4)',
+                              background: 'rgba(10, 10, 15, 0.4)',
                               display: 'flex',
                               flexDirection: 'column',
                               gap: '10px'
@@ -2369,7 +2369,7 @@ export default function StudentDashboard() {
                     width: '100vw',
                     height: '100vh',
                     zIndex: 9999,
-                    background: '#15161e',
+                    background: '#050508',
                     padding: '1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
@@ -2552,7 +2552,7 @@ export default function StudentDashboard() {
                 borderColor: 'var(--border-glass-hover)'
               }}>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CODE_CHALLENGE_WORKSPACE</span>
+                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CODE_CHALLENGE_WORKSPACE</span>
                   <h3 style={{ fontSize: '1.65rem', fontWeight: 700, margin: 0, color: '#fff' }}>Coding Assessments</h3>
                   <p style={{ color: '#a0aec0', fontSize: '0.9rem', margin: '6px 0 0', lineHeight: '1.5' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
                 </div>
@@ -2577,7 +2577,7 @@ export default function StudentDashboard() {
               {/* Assessment Sub-Navigation */}
               <div style={{
                 display: 'inline-flex',
-                background: 'rgba(10, 11, 24, 0.6)',
+                background: 'rgba(10, 10, 15, 0.6)',
                 border: '1px solid var(--border-glass)',
                 padding: '5px',
                 borderRadius: '30px',
@@ -2593,14 +2593,14 @@ export default function StudentDashboard() {
                     fontFamily: 'var(--font-mono)',
                     borderRadius: '25px',
                     background: assessmentTab === 'challenges' 
-                      ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(255, 107, 53, 0.15) 100%)' 
                       : 'transparent',
                     border: assessmentTab === 'challenges'
-                      ? '1px solid rgba(0, 242, 254, 0.4)'
+                      ? '1px solid rgba(245, 158, 11, 0.4)'
                       : '1px solid transparent',
                     color: assessmentTab === 'challenges' ? 'var(--neon-primary)' : 'var(--text-secondary)',
-                    textShadow: assessmentTab === 'challenges' ? '0 0 10px rgba(0, 242, 254, 0.5)' : 'none',
-                    boxShadow: assessmentTab === 'challenges' ? '0 0 15px rgba(0, 242, 254, 0.15)' : 'none',
+                    textShadow: assessmentTab === 'challenges' ? '0 0 10px rgba(245, 158, 11, 0.5)' : 'none',
+                    boxShadow: assessmentTab === 'challenges' ? '0 0 15px rgba(245, 158, 11, 0.15)' : 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -2619,14 +2619,14 @@ export default function StudentDashboard() {
                     fontFamily: 'var(--font-mono)',
                     borderRadius: '25px',
                     background: assessmentTab === 'leaderboard' 
-                      ? 'linear-gradient(135deg, rgba(189, 0, 255, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(255, 107, 53, 0.15) 100%)' 
                       : 'transparent',
                     border: assessmentTab === 'leaderboard'
-                      ? '1px solid rgba(189, 0, 255, 0.4)'
+                      ? '1px solid rgba(16, 185, 129, 0.4)'
                       : '1px solid transparent',
                     color: assessmentTab === 'leaderboard' ? 'var(--neon-secondary)' : 'var(--text-secondary)',
-                    textShadow: assessmentTab === 'leaderboard' ? '0 0 10px rgba(189, 0, 255, 0.5)' : 'none',
-                    boxShadow: assessmentTab === 'leaderboard' ? '0 0 15px rgba(189, 0, 255, 0.15)' : 'none',
+                    textShadow: assessmentTab === 'leaderboard' ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none',
+                    boxShadow: assessmentTab === 'leaderboard' ? '0 0 15px rgba(16, 185, 129, 0.15)' : 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -2657,7 +2657,7 @@ export default function StudentDashboard() {
                       flexDirection: 'column',
                       gap: '1.25rem',
                       height: '680px',
-                      background: 'rgba(10, 11, 24, 0.45)',
+                      background: 'rgba(10, 10, 15, 0.45)',
                       backdropFilter: 'blur(20px)',
                       borderColor: 'var(--border-glass-hover)'
                     }}>
@@ -2670,7 +2670,7 @@ export default function StudentDashboard() {
                           padding: '12px 16px 12px 42px',
                           fontSize: '0.85rem',
                           width: '100%',
-                          background: 'rgba(10, 11, 24, 0.4)',
+                          background: 'rgba(10, 10, 15, 0.4)',
                           borderColor: 'var(--border-glass)',
                           borderRadius: '12px',
                           color: '#fff',
@@ -2763,8 +2763,8 @@ export default function StudentDashboard() {
                                   fontSize: '0.65rem', 
                                   padding: '3px 10px', 
                                   borderRadius: '20px', 
-                                  background: 'rgba(0, 242, 254, 0.05)', 
-                                  border: '1px solid rgba(0, 242, 254, 0.25)',
+                                  background: 'rgba(245, 158, 11, 0.05)', 
+                                  border: '1px solid rgba(245, 158, 11, 0.25)',
                                   color: 'var(--neon-primary)', 
                                   fontFamily: 'var(--font-mono)',
                                   fontWeight: 700 
@@ -2815,7 +2815,7 @@ export default function StudentDashboard() {
                     flexDirection: 'column',
                     gap: '1.5rem',
                     height: '680px',
-                    background: 'rgba(10, 11, 24, 0.45)',
+                    background: 'rgba(10, 10, 15, 0.45)',
                     backdropFilter: 'blur(20px)',
                     borderColor: 'var(--border-glass-hover)'
                   }}>
@@ -2825,13 +2825,13 @@ export default function StudentDashboard() {
                           width: '70px',
                           height: '70px',
                           borderRadius: '50%',
-                          background: 'rgba(189, 0, 255, 0.05)',
+                          background: 'rgba(16, 185, 129, 0.05)',
                           border: '1.5px dashed var(--neon-primary)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'var(--neon-primary)',
-                          boxShadow: '0 0 20px rgba(189, 0, 255, 0.1)',
+                          boxShadow: '0 0 20px rgba(16, 185, 129, 0.1)',
                           animation: 'pulse 2s infinite'
                         }}>
                           <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -2848,7 +2848,7 @@ export default function StudentDashboard() {
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem', minHeight: 0 }}>
                         {/* Title & Description Card */}
                         <div style={{
-                          background: 'rgba(10, 11, 24, 0.4)',
+                          background: 'rgba(10, 10, 15, 0.4)',
                           border: '1px solid var(--border-glass)',
                           borderLeft: '4px solid var(--neon-primary)',
                           padding: '16px 20px',
@@ -2860,8 +2860,8 @@ export default function StudentDashboard() {
                             <span style={{ 
                               fontSize: '0.75rem', 
                               color: 'var(--neon-secondary)', 
-                              background: 'rgba(0, 242, 254, 0.05)', 
-                              border: '1px solid rgba(0, 242, 254, 0.25)', 
+                              background: 'rgba(245, 158, 11, 0.05)', 
+                              border: '1px solid rgba(245, 158, 11, 0.25)', 
                               padding: '4px 12px', 
                               borderRadius: '20px', 
                               fontWeight: 600,
@@ -3144,7 +3144,7 @@ export default function StudentDashboard() {
                             <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>VERIFICATION_CHECKLIST:</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               {assessmentTestResults.map((tc, idx) => {
-                                let pillBg = 'rgba(10, 11, 24, 0.4)';
+                                let pillBg = 'rgba(10, 10, 15, 0.4)';
                                 let pillBorder = 'var(--border-glass)';
                                 let pillColor = 'var(--text-secondary)';
                                 let icon = '⚡';
@@ -3253,12 +3253,12 @@ export default function StudentDashboard() {
                 /* Leaderboard Table Workspace */
                 <div className="glass-panel" style={{
                   padding: '2rem',
-                  background: 'rgba(10, 11, 24, 0.45)',
+                  background: 'rgba(10, 10, 15, 0.45)',
                   backdropFilter: 'blur(20px)',
                   borderColor: 'var(--border-glass-hover)'
                 }}>
                   <div style={{ marginBottom: '2rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#00f2fe', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>GLOBAL_SCOREBOARD</span>
+                    <span style={{ fontSize: '0.75rem', color: '#f59e0b', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>GLOBAL_SCOREBOARD</span>
                     <h4 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: '4px 0 0' }}>Performance Leaderboard</h4>
                   </div>
                   
@@ -3434,8 +3434,8 @@ export default function StudentDashboard() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '0.4rem',
-                        background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)',
-                        color: '#0d0e15',
+                        background: 'linear-gradient(135deg, #00ff87 0%, #f59e0b 100%)',
+                        color: '#030305',
                         fontWeight: 'bold',
                         boxShadow: '0 4px 10px rgba(0, 255, 135, 0.2)'
                       }}
@@ -3489,7 +3489,7 @@ export default function StudentDashboard() {
                                     justifyContent: 'center',
                                     transition: 'color 0.2s'
                                   }}
-                                  onMouseEnter={(e) => e.currentTarget.style.color = '#ff0055'}
+                                  onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
                                   onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
                                 >
                                   🗑️
@@ -3622,7 +3622,7 @@ export default function StudentDashboard() {
                                 style={{
                                   flex: 1,
                                   width: '100%',
-                                  background: '#0d0e15',
+                                  background: '#030305',
                                   color: '#a0aec0',
                                   fontFamily: 'monospace',
                                   fontSize: '0.85rem',
@@ -3640,7 +3640,7 @@ export default function StudentDashboard() {
                                 dangerouslySetInnerHTML={renderMarkdown(note.content)}
                                 style={{
                                   flex: 1,
-                                  background: '#0d0e15',
+                                  background: '#030305',
                                   padding: '12px',
                                   border: '1px solid var(--border-glass)',
                                   borderRadius: '8px',
@@ -3682,7 +3682,7 @@ export default function StudentDashboard() {
                 
                 {/* 1. Pomodoro Focus Timer */}
                 <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '340px' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#ff0055', fontFamily: 'monospace', alignSelf: 'flex-start', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '0.8rem', color: '#ef4444', fontFamily: 'monospace', alignSelf: 'flex-start', marginBottom: '1rem' }}>
                     CYBER_POMODORO
                   </span>
                   
@@ -3696,7 +3696,7 @@ export default function StudentDashboard() {
                         cx="75"
                         cy="75"
                         r="65"
-                        stroke="#ff0055"
+                        stroke="#ef4444"
                         strokeWidth="6"
                         fill="transparent"
                         strokeDasharray="408.4"
@@ -3745,7 +3745,7 @@ export default function StudentDashboard() {
                     <button
                       onClick={() => setPomodoroActive(!pomodoroActive)}
                       className="btn-neon"
-                      style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'linear-gradient(135deg, #ff0055 0%, #bd00ff 100%)', boxShadow: '0 4px 10px rgba(255,0,85,0.2)' }}
+                      style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'linear-gradient(135deg, #ef4444 0%, #10b981 100%)', boxShadow: '0 4px 10px rgba(255,0,85,0.2)' }}
                     >
                       {pomodoroActive ? 'Pause' : 'Start'}
                     </button>
@@ -3899,7 +3899,7 @@ export default function StudentDashboard() {
                         marginTop: '8px',
                         fontSize: '0.7rem',
                         fontWeight: 'bold',
-                        color: badge.unlocked ? '#00ff87' : '#ff0055',
+                        color: badge.unlocked ? '#00ff87' : '#ef4444',
                         fontFamily: 'monospace'
                       }}>
                         {badge.unlocked ? '● UNLOCKED' : '○ LOCKED'}
@@ -3969,7 +3969,7 @@ export default function StudentDashboard() {
                 <div style={{
                   background: 'rgba(255, 0, 85, 0.1)',
                   border: '1px solid rgba(255, 0, 85, 0.2)',
-                  color: '#ff0055',
+                  color: '#ef4444',
                   padding: '12px',
                   borderRadius: '8px',
                   fontSize: '0.85rem',
@@ -4027,8 +4027,8 @@ export default function StudentDashboard() {
                 {/* Timer Clock */}
                 <div style={{
                   background: timeRemaining <= 60 ? 'rgba(255,0,85,0.1)' : 'rgba(16, 185, 129, 0.08)',
-                  border: `1.5px solid ${timeRemaining <= 60 ? '#ff0055' : 'var(--neon-primary)'}`,
-                  color: timeRemaining <= 60 ? '#ff0055' : 'var(--neon-secondary)',
+                  border: `1.5px solid ${timeRemaining <= 60 ? '#ef4444' : 'var(--neon-primary)'}`,
+                  color: timeRemaining <= 60 ? '#ef4444' : 'var(--neon-secondary)',
                   padding: '8px 16px',
                   borderRadius: '8px',
                   fontFamily: 'monospace',
@@ -4079,7 +4079,7 @@ export default function StudentDashboard() {
                           justifyContent: 'flex-start',
                           padding: '12px 18px',
                           border: isSelected ? '1.5px solid var(--border-glass-hover)' : '1px solid var(--border-glass)',
-                          background: isSelected ? 'rgba(0, 242, 254, 0.08)' : 'rgba(255,255,255,0.02)',
+                          background: isSelected ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255,255,255,0.02)',
                           color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)'
                         }}
                       >
@@ -4119,7 +4119,7 @@ export default function StudentDashboard() {
                 <span style={{
                   fontSize: '0.8rem',
                   fontFamily: 'monospace',
-                  color: tabSwitchCount > 0 ? '#ff0055' : 'var(--text-muted)'
+                  color: tabSwitchCount > 0 ? '#ef4444' : 'var(--text-muted)'
                 }}>
                   ● Cheat Telemetry Warnings: {tabSwitchCount} / 3
                 </span>
@@ -4520,9 +4520,9 @@ export default function StudentDashboard() {
                       borderTopRightRadius: isStudent ? '2px' : '14px',
                       borderTopLeftRadius: isStudent ? '14px' : '2px',
                       background: isStudent 
-                        ? 'rgba(0, 242, 254, 0.15)' 
+                        ? 'rgba(245, 158, 11, 0.15)' 
                         : 'rgba(255, 255, 255, 0.04)',
-                      border: `1px solid ${isStudent ? 'rgba(0, 242, 254, 0.3)' : 'var(--border-glass)'}`,
+                      border: `1px solid ${isStudent ? 'rgba(245, 158, 11, 0.3)' : 'var(--border-glass)'}`,
                       fontSize: '0.85rem',
                       lineHeight: '1.4',
                       color: 'var(--text-primary)'
@@ -4744,7 +4744,7 @@ export default function StudentDashboard() {
         }
         
         .flashcard-back {
-          background: rgba(0, 242, 254, 0.06);
+          background: rgba(245, 158, 11, 0.06);
           color: var(--neon-primary);
           transform: rotateY(180deg);
           border-color: var(--border-glass-hover);

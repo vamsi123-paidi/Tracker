@@ -49,7 +49,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '3px dashed var(--neon-primary)',
           animation: 'rotateCW 10s linear infinite',
-          boxShadow: 'inset 0 0 15px rgba(0, 242, 254, 0.1)',
+          boxShadow: 'inset 0 0 15px rgba(245, 158, 11, 0.1)',
           opacity: 0.8
         }} />
         
@@ -61,7 +61,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '2px dotted var(--neon-secondary)',
           animation: 'rotateCCW 6s linear infinite',
-          boxShadow: '0 0 15px rgba(255, 0, 127, 0.15)',
+          boxShadow: '0 0 15px rgba(16, 185, 129, 0.15)',
           opacity: 0.7
         }} />
 
@@ -73,7 +73,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
           borderRadius: '50%',
           border: '3px double var(--neon-blue)',
           animation: 'rotateCW 3s linear infinite',
-          boxShadow: 'inset 0 0 10px rgba(0, 85, 255, 0.2)',
+          boxShadow: 'inset 0 0 10px rgba(255, 107, 53, 0.2)',
           opacity: 0.6
         }} />
 
@@ -139,7 +139,7 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
               color: idx === logIndex ? 'var(--neon-primary)' : 'var(--text-muted)',
               display: 'flex',
               gap: '6px',
-              textShadow: idx === logIndex ? '0 0 6px rgba(0, 242, 254, 0.3)' : 'none'
+              textShadow: idx === logIndex ? '0 0 6px rgba(245, 158, 11, 0.3)' : 'none'
             }}>
               <span>&gt;</span>
               <span>{log}</span>

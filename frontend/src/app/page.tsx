@@ -40,8 +40,10 @@ export default function Home() {
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.4rem', color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)', animation: 'pulseScale 2s infinite' }}>✦</span>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(to right, var(--neon-primary), var(--neon-blue))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'var(--font-mono)' }}>
-            OmniSync.io
+          <span style={{ fontSize: '1.35rem', fontWeight: 900, fontFamily: 'var(--font-mono)', letterSpacing: '-0.5px' }}>
+            <span style={{ color: 'var(--neon-primary)', textShadow: 'var(--glow-primary)' }}>O</span>
+            <span style={{ color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>S</span>
+            <span style={{ color: 'var(--text-primary)', opacity: 0.85 }}>.io</span>
           </span>
         </div>
  
@@ -53,7 +55,7 @@ export default function Home() {
           <a href="#statistics" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--neon-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'} onClick={(e) => { e.preventDefault(); document.getElementById('statistics')?.scrollIntoView({ behavior: 'smooth' }); }}>
             Portal Stats
           </a>
-          <a href="/login" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#ff007f'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+          <a href="/login" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#ff6b35'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
             Developer Portal
           </a>
         </nav>
@@ -81,8 +83,8 @@ export default function Home() {
             display: 'inline-block',
             padding: '6px 14px',
             borderRadius: '9999px',
-            background: 'rgba(0, 242, 254, 0.05)',
-            border: '1px solid rgba(0, 242, 254, 0.2)',
+            background: 'rgba(245, 158, 11, 0.05)',
+            border: '1px solid rgba(245, 158, 11, 0.2)',
             color: 'var(--neon-primary)',
             fontSize: '0.85rem',
             fontWeight: 600,
@@ -103,7 +105,7 @@ export default function Home() {
             background: 'linear-gradient(to right, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            textShadow: '0 0 30px rgba(0, 242, 254, 0.15)'
+            textShadow: '0 0 30px rgba(245, 158, 11, 0.15)'
           }}>
             Unified Learning & Task Verification Space.
           </h1>
@@ -115,7 +117,7 @@ export default function Home() {
             marginBottom: '2.5rem',
             maxWidth: '540px'
           }}>
-            OmniSync accelerates student progression by integrating high-fidelity task verifications, sandboxed multi-pane compilers, proctored examinations, and automated feedback engines inside a single secure portal.
+            OS.io accelerates student progression by integrating high-fidelity task verifications, sandboxed multi-pane compilers, proctored examinations, and automated feedback engines inside a single secure portal.
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -210,7 +212,7 @@ export default function Home() {
             SYSTEM_CAPABILITIES
           </span>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginTop: '6px' }}>
-            What does OmniSync provide?
+            What does OS.io provide?
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: '8px auto 0 auto', maxWidth: '600px' }}>
             Explore the core feature sets engineered to make training verifications fast, immersive, and responsive across all device sizes.
@@ -225,7 +227,7 @@ export default function Home() {
           {/* Feature 1 */}
           <div className="glass-panel tilt-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem', background: 'rgba(0, 242, 254, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-primary)' }}>📊</span>
+              <span style={{ fontSize: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-primary)' }}>📊</span>
               <h3 style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 600, margin: 0 }}>Milestone Progression Hub</h3>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
@@ -236,7 +238,7 @@ export default function Home() {
           {/* Feature 2 */}
           <div className="glass-panel tilt-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem', background: 'rgba(255, 0, 127, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-secondary)' }}>💻</span>
+              <span style={{ fontSize: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-secondary)' }}>💻</span>
               <h3 style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 600, margin: 0 }}>Monaco Code Sandbox IDE</h3>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
@@ -269,7 +271,7 @@ export default function Home() {
           {/* Feature 5 */}
           <div className="glass-panel tilt-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem', background: 'rgba(0, 85, 255, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-blue)' }}>⚙️</span>
+              <span style={{ fontSize: '1.5rem', background: 'rgba(255, 107, 53, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--neon-blue)' }}>⚙️</span>
               <h3 style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 600, margin: 0 }}>System-Assisted Reviews</h3>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
@@ -305,14 +307,14 @@ export default function Home() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            © {new Date().getFullYear()} OmniSync.io Workspace Core. All rights reserved.
+            © {new Date().getFullYear()} OS.io Workspace Core. All rights reserved.
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '0.7rem', color: 'var(--neon-green)', background: 'rgba(0,255,135,0.06)', border: '1px solid rgba(0,255,135,0.2)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
             SSL_SECURE
           </span>
-          <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', background: 'rgba(0,242,254,0.06)', border: '1px solid rgba(0,242,254,0.2)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', background: 'rgba(245, 158, 11,0.06)', border: '1px solid rgba(245, 158, 11,0.2)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
             PROCTOR_ACTIVE
           </span>
         </div>

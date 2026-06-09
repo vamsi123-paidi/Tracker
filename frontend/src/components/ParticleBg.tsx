@@ -15,44 +15,17 @@ export const ParticleBg: React.FC = () => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Particles configuration
-    const densityRatio = 20000; // 1 particle per 20000 pixels
-    const particleCount = Math.min(65, Math.max(25, Math.floor((width * height) / densityRatio)));
-    
-    interface Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-    }
-    const particles: Particle[] = [];
+    // Matrix columns setup
+    const fontSize = 14;
+    const columns = Math.floor(width / 24);
+    const yPositions = Array(columns).fill(0).map(() => Math.random() * -height);
 
-    // Initialize particles with randomized velocity directions
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        radius: Math.random() * 1.5 + 1.2,
-      });
-    }
-
-    // Cursor tracking state
-    const mouse = { x: -1000, y: -1000, active: false };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      mouse.active = true;
-    };
-
-    const handleMouseLeave = () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
-      mouse.active = false;
-    };
+    // Coding character pool
+    const codingChars = [
+      '0', '1', '{', '}', '[', ']', '<', '>', ';', '(', ')', 
+      '=', '+', '-', '&', '|', '!', 'const', 'let', 'if', 
+      'for', 'function', 'return', 'import', 'export', '=>'
+    ];
 
     const handleResize = () => {
       if (!canvas) return;
@@ -60,95 +33,45 @@ export const ParticleBg: React.FC = () => {
       height = canvas.height = window.innerHeight;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('resize', handleResize);
-
-    const getThemeColors = () => {
-      const isLight = document.documentElement.classList.contains('light');
-      return {
-        particleColor: isLight ? 'rgba(255, 87, 34, 0.4)' : 'rgba(245, 158, 11, 0.45)',
-        linkColor: isLight ? 'rgba(255, 87, 34, 0.07)' : 'rgba(245, 158, 11, 0.08)',
-        mouseLinkColor: 'rgba(16, 185, 129, 0.15)',
-      };
-    };
-
-    let themeColors = getThemeColors();
-
-    // Listen for dark/light class toggles on HTML element
-    const observer = new MutationObserver(() => {
-      themeColors = getThemeColors();
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     // Render loop
     const draw = () => {
-      ctx.clearRect(0, 0, width, height);
+      const isLight = document.documentElement.classList.contains('light');
+      
+      // Semi-transparent background for trails effect (fully blue/purple free!)
+      ctx.fillStyle = isLight ? 'rgba(250, 250, 245, 0.12)' : 'rgba(3, 3, 5, 0.12)';
+      ctx.fillRect(0, 0, width, height);
 
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i];
+      // Character styling
+      ctx.font = '12px monospace';
 
-        // Cursor attraction physics
-        if (mouse.active) {
-          const dx = mouse.x - p1.x;
-          const dy = mouse.y - p1.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 200) {
-            // Subtle pull
-            p1.vx += (dx / dist) * 0.006;
-            p1.vy += (dy / dist) * 0.006;
+      for (let i = 0; i < yPositions.length; i++) {
+        // Random character from pool
+        const char = codingChars[Math.floor(Math.random() * codingChars.length)];
+        const x = i * 24;
+        const y = yPositions[i];
 
-            // Render laser link to cursor
-            ctx.beginPath();
-            ctx.strokeStyle = themeColors.mouseLinkColor;
-            ctx.lineWidth = (1 - dist / 200) * 0.7;
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.stroke();
-          }
+        // Soft green/gold coloring (completely blue, magenta, purple free!)
+        if (isLight) {
+          // Subtle coding watermark for light mode readability
+          ctx.fillStyle = Math.random() > 0.15 
+            ? 'rgba(16, 185, 129, 0.08)'  // light green
+            : 'rgba(245, 158, 11, 0.08)'; // light gold
+        } else {
+          // High contrast neon coding rain for dark mode
+          ctx.fillStyle = Math.random() > 0.15
+            ? '#10b981'  // emerald green
+            : '#f59e0b'; // solar gold
         }
 
-        // Apply friction to control mouse pull velocity buildup
-        p1.vx *= 0.98;
-        p1.vy *= 0.98;
+        ctx.fillText(char, x, y);
 
-        // Bounded speed
-        const speed = Math.sqrt(p1.vx * p1.vx + p1.vy * p1.vy);
-        const maxSpeed = 0.7;
-        if (speed > maxSpeed) {
-          p1.vx = (p1.vx / speed) * maxSpeed;
-          p1.vy = (p1.vy / speed) * maxSpeed;
-        }
-
-        // Update positions
-        p1.x += p1.vx;
-        p1.y += p1.vy;
-
-        // Bounce walls
-        if (p1.x < 0 || p1.x > width) p1.vx *= -1;
-        if (p1.y < 0 || p1.y > height) p1.vy *= -1;
-
-        // Draw node
-        ctx.beginPath();
-        ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
-        ctx.fillStyle = themeColors.particleColor;
-        ctx.fill();
-
-        // Connect nearby nodes
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 110) {
-            ctx.beginPath();
-            ctx.strokeStyle = themeColors.linkColor;
-            ctx.lineWidth = (1 - dist / 110) * 0.55;
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
+        // Reset to top once it reaches bottom with random delay
+        if (y > height && Math.random() > 0.975) {
+          yPositions[i] = 0;
+        } else {
+          yPositions[i] += fontSize + 4;
         }
       }
 
@@ -159,10 +82,7 @@ export const ParticleBg: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('resize', handleResize);
-      observer.disconnect();
     };
   }, []);
 
@@ -171,14 +91,13 @@ export const ParticleBg: React.FC = () => {
       {/* Drifting radial gradient glow blobs */}
       <div className="aurora-blob aurora-blob-1" />
       <div className="aurora-blob aurora-blob-2" />
-      <div className="aurora-blob aurora-blob-3" />
       
       {/* 3D scrolling grid backdrop */}
       <div className="cyber-grid-container">
         <div className="cyber-grid" />
       </div>
 
-      {/* Dynamic plexus canvas */}
+      {/* Code Rain Matrix canvas */}
       <canvas
         ref={canvasRef}
         style={{
