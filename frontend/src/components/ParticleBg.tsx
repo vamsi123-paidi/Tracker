@@ -17,8 +17,9 @@ export const ParticleBg: React.FC = () => {
 
     // Matrix columns setup
     const fontSize = 14;
-    const columns = Math.floor(width / 24);
+    const columns = Math.floor(width / 40); // Spaced out columns (reduces code density)
     const yPositions = Array(columns).fill(0).map(() => Math.random() * -height);
+    const currentChars = Array(columns).fill('').map(() => '');
 
     // Coding character pool
     const codingChars = [
@@ -35,50 +36,62 @@ export const ParticleBg: React.FC = () => {
 
     window.addEventListener('resize', handleResize);
 
+    let lastTime = 0;
+    const interval = 130; // Step y-positions every 130ms (~8 steps per second) for a calm, slow progression
+
     // Render loop
-    const draw = () => {
+    const draw = (timestamp: number) => {
       const isLight = document.documentElement.classList.contains('light');
       
-      // Semi-transparent background for trails effect (fully blue/purple free!)
-      ctx.fillStyle = isLight ? 'rgba(250, 250, 245, 0.12)' : 'rgba(3, 3, 5, 0.12)';
-      ctx.fillRect(0, 0, width, height);
+      if (!lastTime) lastTime = timestamp;
+      const elapsed = timestamp - lastTime;
 
-      // Character styling
-      ctx.font = '12px monospace';
+      // Only perform update and redraw at the throttled rate
+      if (elapsed > interval) {
+        lastTime = timestamp - (elapsed % interval);
 
-      for (let i = 0; i < yPositions.length; i++) {
-        // Random character from pool
-        const char = codingChars[Math.floor(Math.random() * codingChars.length)];
-        const x = i * 24;
-        const y = yPositions[i];
+        // Semi-transparent background for smooth fading trails (fully blue/purple free!)
+        ctx.fillStyle = isLight ? 'rgba(250, 250, 245, 0.25)' : 'rgba(3, 3, 5, 0.25)';
+        ctx.fillRect(0, 0, width, height);
 
-        // Soft green/gold coloring (completely blue, magenta, purple free!)
-        if (isLight) {
-          // Subtle coding watermark for light mode readability
-          ctx.fillStyle = Math.random() > 0.15 
-            ? 'rgba(16, 185, 129, 0.08)'  // light green
-            : 'rgba(245, 158, 11, 0.08)'; // light gold
-        } else {
-          // High contrast neon coding rain for dark mode
-          ctx.fillStyle = Math.random() > 0.15
-            ? '#10b981'  // emerald green
-            : '#f59e0b'; // solar gold
-        }
+        // Character styling
+        ctx.font = '12px monospace';
 
-        ctx.fillText(char, x, y);
+        for (let i = 0; i < yPositions.length; i++) {
+          // Keep same character or mutate occasionally (15% chance)
+          if (!currentChars[i] || Math.random() > 0.85) {
+            currentChars[i] = codingChars[Math.floor(Math.random() * codingChars.length)];
+          }
+          const char = currentChars[i];
+          const x = i * 40;
+          const y = yPositions[i];
 
-        // Reset to top once it reaches bottom with random delay
-        if (y > height && Math.random() > 0.975) {
-          yPositions[i] = 0;
-        } else {
-          yPositions[i] += fontSize + 4;
+          // Soft green/gold coloring with low opacity (extremely gentle on eyes)
+          if (isLight) {
+            ctx.fillStyle = Math.random() > 0.15 
+              ? 'rgba(16, 185, 129, 0.04)'  // faint green
+              : 'rgba(245, 158, 11, 0.04)'; // faint gold
+          } else {
+            ctx.fillStyle = Math.random() > 0.15
+              ? 'rgba(16, 185, 129, 0.22)'  // soft emerald green
+              : 'rgba(245, 158, 11, 0.22)'; // soft solar gold
+          }
+
+          ctx.fillText(char, x, y);
+
+          // Reset to top once it reaches bottom with random delay
+          if (y > height && Math.random() > 0.95) {
+            yPositions[i] = 0;
+          } else {
+            yPositions[i] += fontSize + 6;
+          }
         }
       }
 
       animationId = requestAnimationFrame(draw);
     };
 
-    draw();
+    animationId = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(animationId);
