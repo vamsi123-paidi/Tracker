@@ -268,3 +268,23 @@ export const submitQuiz = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ message: 'Quiz submission failed', error: error.message });
   }
 };
+
+// Get Quiz Results for current Student
+export const getStudentQuizResults = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    const results = await QuizResult.find({ student: req.user.id })
+      .populate({
+        path: 'quiz',
+        select: 'title description questions durationMinutes'
+      })
+      .sort({ submittedAt: -1 });
+
+    res.status(200).json(results);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Failed to retrieve your quiz results', error: error.message });
+  }
+};

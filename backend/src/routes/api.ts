@@ -5,7 +5,7 @@ import { getTasks, createTask } from '../controllers/taskController.js';
 import { getSubmissions, submitTask, reviewSubmission, autoReviewSubmission } from '../controllers/submissionController.js';
 import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } from '../controllers/adminController.js';
 import { handleChat } from '../controllers/chatController.js';
-import { createQuiz, toggleQuizActive, getTrainerQuizzes, getQuizResultsForTrainer, getActiveQuizzes, submitQuiz } from '../controllers/quizController.js';
+import { createQuiz, toggleQuizActive, getTrainerQuizzes, getQuizResultsForTrainer, getActiveQuizzes, submitQuiz, getStudentQuizResults } from '../controllers/quizController.js';
 import { getAssessments, submitAssessment, getLeaderboard, getStudentAnalytics } from '../controllers/assessmentController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { upload, uploadRoster } from '../middleware/upload.js';
@@ -45,6 +45,7 @@ router.get('/quizzes', authenticateToken, requireRole('trainer'), getTrainerQuiz
 router.put('/quizzes/:quizId/toggle-active', authenticateToken, requireRole('trainer'), toggleQuizActive);
 router.get('/quizzes/:quizId/results', authenticateToken, requireRole('trainer'), getQuizResultsForTrainer);
 router.get('/quizzes/active', authenticateToken, requireRole('student'), getActiveQuizzes);
+router.get('/quizzes/my-results', authenticateToken, requireRole('student'), getStudentQuizResults);
 router.post('/quizzes/:quizId/submit', authenticateToken, requireRole('student'), submitQuiz);
 
 // Coding Assessments & Performance Leaderboards

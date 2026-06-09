@@ -564,6 +564,19 @@ export default function StudentDashboard() {
   const [assessmentTotalPoints, setAssessmentTotalPoints] = useState(0);
   const [assessmentTab, setAssessmentTab] = useState<'challenges' | 'leaderboard'>('challenges');
   const [assessmentSearchQuery, setAssessmentSearchQuery] = useState('');
+  const [isAssessmentFullscreen, setIsAssessmentFullscreen] = useState(false);
+  const [assessmentLayout, setAssessmentLayout] = useState<'tabs' | 'split'>('tabs');
+
+  // Quiz Results / Details States
+  const [myQuizResults, setMyQuizResults] = useState<any[]>([]);
+  const [quizSubTab, setQuizSubTab] = useState<'available' | 'results'>('available');
+  const [selectedQuizResult, setSelectedQuizResult] = useState<any | null>(null);
+  const [isQuizResultsLoading, setIsQuizResultsLoading] = useState(false);
+
+  // Advanced Notes Workspace States
+  const [studyNotes, setStudyNotes] = useState<any[]>([]);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const [noteSearchQuery, setNoteSearchQuery] = useState('');
 
   // Status Feedback
   const [errorMsg, setErrorMsg] = useState('');
@@ -654,6 +667,32 @@ export default function StudentDashboard() {
       // Load notepad
       const savedNotes = localStorage.getItem('holotrack_notes');
       setNotepadText(savedNotes || '# My Study Notes\n\n- Write programming structures here...\n- Autosaves locally without backend DB storage!');
+      
+      // Load multi-note workspace
+      const savedNotesStr = localStorage.getItem('tasktrack_study_notes');
+      if (savedNotesStr) {
+        try {
+          const parsed = JSON.parse(savedNotesStr);
+          setStudyNotes(parsed);
+          if (parsed.length > 0) {
+            setActiveNoteId(parsed[0].id);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        const defaultNotes = [
+          {
+            id: 'default-1',
+            title: 'Class Lecture Notes',
+            content: '# Class Lecture Notes\n\nUse this space to write definitions, questions, and concepts discussed in class.\n\n## 💡 Key Definitions\n\n> **HTML**: HyperText Markup Language, the standard markup language for documents designed to be displayed in a web browser.\n\n## ❓ Important Q&As\n\n### ❓ What is the difference between let and var?\n\n**Answer**: `let` has block scope while `var` has function scope.\n\n## 💻 Snippets\n\n```js\nconst greet = () => console.log("Hello, Class!");\n```',
+            updatedAt: new Date().toLocaleString()
+          }
+        ];
+        localStorage.setItem('tasktrack_study_notes', JSON.stringify(defaultNotes));
+        setStudyNotes(defaultNotes);
+        setActiveNoteId('default-1');
+      }
       
       // Load flashcards
       const savedFlashcards = localStorage.getItem('holotrack_flashcards');
@@ -756,6 +795,96 @@ export default function StudentDashboard() {
     } finally {
       setIsLoadingQuizzes(false);
     }
+  };
+
+  const fetchQuizResults = async () => {
+    setIsQuizResultsLoading(true);
+    try {
+      const data = await api.get('/quizzes/my-results');
+      setMyQuizResults(data);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setIsQuizResultsLoading(false);
+    }
+  };
+
+  const handleCreateNote = () => {
+    const newNote = {
+      id: 'note-' + Date.now(),
+      title: 'New Class Note',
+      content: '# New Lecture\n\n- Write definitions and Q&As here...',
+      updatedAt: new Date().toLocaleString()
+    };
+    const updated = [newNote, ...studyNotes];
+    setStudyNotes(updated);
+    setActiveNoteId(newNote.id);
+    localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+  };
+
+  const handleUpdateNoteContent = (content: string) => {
+    if (!activeNoteId) return;
+    const updated = studyNotes.map(n => {
+      if (n.id === activeNoteId) {
+        return { ...n, content, updatedAt: new Date().toLocaleString() };
+      }
+      return n;
+    });
+    setStudyNotes(updated);
+    localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+  };
+
+  const handleUpdateNoteTitle = (title: string) => {
+    if (!activeNoteId) return;
+    const updated = studyNotes.map(n => {
+      if (n.id === activeNoteId) {
+        return { ...n, title, updatedAt: new Date().toLocaleString() };
+      }
+      return n;
+    });
+    setStudyNotes(updated);
+    localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+  };
+
+  const handleDeleteNote = (id: string, e: any) => {
+    e.stopPropagation();
+    const updated = studyNotes.filter(n => n.id !== id);
+    setStudyNotes(updated);
+    localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+    if (activeNoteId === id) {
+      setActiveNoteId(updated.length > 0 ? updated[0].id : null);
+    }
+  };
+
+  const handleDownloadNote = () => {
+    const activeNote = studyNotes.find(n => n.id === activeNoteId);
+    if (!activeNote) return;
+    const element = document.createElement("a");
+    const file = new Blob([activeNote.content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${activeNote.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.md`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const insertTemplate = (type: 'definition' | 'question' | 'code' | 'list') => {
+    const activeNote = studyNotes.find(n => n.id === activeNoteId);
+    if (!activeNote) return;
+    
+    let templateText = '';
+    if (type === 'definition') {
+      templateText = '\n\n> 💡 **Definition**: [Term] - [Description]\n';
+    } else if (type === 'question') {
+      templateText = '\n\n### ❓ Question: [Topic]?\n**Answer**: \n';
+    } else if (type === 'code') {
+      templateText = '\n\n```javascript\n// Code snippet\n\n```\n';
+    } else if (type === 'list') {
+      templateText = '\n\n- Key Point 1\n- Key Point 2\n';
+    }
+
+    const newContent = activeNote.content + templateText;
+    handleUpdateNoteContent(newContent);
   };
 
   const fetchAssessments = async () => {
@@ -1484,6 +1613,7 @@ export default function StudentDashboard() {
               onClick={() => {
                 setActiveTab('quizzes');
                 fetchActiveQuizzes();
+                fetchQuizResults();
               }}
               className={`sidebar-btn ${activeTab === 'quizzes' ? 'active' : ''}`}
             >
@@ -1672,71 +1802,381 @@ export default function StudentDashboard() {
 
           {/* TAB 2: QUIZ HUB */}
           {activeTab === 'quizzes' && (
-            <div>
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontFamily: 'monospace', color: '#00f2fe' }}>
-                SECURE_QUIZ_HUB
-              </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-mono)', color: '#00f2fe', margin: 0 }}>
+                    SECURE_QUIZ_HUB
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                    Take college-deployed examinations and review completed results details.
+                  </p>
+                </div>
+              </div>
 
-              {isLoadingQuizzes ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
-                  Loading active examinations...
-                </div>
-              ) : quizzes.length === 0 ? (
-                <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
-                  No active quizzes scheduled for your college code. Check back later.
-                </div>
-              ) : (
-                <div className="dashboard-grid">
-                  {quizzes.map((quiz) => (
-                    <div
-                      key={quiz._id}
-                      className="glass-panel"
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        minHeight: '220px',
-                        borderLeft: quiz.isCompleted ? '4px solid var(--neon-green)' : '4px solid var(--neon-primary)'
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                          <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'monospace' }}>
-                            LIMIT: {quiz.durationMinutes} MINS
+              {/* Sub tab navigation */}
+              <div style={{
+                display: 'inline-flex',
+                background: 'rgba(10, 11, 24, 0.6)',
+                border: '1px solid var(--border-glass)',
+                padding: '5px',
+                borderRadius: '30px',
+                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.4)',
+                gap: '5px',
+                width: 'fit-content'
+              }}>
+                <button
+                  onClick={() => setQuizSubTab('available')}
+                  style={{
+                    padding: '10px 24px',
+                    fontSize: '0.8rem',
+                    fontFamily: 'var(--font-mono)',
+                    borderRadius: '25px',
+                    background: quizSubTab === 'available' 
+                      ? 'linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      : 'transparent',
+                    border: quizSubTab === 'available'
+                      ? '1px solid rgba(0, 242, 254, 0.4)'
+                      : '1px solid transparent',
+                    color: quizSubTab === 'available' ? 'var(--neon-primary)' : 'var(--text-secondary)',
+                    textShadow: quizSubTab === 'available' ? '0 0 10px rgba(0, 242, 254, 0.5)' : 'none',
+                    boxShadow: quizSubTab === 'available' ? '0 0 15px rgba(0, 242, 254, 0.15)' : 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  📝 Available Quizzes
+                </button>
+                <button
+                  onClick={() => {
+                    setQuizSubTab('results');
+                    fetchQuizResults();
+                  }}
+                  style={{
+                    padding: '10px 24px',
+                    fontSize: '0.8rem',
+                    fontFamily: 'var(--font-mono)',
+                    borderRadius: '25px',
+                    background: quizSubTab === 'results' 
+                      ? 'linear-gradient(135deg, rgba(189, 0, 255, 0.15) 0%, rgba(0, 82, 255, 0.15) 100%)' 
+                      : 'transparent',
+                    border: quizSubTab === 'results'
+                      ? '1px solid rgba(189, 0, 255, 0.4)'
+                      : '1px solid transparent',
+                    color: quizSubTab === 'results' ? 'var(--neon-secondary)' : 'var(--text-secondary)',
+                    textShadow: quizSubTab === 'results' ? '0 0 10px rgba(189, 0, 255, 0.5)' : 'none',
+                    boxShadow: quizSubTab === 'results' ? '0 0 15px rgba(189, 0, 255, 0.15)' : 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  📊 Performance Results
+                </button>
+              </div>
+
+              {quizSubTab === 'available' ? (
+                /* Available Quizzes Tab */
+                isLoadingQuizzes ? (
+                  <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                    Loading active examinations...
+                  </div>
+                ) : quizzes.length === 0 ? (
+                  <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
+                    No active quizzes scheduled for your college code. Check back later.
+                  </div>
+                ) : (
+                  <div className="dashboard-grid">
+                    {quizzes.map((quiz) => (
+                      <div
+                        key={quiz._id}
+                        className="glass-panel"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          minHeight: '220px',
+                          borderLeft: quiz.isCompleted ? '4px solid var(--neon-green)' : '4px solid var(--neon-primary)',
+                          background: 'rgba(10, 11, 24, 0.45)',
+                          borderColor: quiz.isCompleted ? 'rgba(0, 255, 135, 0.25)' : 'var(--border-glass)'
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                            <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'var(--font-mono)' }}>
+                              LIMIT: {quiz.durationMinutes} MINS
+                            </span>
+                            <span className={`badge ${quiz.isCompleted ? 'badge-approved' : 'badge-pending'}`}>
+                              {quiz.isCompleted ? 'COMPLETED' : 'PENDING'}
+                            </span>
+                          </div>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>{quiz.title}</h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+                            {quiz.description}
+                          </p>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            {quiz.questions.length} Questions
                           </span>
-                          <span className={`badge ${quiz.isCompleted ? 'badge-approved' : 'badge-pending'}`}>
-                            {quiz.isCompleted ? 'COMPLETED' : 'PENDING'}
+                          
+                          {quiz.isCompleted ? (
+                            <button disabled className="btn-glass" style={{ padding: '8px 16px', fontSize: '0.8rem', opacity: 0.6, cursor: 'not-allowed' }}>
+                              Attempt Saved
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => startQuizAttempt(quiz)}
+                              className="btn-neon"
+                              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                            >
+                              Launch Quiz
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              ) : (
+                /* Past Quiz Results Tab */
+                isQuizResultsLoading ? (
+                  <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                    Retrieving exam submissions history...
+                  </div>
+                ) : myQuizResults.length === 0 ? (
+                  <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
+                    No completed quiz attempts recorded in this portal.
+                  </div>
+                ) : (
+                  <div className="table-container">
+                    <table className="glass-table">
+                      <thead>
+                        <tr>
+                          <th>Exam / Quiz Title</th>
+                          <th style={{ textAlign: 'center' }}>Score Obtained</th>
+                          <th style={{ textAlign: 'center' }}>Accuracy Rate</th>
+                          <th style={{ textAlign: 'center' }}>Anti-Cheat Telemetry</th>
+                          <th style={{ textAlign: 'center' }}>Time Taken</th>
+                          <th style={{ textAlign: 'center' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {myQuizResults.map((resultItem) => {
+                          const quizData = resultItem.quiz || { title: 'Unknown Exam', questions: [] };
+                          const accuracy = Math.round((resultItem.score / resultItem.totalPoints) * 100);
+                          const minutes = Math.floor(resultItem.timeTakenSeconds / 60);
+                          const seconds = resultItem.timeTakenSeconds % 60;
+                          
+                          return (
+                            <tr key={resultItem._id} className="leaderboard-row">
+                              <td>
+                                <strong style={{ color: '#fff' }}>{quizData.title}</strong>
+                                <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                  Submitted: {new Date(resultItem.submittedAt).toLocaleString()}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: 'center', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                                {resultItem.score} <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>/ {resultItem.totalPoints}</span>
+                              </td>
+                              <td style={{ textAlign: 'center', fontWeight: 700, color: accuracy >= 70 ? 'var(--neon-green)' : accuracy >= 40 ? 'var(--neon-yellow)' : 'var(--neon-red)' }}>
+                                {accuracy}%
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                {resultItem.isCheated ? (
+                                  <span className="badge badge-rejected" style={{ fontSize: '0.7rem' }}>
+                                    ⚠️ Flagged ({resultItem.tabSwitchCount} tab switches)
+                                  </span>
+                                ) : (
+                                  <span className="badge badge-approved" style={{ fontSize: '0.7rem' }}>
+                                    🛡️ Secure Passed
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
+                                {minutes}m {seconds}s
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                <button
+                                  onClick={() => setSelectedQuizResult(resultItem)}
+                                  className="btn-glass"
+                                  style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                >
+                                  🔍 Review Details
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              )}
+
+              {/* Quiz Answers Review Modal Overlay */}
+              {selectedQuizResult && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'var(--modal-overlay)',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 99999,
+                  padding: '1.5rem'
+                }}>
+                  <div className="glass-panel" style={{
+                    width: '100%',
+                    maxWidth: '800px',
+                    maxHeight: '85vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    background: 'rgba(15, 16, 28, 0.95)',
+                    border: '1.5px solid var(--border-glass-hover)',
+                    borderRadius: '16px',
+                    padding: '1.5rem',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
+                  }}>
+                    {/* Modal Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#bd00ff', fontFamily: 'var(--font-mono)', letterSpacing: '1px', textTransform: 'uppercase' }}>EXAM_SUBMISSION_DETAILS</span>
+                        <h4 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '4px 0 0', color: '#fff' }}>
+                          {selectedQuizResult.quiz?.title || 'Quiz Review'}
+                        </h4>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Score: <strong style={{ color: 'var(--neon-primary)' }}>{selectedQuizResult.score}/{selectedQuizResult.totalPoints} points</strong>
+                          </span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>|</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Time taken: <strong>{Math.floor(selectedQuizResult.timeTakenSeconds / 60)}m {selectedQuizResult.timeTakenSeconds % 60}s</strong>
+                          </span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>|</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            Anti-cheat Status: {selectedQuizResult.isCheated ? (
+                              <strong style={{ color: 'var(--neon-red)' }}>Flagged ({selectedQuizResult.tabSwitchCount} Switches)</strong>
+                            ) : (
+                              <strong style={{ color: 'var(--neon-green)' }}>🛡️ Passed</strong>
+                            )}
                           </span>
                         </div>
-                        <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.5rem' }}>{quiz.title}</h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
-                          {quiz.description}
-                        </p>
                       </div>
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                          {quiz.questions.length} Questions
-                        </span>
-                        
-                        {quiz.isCompleted ? (
-                          <button disabled className="btn-glass" style={{ padding: '8px 16px', fontSize: '0.8rem', opacity: 0.6, cursor: 'not-allowed' }}>
-                            Attempt Saved
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => startQuizAttempt(quiz)}
-                            className="btn-neon"
-                            style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-                          >
-                            Launch Quiz
-                          </button>
-                        )}
-                      </div>
+                      
+                      <button
+                        onClick={() => setSelectedQuizResult(null)}
+                        className="theme-toggle"
+                        style={{ border: 'none', background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: '1rem', width: '32px', height: '32px' }}
+                      >
+                        ✕
+                      </button>
                     </div>
-                  ))}
+
+                    {/* Scrollable Questions list */}
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingRight: '6px' }}>
+                      {selectedQuizResult.quiz?.questions ? (
+                        selectedQuizResult.quiz.questions.map((q: any, qIdx: number) => {
+                          const studentAnswerIdx = selectedQuizResult.answers[qIdx];
+                          const isCorrect = studentAnswerIdx === q.correctOptionIndex;
+                          
+                          return (
+                            <div key={qIdx} style={{
+                              padding: '1.2rem',
+                              border: '1px solid var(--border-glass)',
+                              borderRadius: '12px',
+                              background: 'rgba(10, 11, 24, 0.4)',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px'
+                            }}>
+                              <h5 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff', lineHeight: '1.5' }}>
+                                {qIdx + 1}. {q.questionText}
+                                <span style={{ 
+                                  marginLeft: '10px',
+                                  fontSize: '0.7rem', 
+                                  color: isCorrect ? 'var(--neon-green)' : 'var(--neon-red)',
+                                  background: isCorrect ? 'rgba(0, 255, 135, 0.05)' : 'rgba(255, 0, 85, 0.05)',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  border: isCorrect ? '1px solid rgba(0, 255, 135, 0.2)' : '1px solid rgba(255, 0, 85, 0.2)'
+                                }}>
+                                  {isCorrect ? 'Correct (+'+q.points+' pts)' : 'Incorrect (0/'+q.points+' pts)'}
+                                </span>
+                              </h5>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '4px' }}>
+                                {q.options.map((opt: string, optIdx: number) => {
+                                  let badgeStyle: any = {
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.85rem',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    transition: 'all 0.2s'
+                                  };
+                                  let label = '';
+                                  
+                                  if (optIdx === q.correctOptionIndex) {
+                                    // Correct answer
+                                    badgeStyle.background = 'rgba(0, 255, 135, 0.06)';
+                                    badgeStyle.border = '1px solid rgba(0, 255, 135, 0.35)';
+                                    badgeStyle.color = 'var(--neon-green)';
+                                    label = '✓ Correct Answer';
+                                  } else if (optIdx === studentAnswerIdx && !isCorrect) {
+                                    // Student chose wrong option
+                                    badgeStyle.background = 'rgba(255, 0, 85, 0.06)';
+                                    badgeStyle.border = '1px solid rgba(255, 0, 85, 0.35)';
+                                    badgeStyle.color = 'var(--neon-red)';
+                                    label = '✗ Your Selection';
+                                  } else {
+                                    // Normal option
+                                    badgeStyle.background = 'rgba(255, 255, 255, 0.01)';
+                                    badgeStyle.border = '1px solid var(--border-glass)';
+                                    badgeStyle.color = 'var(--text-secondary)';
+                                  }
+
+                                  return (
+                                    <div key={optIdx} style={badgeStyle}>
+                                      <span>
+                                        <strong style={{ opacity: 0.6, marginRight: '8px' }}>
+                                          {optIdx === 0 ? 'A' : optIdx === 1 ? 'B' : optIdx === 2 ? 'C' : 'D'}.
+                                        </strong>
+                                        {opt}
+                                      </span>
+                                      {label && (
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                          {label}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No questions data found.</div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', borderTop: '1px solid var(--border-glass)', paddingTop: '1rem' }}>
+                      <button onClick={() => setSelectedQuizResult(null)} className="btn-glass" style={{ padding: '8px 24px', fontSize: '0.85rem' }}>
+                        Close Review
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
+
             </div>
           )}
 
@@ -2051,19 +2491,25 @@ export default function StudentDashboard() {
                 </div>
               ) : assessmentTab === 'challenges' ? (
                 /* Challenges Grid Workspace */
-                <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '2rem', alignItems: 'stretch' }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isAssessmentFullscreen ? '1fr' : '340px 1fr',
+                  gap: isAssessmentFullscreen ? '0' : '2rem',
+                  alignItems: 'stretch'
+                }}>
                   
                   {/* Left Column: Challenges List & Search */}
-                  <div className="glass-panel" style={{
-                    padding: '1.25rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1.25rem',
-                    height: '680px',
-                    background: 'rgba(10, 11, 24, 0.45)',
-                    backdropFilter: 'blur(20px)',
-                    borderColor: 'var(--border-glass-hover)'
-                  }}>
+                  {!isAssessmentFullscreen && (
+                    <div className="glass-panel" style={{
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '1.25rem',
+                      height: '680px',
+                      background: 'rgba(10, 11, 24, 0.45)',
+                      backdropFilter: 'blur(20px)',
+                      borderColor: 'var(--border-glass-hover)'
+                    }}>
                     {/* Search bar */}
                     <div style={{ position: 'relative' }}>
                       <input
@@ -2197,9 +2643,22 @@ export default function StudentDashboard() {
                       )}
                     </div>
                   </div>
+                  )}
 
                   {/* Right Column: Code Editor Workspace */}
-                  <div className="glass-panel" style={{
+                  <div className={isAssessmentFullscreen ? "" : "glass-panel"} style={isAssessmentFullscreen ? {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 9999,
+                    background: '#0a0b12',
+                    padding: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                  } : {
                     padding: '1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
@@ -2287,95 +2746,235 @@ export default function StudentDashboard() {
                             borderBottom: 'none',
                             padding: '0 8px'
                           }}>
-                            <div style={{ display: 'flex', gap: '2px' }}>
-                              {[
-                                { id: 'html', file: 'index.html', color: '#e34f26' },
-                                { id: 'css', file: 'styles.css', color: '#00f2fe' },
-                                { id: 'js', file: 'app.js', color: '#ffd000' }
-                              ].map(t => {
-                                const isActive = assessmentActiveEditor === t.id;
-                                return (
-                                  <button
-                                    key={t.id}
-                                    onClick={() => setAssessmentActiveEditor(t.id as any)}
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '8px',
-                                      padding: '12px 20px',
-                                      fontSize: '0.8rem',
-                                      fontFamily: 'var(--font-mono)',
-                                      border: 'none',
-                                      background: isActive ? '#14151f' : 'transparent',
-                                      color: isActive ? '#fff' : 'var(--text-muted)',
-                                      fontWeight: isActive ? 600 : 400,
-                                      cursor: 'pointer',
-                                      borderTopLeftRadius: '8px',
-                                      borderTopRightRadius: '8px',
-                                      borderBottom: isActive ? `2px solid ${t.color}` : '2px solid transparent',
-                                      transition: '0.2s'
-                                    }}
-                                  >
-                                    <span style={{ color: t.color, fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
-                                      ●
-                                    </span>
-                                    {t.file}
-                                  </button>
-                                );
-                              })}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              {assessmentLayout === 'tabs' ? (
+                                <div style={{ display: 'flex', gap: '2px' }}>
+                                  {[
+                                    { id: 'html', file: 'index.html', color: '#e34f26' },
+                                    { id: 'css', file: 'styles.css', color: '#00f2fe' },
+                                    { id: 'js', file: 'app.js', color: '#ffd000' }
+                                  ].map(t => {
+                                    const isActive = assessmentActiveEditor === t.id;
+                                    return (
+                                      <button
+                                        key={t.id}
+                                        onClick={() => setAssessmentActiveEditor(t.id as any)}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '8px',
+                                          padding: '12px 20px',
+                                          fontSize: '0.8rem',
+                                          fontFamily: 'var(--font-mono)',
+                                          border: 'none',
+                                          background: isActive ? '#14151f' : 'transparent',
+                                          color: isActive ? '#fff' : 'var(--text-muted)',
+                                          fontWeight: isActive ? 600 : 400,
+                                          cursor: 'pointer',
+                                          borderTopLeftRadius: '8px',
+                                          borderTopRightRadius: '8px',
+                                          borderBottom: isActive ? `2px solid ${t.color}` : '2px solid transparent',
+                                          transition: '0.2s'
+                                        }}
+                                      >
+                                        <span style={{ color: t.color, fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
+                                          ●
+                                        </span>
+                                        {t.file}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', paddingLeft: '8px', fontWeight: 600 }}>
+                                  🥞 Split IDE Workspace
+                                </span>
+                              )}
+
+                              <button
+                                onClick={() => setAssessmentLayout(prev => prev === 'tabs' ? 'split' : 'tabs')}
+                                className="btn-glass"
+                                style={{
+                                  padding: '4px 10px',
+                                  fontSize: '0.7rem',
+                                  borderRadius: '4px',
+                                  fontFamily: 'var(--font-mono)',
+                                  border: '1px solid rgba(255,255,255,0.08)',
+                                  background: 'rgba(255,255,255,0.02)'
+                                }}
+                              >
+                                {assessmentLayout === 'tabs' ? '🥞 Split View' : '🗂️ Tabbed View'}
+                              </button>
                             </div>
                             
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', paddingRight: '12px', letterSpacing: '0.5px' }}>
-                              {selectedAssessment.type.toUpperCase()}_WORKSPACE
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', paddingRight: '12px', letterSpacing: '0.5px' }}>
+                                {selectedAssessment.type.toUpperCase()}_WORKSPACE
+                              </span>
+
+                              <button
+                                onClick={() => setIsAssessmentFullscreen(!isAssessmentFullscreen)}
+                                className="btn-glass"
+                                style={{
+                                  padding: '4px 10px',
+                                  fontSize: '0.7rem',
+                                  borderRadius: '6px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  borderColor: isAssessmentFullscreen ? 'var(--neon-primary)' : 'rgba(255,255,255,0.1)'
+                                }}
+                              >
+                                {isAssessmentFullscreen ? (
+                                  <>
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                                    </svg>
+                                    Exit Zen
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
+                                    </svg>
+                                    Zen Mode
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
 
-                          <div style={{
-                            flex: 1,
-                            borderBottomLeftRadius: '12px',
-                            borderBottomRightRadius: '12px',
-                            overflow: 'hidden',
-                            border: '1px solid var(--border-glass)',
-                            borderTop: 'none',
-                            background: '#14151f',
-                            minHeight: 0
-                          }}>
-                            <Editor
-                              height="100%"
-                              language={assessmentActiveEditor === 'js' ? 'javascript' : assessmentActiveEditor}
-                              theme={editorTheme}
-                              value={
-                                assessmentActiveEditor === 'html' ? assessmentHtml :
-                                assessmentActiveEditor === 'css' ? assessmentCss :
-                                assessmentJs
-                              }
-                              onChange={(val) => {
-                                const newVal = val || '';
-                                if (assessmentActiveEditor === 'html') setAssessmentHtml(newVal);
-                                else if (assessmentActiveEditor === 'css') setAssessmentCss(newVal);
-                                else setAssessmentJs(newVal);
-                              }}
-                              options={{
-                                minimap: { enabled: false },
-                                fontSize: 13,
-                                fontFamily: 'Consolas, "Courier New", monospace',
-                                tabSize: 2,
-                                automaticLayout: true,
-                                suggestOnTriggerCharacters: true,
-                                wordBasedSuggestions: 'allDocuments',
-                                snippetSuggestions: 'inline',
-                                quickSuggestions: { other: true, comments: true, strings: true },
-                                lineNumbers: 'on',
-                                autoClosingBrackets: 'always',
-                                autoClosingQuotes: 'always',
-                                autoClosingComments: 'always',
-                                scrollbar: {
-                                  vertical: 'visible',
-                                  horizontal: 'visible'
+                          {assessmentLayout === 'tabs' ? (
+                            <div style={{
+                              flex: 1,
+                              borderBottomLeftRadius: '12px',
+                              borderBottomRightRadius: '12px',
+                              overflow: 'hidden',
+                              border: '1px solid var(--border-glass)',
+                              borderTop: 'none',
+                              background: '#14151f',
+                              minHeight: 0
+                            }}>
+                              <Editor
+                                height={isAssessmentFullscreen ? "calc(100vh - 340px)" : "350px"}
+                                language={assessmentActiveEditor === 'js' ? 'javascript' : assessmentActiveEditor}
+                                theme={editorTheme}
+                                value={
+                                  assessmentActiveEditor === 'html' ? assessmentHtml :
+                                  assessmentActiveEditor === 'css' ? assessmentCss :
+                                  assessmentJs
                                 }
-                              }}
-                            />
-                          </div>
+                                onChange={(val) => {
+                                  const newVal = val || '';
+                                  if (assessmentActiveEditor === 'html') setAssessmentHtml(newVal);
+                                  else if (assessmentActiveEditor === 'css') setAssessmentCss(newVal);
+                                  else setAssessmentJs(newVal);
+                                }}
+                                options={{
+                                  minimap: { enabled: false },
+                                  fontSize: 13,
+                                  fontFamily: 'Consolas, "Courier New", monospace',
+                                  tabSize: 2,
+                                  automaticLayout: true,
+                                  suggestOnTriggerCharacters: true,
+                                  wordBasedSuggestions: 'allDocuments',
+                                  snippetSuggestions: 'inline',
+                                  quickSuggestions: { other: true, comments: true, strings: true },
+                                  lineNumbers: 'on',
+                                  autoClosingBrackets: 'always',
+                                  autoClosingQuotes: 'always',
+                                  autoClosingComments: 'always',
+                                  scrollbar: {
+                                    vertical: 'visible',
+                                    horizontal: 'visible'
+                                  }
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div style={{
+                              flex: 1,
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3, 1fr)',
+                              gap: '10px',
+                              minHeight: 0
+                            }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-glass)', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden', background: '#14151f' }}>
+                                <div style={{ background: '#0a0b12', padding: '6px 12px', borderBottom: '1px solid var(--border-glass)', color: '#e34f26', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                                  index.html
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <Editor
+                                    height={isAssessmentFullscreen ? "calc(100vh - 370px)" : "320px"}
+                                    language="html"
+                                    theme={editorTheme}
+                                    value={assessmentHtml}
+                                    onChange={(val) => setAssessmentHtml(val || '')}
+                                    options={{
+                                      minimap: { enabled: false },
+                                      fontSize: 12,
+                                      fontFamily: 'Consolas, "Courier New", monospace',
+                                      tabSize: 2,
+                                      automaticLayout: true,
+                                      lineNumbers: 'on',
+                                      autoClosingBrackets: 'always',
+                                      scrollbar: { vertical: 'visible', horizontal: 'visible' }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+
+                              <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-glass)', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden', background: '#14151f' }}>
+                                <div style={{ background: '#0a0b12', padding: '6px 12px', borderBottom: '1px solid var(--border-glass)', color: '#00f2fe', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                                  styles.css
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <Editor
+                                    height={isAssessmentFullscreen ? "calc(100vh - 370px)" : "320px"}
+                                    language="css"
+                                    theme={editorTheme}
+                                    value={assessmentCss}
+                                    onChange={(val) => setAssessmentCss(val || '')}
+                                    options={{
+                                      minimap: { enabled: false },
+                                      fontSize: 12,
+                                      fontFamily: 'Consolas, "Courier New", monospace',
+                                      tabSize: 2,
+                                      automaticLayout: true,
+                                      lineNumbers: 'on',
+                                      autoClosingBrackets: 'always',
+                                      scrollbar: { vertical: 'visible', horizontal: 'visible' }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+
+                              <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-glass)', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', overflow: 'hidden', background: '#14151f' }}>
+                                <div style={{ background: '#0a0b12', padding: '6px 12px', borderBottom: '1px solid var(--border-glass)', color: '#ffd000', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                                  app.js
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <Editor
+                                    height={isAssessmentFullscreen ? "calc(100vh - 370px)" : "320px"}
+                                    language="javascript"
+                                    theme={editorTheme}
+                                    value={assessmentJs}
+                                    onChange={(val) => setAssessmentJs(val || '')}
+                                    options={{
+                                      minimap: { enabled: false },
+                                      fontSize: 12,
+                                      fontFamily: 'Consolas, "Courier New", monospace',
+                                      tabSize: 2,
+                                      automaticLayout: true,
+                                      lineNumbers: 'on',
+                                      autoClosingBrackets: 'always',
+                                      scrollbar: { vertical: 'visible', horizontal: 'visible' }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Test Cases Run & Action Controls */}
@@ -2706,69 +3305,288 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
-                {/* 2. Client-side Autosaving Notepad */}
-                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '340px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <span style={{ fontSize: '0.8rem', color: '#00ff87', fontFamily: 'monospace' }}>
-                      LOCAL_STUDY_NOTEBOOK
-                    </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                {/* 2. Client-side Study Notes Workspace */}
+                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '480px', gridColumn: 'span 2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '1.2rem' }}>📝</span>
+                      <div>
+                        <h3 style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600, margin: 0, fontFamily: 'monospace' }}>
+                          CLASS_STUDY_NOTEBOOK
+                        </h3>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0 }}>
+                          Save important concepts, definitions, and code templates during lectures
+                        </p>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: '#00ff87', background: 'rgba(0, 255, 135, 0.1)', padding: '3px 8px', borderRadius: '12px', fontFamily: 'monospace' }}>
                       ● Auto-saved to LocalStorage
                     </span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                    <button
-                      onClick={() => setNotepadTab('edit')}
-                      className={`btn-glass ${notepadTab === 'edit' ? 'btn-neon' : ''}`}
-                      style={{ padding: '5px 10px', fontSize: '0.7rem', borderRadius: '4px' }}
-                    >
-                      Write Note
-                    </button>
-                    <button
-                      onClick={() => setNotepadTab('preview')}
-                      className={`btn-glass ${notepadTab === 'preview' ? 'btn-neon' : ''}`}
-                      style={{ padding: '5px 10px', fontSize: '0.7rem', borderRadius: '4px' }}
-                    >
-                      Markdown Preview
-                    </button>
-                  </div>
+                  {/* Two Column Layout */}
+                  <div className="notes-workspace-layout">
+                    {/* Left Sub-Sidebar: Notes list */}
+                    <div style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRight: '1px solid var(--border-glass)', paddingRight: '1rem', flexShrink: 0 }}>
+                      
+                      {/* Search Input */}
+                      <input
+                        type="text"
+                        placeholder="🔍 Search notes..."
+                        value={noteSearchQuery}
+                        onChange={(e) => setNoteSearchQuery(e.target.value)}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(0,0,0,0.2)',
+                          color: '#fff',
+                          border: '1px solid var(--border-glass)',
+                          borderRadius: '6px',
+                          padding: '6px 10px',
+                          fontSize: '0.8rem',
+                          outline: 'none'
+                        }}
+                      />
 
-                  {notepadTab === 'edit' ? (
-                    <textarea
-                      value={notepadText}
-                      onChange={(e) => handleNotepadChange(e.target.value)}
-                      placeholder="Use Markdown symbols: # Header, ## Header, - list, **bold**, `code`..."
-                      style={{
-                        flex: 1,
-                        width: '100%',
-                        background: '#0d0e15',
-                        color: '#a0aec0',
-                        fontFamily: 'monospace',
-                        fontSize: '0.85rem',
-                        padding: '12px',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: '8px',
-                        outline: 'none',
-                        resize: 'none'
-                      }}
-                    />
-                  ) : (
-                    <div
-                      dangerouslySetInnerHTML={renderMarkdown(notepadText)}
-                      style={{
-                        flex: 1,
-                        background: '#0d0e15',
-                        padding: '12px',
-                        border: '1px solid var(--border-glass)',
-                        borderRadius: '8px',
-                        overflowY: 'auto',
-                        fontSize: '0.85rem',
-                        lineHeight: '1.6',
-                        color: 'var(--text-primary)'
-                      }}
-                    />
-                  )}
+                      {/* + New Note Button */}
+                      <button
+                        onClick={handleCreateNote}
+                        className="btn-neon"
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          fontSize: '0.8rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)',
+                          color: '#0d0e15',
+                          fontWeight: 'bold',
+                          boxShadow: '0 4px 10px rgba(0, 255, 135, 0.2)'
+                        }}
+                      >
+                        <span>➕</span> New Note
+                      </button>
+
+                      {/* Notes List */}
+                      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '320px' }}>
+                        {studyNotes
+                          .filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase()))
+                          .map((note) => {
+                            const isActive = note.id === activeNoteId;
+                            return (
+                              <div
+                                key={note.id}
+                                onClick={() => setActiveNoteId(note.id)}
+                                style={{
+                                  padding: '8px 10px',
+                                  borderRadius: '6px',
+                                  background: isActive ? 'rgba(0, 255, 135, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                  border: `1px solid ${isActive ? '#00ff87' : 'var(--border-glass)'}`,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '4px',
+                                  transition: 'all 0.2s ease',
+                                  position: 'relative'
+                                }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: isActive ? '#00ff87' : 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                                    {note.title}
+                                  </span>
+                                  <button
+                                    onClick={(e) => handleDeleteNote(note.id, e)}
+                                    title="Delete note"
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: 'rgba(255,255,255,0.3)',
+                                      cursor: 'pointer',
+                                      padding: '2px',
+                                      fontSize: '0.75rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      transition: 'color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = '#ff0055'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
+                                <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                  🕒 {note.updatedAt}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        {studyNotes.filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase())).length === 0 && (
+                          <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                            No notes found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right Editor Panel */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+                      {activeNoteId && studyNotes.find(n => n.id === activeNoteId) ? (() => {
+                        const note = studyNotes.find(n => n.id === activeNoteId)!;
+                        return (
+                          <>
+                            {/* Title Editing Row */}
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                              <input
+                                type="text"
+                                value={note.title}
+                                onChange={(e) => handleUpdateNoteTitle(e.target.value)}
+                                placeholder="Note Title"
+                                style={{
+                                  flex: 1,
+                                  background: 'rgba(255,255,255,0.02)',
+                                  color: '#fff',
+                                  border: '1px solid var(--border-glass)',
+                                  borderRadius: '6px',
+                                  padding: '8px 12px',
+                                  fontSize: '0.9rem',
+                                  fontWeight: 600,
+                                  outline: 'none'
+                                }}
+                              />
+                              
+                              {/* Write / Preview Tabs */}
+                              <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
+                                <button
+                                  onClick={() => setNotepadTab('edit')}
+                                  className={`btn-glass ${notepadTab === 'edit' ? 'btn-neon' : ''}`}
+                                  style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
+                                >
+                                  ✍️ Edit
+                                </button>
+                                <button
+                                  onClick={() => setNotepadTab('preview')}
+                                  className={`btn-glass ${notepadTab === 'preview' ? 'btn-neon' : ''}`}
+                                  style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
+                                >
+                                  👁️ Preview
+                                </button>
+                              </div>
+
+                              {/* Download Button */}
+                              <button
+                                onClick={handleDownloadNote}
+                                className="btn-glass"
+                                style={{
+                                  padding: '6px 12px',
+                                  fontSize: '0.7rem',
+                                  borderRadius: '6px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  color: '#00ff87',
+                                  borderColor: 'rgba(0, 255, 137, 0.3)'
+                                }}
+                              >
+                                📥 Download
+                              </button>
+                            </div>
+
+                            {/* Template insertion buttons */}
+                            {notepadTab === 'edit' && (
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginRight: '4px' }}>Quick Insert:</span>
+                                <button
+                                  onClick={() => insertTemplate('definition')}
+                                  className="btn-glass"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                  💡 Definition
+                                </button>
+                                <button
+                                  onClick={() => insertTemplate('question')}
+                                  className="btn-glass"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                  ❓ Question / Answer
+                                </button>
+                                <button
+                                  onClick={() => insertTemplate('code')}
+                                  className="btn-glass"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                  💻 Code Block
+                                </button>
+                                <button
+                                  onClick={() => insertTemplate('list')}
+                                  className="btn-glass"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                >
+                                  📋 Bullet List
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Editor Textarea / Preview Container */}
+                            <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+                              {notepadTab === 'edit' ? (
+                                <textarea
+                                  value={note.content}
+                                  onChange={(e) => handleUpdateNoteContent(e.target.value)}
+                                  placeholder="Use Markdown symbols: # Header, ## Header, - list, **bold**, `code`..."
+                                  style={{
+                                    flex: 1,
+                                    width: '100%',
+                                    background: '#0d0e15',
+                                    color: '#a0aec0',
+                                    fontFamily: 'monospace',
+                                    fontSize: '0.85rem',
+                                    padding: '12px',
+                                    border: '1px solid var(--border-glass)',
+                                    borderRadius: '8px',
+                                    outline: 'none',
+                                    resize: 'none',
+                                    height: '100%',
+                                    minHeight: '220px'
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  dangerouslySetInnerHTML={renderMarkdown(note.content)}
+                                  style={{
+                                    flex: 1,
+                                    background: '#0d0e15',
+                                    padding: '12px',
+                                    border: '1px solid var(--border-glass)',
+                                    borderRadius: '8px',
+                                    overflowY: 'auto',
+                                    fontSize: '0.85rem',
+                                    lineHeight: '1.6',
+                                    color: 'var(--text-primary)',
+                                    height: '100%',
+                                    minHeight: '220px'
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </>
+                        );
+                      })() : (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-glass)', borderRadius: '8px', padding: '2rem' }}>
+                          <span>📝</span>
+                          <p style={{ margin: '8px 0 0', fontSize: '0.85rem' }}>No note selected or created</p>
+                          <button
+                            onClick={handleCreateNote}
+                            className="btn-neon"
+                            style={{ marginTop: '1rem', padding: '6px 12px', fontSize: '0.75rem' }}
+                          >
+                            Create a Note
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -3754,6 +4572,25 @@ export default function StudentDashboard() {
           
           .sidebar-btn:hover {
             transform: translateY(-2px);
+          }
+        }
+
+        .notes-workspace-layout {
+          display: flex;
+          flex: 1;
+          gap: 1.5rem;
+          min-height: 0;
+        }
+        @media (max-width: 768px) {
+          .notes-workspace-layout {
+            flex-direction: column !important;
+          }
+          .notes-workspace-layout > div:first-child {
+            width: 100% !important;
+            border-right: none !important;
+            padding-right: 0 !important;
+            border-bottom: 1px solid var(--border-glass) !important;
+            padding-bottom: 1rem !important;
           }
         }
       `}</style>
