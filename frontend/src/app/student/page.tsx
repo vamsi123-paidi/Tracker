@@ -55,6 +55,328 @@ const getImageUrl = (url?: string) => {
   return `${baseUrl}${url}`;
 };
 
+// Helper function to register VSCode snippets and HTML auto-closing tag feature
+const setupMonacoSnippetsAndAutoClose = (editor: any, monaco: any) => {
+  // Register HTML Snippets
+  const htmlProvider = monaco.languages.registerCompletionItemProvider('html', {
+    provideCompletionItems: (model: any, position: any) => {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn
+      };
+      
+      const suggestions = [
+        {
+          label: '!',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'HTML5 Boilerplate Structure',
+          insertText: [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '  <meta charset="UTF-8">',
+            '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+            '  <title>${1:Document}</title>',
+            '</head>',
+            '<body>',
+            '  $0',
+            '</body>',
+            '</html>'
+          ].join('\n'),
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'html:5',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'HTML5 Boilerplate Structure',
+          insertText: [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '  <meta charset="UTF-8">',
+            '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+            '  <title>${1:Document}</title>',
+            '</head>',
+            '<body>',
+            '  $0',
+            '</body>',
+            '</html>'
+          ].join('\n'),
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'a',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Anchor Tag',
+          insertText: '<a href="${1:#}">${2:Link}</a>$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'img',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Image Tag',
+          insertText: '<img src="${1}" alt="${2}">$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'link',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'CSS Link Tag',
+          insertText: '<link rel="stylesheet" href="${1:style.css}">$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'script',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Script Tag',
+          insertText: '<script src="${1:script.js}"></script>$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'div',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Div Element',
+          insertText: '<div class="${1:container}">\n  $0\n</div>',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'style',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Style Tag',
+          insertText: '<style>\n  $0\n</style>',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'p',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Paragraph Tag',
+          insertText: '<p>$1</p>$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'button',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Button Tag',
+          insertText: '<button class="${1:btn}">$2</button>$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'ul',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'Unordered List',
+          insertText: '<ul>\n  <li>$1</li>\n</ul>$0',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        }
+      ];
+      
+      return { suggestions };
+    }
+  });
+
+  // Register CSS Snippets
+  const cssProvider = monaco.languages.registerCompletionItemProvider('css', {
+    provideCompletionItems: (model: any, position: any) => {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn
+      };
+      
+      const suggestions = [
+        {
+          label: 'df',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'display: flex;',
+          insertText: 'display: flex;',
+          range: range
+        },
+        {
+          label: 'dn',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'display: none;',
+          insertText: 'display: none;',
+          range: range
+        },
+        {
+          label: 'db',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'display: block;',
+          insertText: 'display: block;',
+          range: range
+        },
+        {
+          label: 'jcsb',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'justify-content: space-between;',
+          insertText: 'justify-content: space-between;',
+          range: range
+        },
+        {
+          label: 'jc',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'justify-content: center;',
+          insertText: 'justify-content: center;',
+          range: range
+        },
+        {
+          label: 'ai',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'align-items: center;',
+          insertText: 'align-items: center;',
+          range: range
+        },
+        {
+          label: 'tac',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'text-align: center;',
+          insertText: 'text-align: center;',
+          range: range
+        },
+        {
+          label: 'm0',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'margin: 0;',
+          insertText: 'margin: 0;',
+          range: range
+        },
+        {
+          label: 'p0',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'padding: 0;',
+          insertText: 'padding: 0;',
+          range: range
+        },
+        {
+          label: 'w100',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'width: 100%;',
+          insertText: 'width: 100%;',
+          range: range
+        },
+        {
+          label: 'h100',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'height: 100%;',
+          insertText: 'height: 100%;',
+          range: range
+        },
+        {
+          label: 'bg',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'background;',
+          insertText: 'background: ${1:#fff};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'c',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'color;',
+          insertText: 'color: ${1:#fff};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'fs',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'font-size;',
+          insertText: 'font-size: ${1:16px};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'fw',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'font-weight;',
+          insertText: 'font-weight: ${1:bold};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'br',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'border-radius;',
+          insertText: 'border-radius: ${1:8px};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        },
+        {
+          label: 'bs',
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          documentation: 'box-shadow;',
+          insertText: 'box-shadow: ${1:0 4px 15px rgba(0,0,0,0.1)};',
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          range: range
+        }
+      ];
+      
+      return { suggestions };
+    }
+  });
+
+  // HTML tag auto-closing listener
+  const changeListener = editor.onDidChangeModelContent((event: any) => {
+    const changes = event.changes;
+    if (changes && changes.length === 1) {
+      const change = changes[0];
+      if (change.text === '>') {
+        const model = editor.getModel();
+        const position = editor.getPosition();
+        if (!model || !position) return;
+
+        const lineContent = model.getLineContent(position.lineNumber);
+        const textBeforeCursor = lineContent.substring(0, position.column - 1);
+
+        const tagMatch = textBeforeCursor.match(/<([a-zA-Z0-9\-]+)(?:\s+[^>]*)*$/);
+        if (tagMatch) {
+          const tagName = tagMatch[1];
+          const selfClosingTags = ['img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
+          if (!selfClosingTags.includes(tagName.toLowerCase())) {
+            const closingTag = `</${tagName}>`;
+            
+            setTimeout(() => {
+              editor.executeEdits('auto-close-tag', [{
+                range: new monaco.Range(
+                  position.lineNumber,
+                  position.column,
+                  position.lineNumber,
+                  position.column
+                ),
+                text: closingTag,
+                forceMoveMarkers: true
+              }]);
+              
+              editor.setPosition(position);
+            }, 0);
+          }
+        }
+      }
+    }
+  });
+
+  return () => {
+    htmlProvider.dispose();
+    cssProvider.dispose();
+    changeListener.dispose();
+  };
+};
+
 export default function StudentDashboard() {
   const router = useRouter();
   
@@ -158,6 +480,17 @@ export default function StudentDashboard() {
 
   // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
+  const editorRef = useRef<any>(null);
+  const monacoCleanupRef = useRef<(() => void) | null>(null);
+
+  // Clean up Monaco completion items on component unmount
+  useEffect(() => {
+    return () => {
+      if (monacoCleanupRef.current) {
+        monacoCleanupRef.current();
+      }
+    };
+  }, []);
 
   // Initialize
   useEffect(() => {
@@ -1113,6 +1446,14 @@ export default function StudentDashboard() {
                         else if (playgroundActiveEditor === 'css') setPlaygroundCss(newVal);
                         else setPlaygroundJs(newVal);
                       }}
+                      onMount={(editor, monaco) => {
+                        editorRef.current = editor;
+                        if (monacoCleanupRef.current) {
+                          monacoCleanupRef.current();
+                        }
+                        const cleanup = setupMonacoSnippetsAndAutoClose(editor, monaco);
+                        monacoCleanupRef.current = cleanup;
+                      }}
                       options={{
                         minimap: { enabled: false },
                         fontSize: 14,
@@ -1124,6 +1465,9 @@ export default function StudentDashboard() {
                         snippetSuggestions: 'inline',
                         quickSuggestions: { other: true, comments: true, strings: true },
                         lineNumbers: 'on',
+                        autoClosingBrackets: 'always',
+                        autoClosingQuotes: 'always',
+                        autoClosingComments: 'always',
                         scrollbar: {
                           vertical: 'visible',
                           horizontal: 'visible'
