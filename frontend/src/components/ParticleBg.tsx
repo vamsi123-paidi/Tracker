@@ -64,13 +64,12 @@ export const ParticleBg: React.FC = () => {
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('resize', handleResize);
 
-    // Load colors dynamically from stylesheet variables
     const getThemeColors = () => {
       const isLight = document.documentElement.classList.contains('light');
       return {
-        particleColor: isLight ? 'rgba(79, 70, 229, 0.4)' : 'rgba(0, 242, 254, 0.45)',
-        linkColor: isLight ? 'rgba(79, 70, 229, 0.07)' : 'rgba(0, 242, 254, 0.08)',
-        mouseLinkColor: isLight ? 'rgba(217, 70, 239, 0.14)' : 'rgba(255, 0, 127, 0.15)',
+        particleColor: isLight ? 'rgba(255, 87, 34, 0.4)' : 'rgba(245, 158, 11, 0.45)',
+        linkColor: isLight ? 'rgba(255, 87, 34, 0.07)' : 'rgba(245, 158, 11, 0.08)',
+        mouseLinkColor: isLight ? 'rgba(0, 168, 204, 0.15)' : 'rgba(16, 185, 129, 0.15)',
       };
     };
 

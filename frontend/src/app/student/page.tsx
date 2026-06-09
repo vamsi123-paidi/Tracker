@@ -1816,9 +1816,9 @@ export default function StudentDashboard() {
               className={`sidebar-btn ${activeTab === 'tools' ? 'active' : ''}`}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              Focus Tools
+              Make a Note
             </button>
 
             <button
@@ -3194,21 +3194,25 @@ export default function StudentDashboard() {
                           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <button
                               onClick={executeTestCases}
-                              className="btn-glass"
+                              className="btn-glass btn-run"
                               style={{
                                 padding: '12px 24px',
                                 fontSize: '0.85rem',
                                 borderRadius: '10px',
                                 fontWeight: 600,
-                                fontFamily: 'var(--font-mono)'
+                                fontFamily: 'var(--font-mono)',
+                                gap: '6px'
                               }}
                             >
-                              ⚙️ Run Tests
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3" />
+                              </svg>
+                              Run Tests
                             </button>
                             <button
                               onClick={handleAssessmentSubmit}
                               disabled={isSubmittingAssessment || assessmentTestResults.length === 0 || !assessmentTestResults.every(r => r.passed)}
-                              className="btn-neon"
+                              className="btn-neon btn-transmit"
                               style={{
                                 padding: '12px 26px',
                                 fontSize: '0.85rem',
@@ -3227,10 +3231,15 @@ export default function StudentDashboard() {
                                 boxShadow: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? '0 0 15px rgba(0, 255, 135, 0.4)' : 'none',
                                 opacity: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 1 : 0.5,
                                 cursor: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 'pointer' : 'not-allowed',
-                                transition: 'all 0.3s ease'
+                                transition: 'all 0.3s ease',
+                                gap: '8px'
                               }}
                             >
-                              🚀 {isSubmittingAssessment ? 'Submitting...' : 'Submit Challenge'}
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                              </svg>
+                              {isSubmittingAssessment ? 'Submitting...' : 'Submit Challenge'}
                             </button>
                           </div>
 
@@ -3367,12 +3376,309 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* TAB 4: FOCUS & WORKSPACE TOOLS */}
+          {/* TAB 4: MAKE A NOTE WORKSPACE */}
           {activeTab === 'tools' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', width: '100%', alignItems: 'stretch' }}>
               
-              {/* Pomodoro Timer & Notepad Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+              {/* Left Column: Client-side Study Notes Workspace */}
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', flex: '2 1 650px', minHeight: '640px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.2rem' }}>📝</span>
+                    <div>
+                      <h3 style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600, margin: 0, fontFamily: 'monospace' }}>
+                        CLASS_STUDY_NOTEBOOK
+                      </h3>
+                      <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0 }}>
+                        Save important concepts, definitions, and code templates during lectures
+                      </p>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: '#00ff87', background: 'rgba(0, 255, 135, 0.1)', padding: '3px 8px', borderRadius: '12px', fontFamily: 'monospace' }}>
+                    ● Auto-saved to LocalStorage
+                  </span>
+                </div>
+
+                {/* Two Column Layout */}
+                <div className="notes-workspace-layout">
+                  {/* Left Sub-Sidebar: Notes list */}
+                  <div style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRight: '1px solid var(--border-glass)', paddingRight: '1rem', flexShrink: 0 }}>
+                    
+                    {/* Search Input */}
+                    <input
+                      type="text"
+                      placeholder="🔍 Search notes..."
+                      value={noteSearchQuery}
+                      onChange={(e) => setNoteSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        background: 'rgba(0,0,0,0.2)',
+                        color: '#fff',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        fontSize: '0.8rem',
+                        outline: 'none'
+                      }}
+                    />
+
+                    {/* + New Note Button */}
+                    <button
+                      onClick={handleCreateNote}
+                      className="btn-neon btn-create"
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        fontSize: '0.8rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)',
+                        color: '#0d0e15',
+                        fontWeight: 'bold',
+                        boxShadow: '0 4px 10px rgba(0, 255, 135, 0.2)'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                      </svg>
+                      New Note
+                    </button>
+
+                    {/* Notes List */}
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '480px' }}>
+                      {studyNotes
+                        .filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase()))
+                        .map((note) => {
+                          const isActive = note.id === activeNoteId;
+                          return (
+                            <div
+                              key={note.id}
+                              onClick={() => setActiveNoteId(note.id)}
+                              style={{
+                                padding: '8px 10px',
+                                borderRadius: '6px',
+                                background: isActive ? 'rgba(0, 255, 135, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                border: `1px solid ${isActive ? '#00ff87' : 'var(--border-glass)'}`,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '4px',
+                                transition: 'all 0.2s ease',
+                                position: 'relative'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: isActive ? '#00ff87' : 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                                  {note.title}
+                                </span>
+                                <button
+                                  onClick={(e) => handleDeleteNote(note.id, e)}
+                                  title="Delete note"
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'rgba(255,255,255,0.3)',
+                                    cursor: 'pointer',
+                                    padding: '2px',
+                                    fontSize: '0.75rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'color 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.color = '#ff0055'}
+                                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                              <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
+                                🕒 {note.updatedAt}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      {studyNotes.filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase())).length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                          No notes found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Editor Panel */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+                    {activeNoteId && studyNotes.find(n => n.id === activeNoteId) ? (() => {
+                      const note = studyNotes.find(n => n.id === activeNoteId)!;
+                      return (
+                        <>
+                          {/* Title Editing Row */}
+                          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={note.title}
+                              onChange={(e) => handleUpdateNoteTitle(e.target.value)}
+                              placeholder="Note Title"
+                              style={{
+                                flex: 1,
+                                background: 'rgba(255,255,255,0.02)',
+                                color: '#fff',
+                                border: '1px solid var(--border-glass)',
+                                borderRadius: '6px',
+                                padding: '8px 12px',
+                                fontSize: '0.9rem',
+                                fontWeight: 600,
+                                outline: 'none'
+                              }}
+                            />
+                            
+                            {/* Write / Preview Tabs */}
+                            <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
+                              <button
+                                onClick={() => setNotepadTab('edit')}
+                                className={`btn-glass ${notepadTab === 'edit' ? 'btn-neon' : ''}`}
+                                style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
+                              >
+                                ✍️ Edit
+                              </button>
+                              <button
+                                onClick={() => setNotepadTab('preview')}
+                                className={`btn-glass ${notepadTab === 'preview' ? 'btn-neon' : ''}`}
+                                style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
+                              >
+                                👁️ Preview
+                              </button>
+                            </div>
+
+                            {/* Download Button */}
+                            <button
+                              onClick={handleDownloadNote}
+                              className="btn-glass btn-download"
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '0.7rem',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: '#00ff87',
+                                borderColor: 'rgba(0, 255, 137, 0.3)'
+                              }}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                              </svg>
+                              Download
+                            </button>
+                          </div>
+
+                          {/* Template insertion buttons */}
+                          {notepadTab === 'edit' && (
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginRight: '4px' }}>Quick Insert:</span>
+                              <button
+                                onClick={() => insertTemplate('definition')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                💡 Definition
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('question')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                ❓ Question / Answer
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('code')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                💻 Code Block
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('list')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                📋 Bullet List
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Editor Textarea / Preview Container */}
+                          <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+                            {notepadTab === 'edit' ? (
+                              <textarea
+                                value={note.content}
+                                onChange={(e) => handleUpdateNoteContent(e.target.value)}
+                                placeholder="Use Markdown symbols: # Header, ## Header, - list, **bold**, `code`..."
+                                style={{
+                                  flex: 1,
+                                  width: '100%',
+                                  background: '#0d0e15',
+                                  color: '#a0aec0',
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.85rem',
+                                  padding: '12px',
+                                  border: '1px solid var(--border-glass)',
+                                  borderRadius: '8px',
+                                  outline: 'none',
+                                  resize: 'none',
+                                  height: '100%',
+                                  minHeight: '440px'
+                                }}
+                              />
+                            ) : (
+                              <div
+                                dangerouslySetInnerHTML={renderMarkdown(note.content)}
+                                style={{
+                                  flex: 1,
+                                  background: '#0d0e15',
+                                  padding: '12px',
+                                  border: '1px solid var(--border-glass)',
+                                  borderRadius: '8px',
+                                  overflowY: 'auto',
+                                  fontSize: '0.85rem',
+                                  lineHeight: '1.6',
+                                  color: 'var(--text-primary)',
+                                  height: '100%',
+                                  minHeight: '440px'
+                                }}
+                              />
+                            )}
+                          </div>
+                        </>
+                      );
+                    })() : (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-glass)', borderRadius: '8px', padding: '2rem' }}>
+                        <span>📝</span>
+                        <p style={{ margin: '8px 0 0', fontSize: '0.85rem' }}>No note selected or created</p>
+                        <button
+                          onClick={handleCreateNote}
+                          className="btn-neon btn-create"
+                          style={{ marginTop: '1rem', padding: '6px 12px', fontSize: '0.75rem', gap: '4px' }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                          </svg>
+                          Create a Note
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Stacked Pomodoro & Revision Flashcards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: '1 1 350px', minWidth: '320px' }}>
                 
                 {/* 1. Pomodoro Focus Timer */}
                 <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '340px' }}>
@@ -3456,343 +3762,56 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
-                {/* 2. Client-side Study Notes Workspace */}
-                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '480px', gridColumn: 'span 2' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem' }}>📝</span>
-                      <div>
-                        <h3 style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600, margin: 0, fontFamily: 'monospace' }}>
-                          CLASS_STUDY_NOTEBOOK
-                        </h3>
-                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0 }}>
-                          Save important concepts, definitions, and code templates during lectures
-                        </p>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: '0.7rem', color: '#00ff87', background: 'rgba(0, 255, 135, 0.1)', padding: '3px 8px', borderRadius: '12px', fontFamily: 'monospace' }}>
-                      ● Auto-saved to LocalStorage
-                    </span>
-                  </div>
+                {/* 2. 3D Revision Flashcards Section */}
+                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '320px', flex: 1 }}>
+                  <span style={{ fontSize: '0.8rem', color: '#00f2fe', fontFamily: 'monospace', display: 'block', marginBottom: '1.25rem' }}>
+                    3D_REVISION_FLASHCARDS
+                  </span>
 
-                  {/* Two Column Layout */}
-                  <div className="notes-workspace-layout">
-                    {/* Left Sub-Sidebar: Notes list */}
-                    <div style={{ width: '240px', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRight: '1px solid var(--border-glass)', paddingRight: '1rem', flexShrink: 0 }}>
-                      
-                      {/* Search Input */}
-                      <input
-                        type="text"
-                        placeholder="🔍 Search notes..."
-                        value={noteSearchQuery}
-                        onChange={(e) => setNoteSearchQuery(e.target.value)}
-                        style={{
-                          width: '100%',
-                          background: 'rgba(0,0,0,0.2)',
-                          color: '#fff',
-                          border: '1px solid var(--border-glass)',
-                          borderRadius: '6px',
-                          padding: '6px 10px',
-                          fontSize: '0.8rem',
-                          outline: 'none'
-                        }}
-                      />
-
-                      {/* + New Note Button */}
-                      <button
-                        onClick={handleCreateNote}
-                        className="btn-neon"
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem',
-                          background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)',
-                          color: '#0d0e15',
-                          fontWeight: 'bold',
-                          boxShadow: '0 4px 10px rgba(0, 255, 135, 0.2)'
-                        }}
-                      >
-                        <span>➕</span> New Note
-                      </button>
-
-                      {/* Notes List */}
-                      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '320px' }}>
-                        {studyNotes
-                          .filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase()))
-                          .map((note) => {
-                            const isActive = note.id === activeNoteId;
-                            return (
-                              <div
-                                key={note.id}
-                                onClick={() => setActiveNoteId(note.id)}
-                                style={{
-                                  padding: '8px 10px',
-                                  borderRadius: '6px',
-                                  background: isActive ? 'rgba(0, 255, 135, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                                  border: `1px solid ${isActive ? '#00ff87' : 'var(--border-glass)'}`,
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: '4px',
-                                  transition: 'all 0.2s ease',
-                                  position: 'relative'
-                                }}
-                              >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: isActive ? '#00ff87' : 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
-                                    {note.title}
-                                  </span>
-                                  <button
-                                    onClick={(e) => handleDeleteNote(note.id, e)}
-                                    title="Delete note"
-                                    style={{
-                                      background: 'none',
-                                      border: 'none',
-                                      color: 'rgba(255,255,255,0.3)',
-                                      cursor: 'pointer',
-                                      padding: '2px',
-                                      fontSize: '0.75rem',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      transition: 'color 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.color = '#ff0055'}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
-                                  >
-                                    🗑️
-                                  </button>
-                                </div>
-                                <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>
-                                  🕒 {note.updatedAt}
+                  {/* Flip Cards List */}
+                  <div className="dashboard-grid" style={{ marginBottom: '2rem', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                    {flashcards.map((card, idx) => {
+                      const isFlipped = flippedCardIdx === idx;
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => setFlippedCardIdx(isFlipped ? null : idx)}
+                          className={`flashcard ${isFlipped ? 'flipped' : ''}`}
+                        >
+                          <div className="flashcard-inner">
+                            <div className="flashcard-front">
+                              <div>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
+                                  Question
+                                </p>
+                                <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>{card.q}</p>
+                                <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: 'var(--neon-primary)', fontWeight: 'bold' }}>
+                                  Tap to reveal answers →
                                 </span>
                               </div>
-                            );
-                          })}
-                        {studyNotes.filter(note => note.title.toLowerCase().includes(noteSearchQuery.toLowerCase())).length === 0 && (
-                          <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                            No notes found
+                            </div>
+                            <div className="flashcard-back">
+                              <div>
+                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
+                                  Verified Concept
+                                </p>
+                                <p style={{ fontSize: '0.92rem', lineHeight: '1.4' }}>{card.a}</p>
+                                <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: '#ffd000' }}>
+                                  Tap to flip back
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right Editor Panel */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
-                      {activeNoteId && studyNotes.find(n => n.id === activeNoteId) ? (() => {
-                        const note = studyNotes.find(n => n.id === activeNoteId)!;
-                        return (
-                          <>
-                            {/* Title Editing Row */}
-                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                              <input
-                                type="text"
-                                value={note.title}
-                                onChange={(e) => handleUpdateNoteTitle(e.target.value)}
-                                placeholder="Note Title"
-                                style={{
-                                  flex: 1,
-                                  background: 'rgba(255,255,255,0.02)',
-                                  color: '#fff',
-                                  border: '1px solid var(--border-glass)',
-                                  borderRadius: '6px',
-                                  padding: '8px 12px',
-                                  fontSize: '0.9rem',
-                                  fontWeight: 600,
-                                  outline: 'none'
-                                }}
-                              />
-                              
-                              {/* Write / Preview Tabs */}
-                              <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '2px', borderRadius: '6px', border: '1px solid var(--border-glass)' }}>
-                                <button
-                                  onClick={() => setNotepadTab('edit')}
-                                  className={`btn-glass ${notepadTab === 'edit' ? 'btn-neon' : ''}`}
-                                  style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
-                                >
-                                  ✍️ Edit
-                                </button>
-                                <button
-                                  onClick={() => setNotepadTab('preview')}
-                                  className={`btn-glass ${notepadTab === 'preview' ? 'btn-neon' : ''}`}
-                                  style={{ padding: '4px 10px', fontSize: '0.7rem', borderRadius: '4px', border: 'none' }}
-                                >
-                                  👁️ Preview
-                                </button>
-                              </div>
-
-                              {/* Download Button */}
-                              <button
-                                onClick={handleDownloadNote}
-                                className="btn-glass"
-                                style={{
-                                  padding: '6px 12px',
-                                  fontSize: '0.7rem',
-                                  borderRadius: '6px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  color: '#00ff87',
-                                  borderColor: 'rgba(0, 255, 137, 0.3)'
-                                }}
-                              >
-                                📥 Download
-                              </button>
-                            </div>
-
-                            {/* Template insertion buttons */}
-                            {notepadTab === 'edit' && (
-                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginRight: '4px' }}>Quick Insert:</span>
-                                <button
-                                  onClick={() => insertTemplate('definition')}
-                                  className="btn-glass"
-                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
-                                >
-                                  💡 Definition
-                                </button>
-                                <button
-                                  onClick={() => insertTemplate('question')}
-                                  className="btn-glass"
-                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
-                                >
-                                  ❓ Question / Answer
-                                </button>
-                                <button
-                                  onClick={() => insertTemplate('code')}
-                                  className="btn-glass"
-                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
-                                >
-                                  💻 Code Block
-                                </button>
-                                <button
-                                  onClick={() => insertTemplate('list')}
-                                  className="btn-glass"
-                                  style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
-                                >
-                                  📋 Bullet List
-                                </button>
-                              </div>
-                            )}
-
-                            {/* Editor Textarea / Preview Container */}
-                            <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-                              {notepadTab === 'edit' ? (
-                                <textarea
-                                  value={note.content}
-                                  onChange={(e) => handleUpdateNoteContent(e.target.value)}
-                                  placeholder="Use Markdown symbols: # Header, ## Header, - list, **bold**, `code`..."
-                                  style={{
-                                    flex: 1,
-                                    width: '100%',
-                                    background: '#0d0e15',
-                                    color: '#a0aec0',
-                                    fontFamily: 'monospace',
-                                    fontSize: '0.85rem',
-                                    padding: '12px',
-                                    border: '1px solid var(--border-glass)',
-                                    borderRadius: '8px',
-                                    outline: 'none',
-                                    resize: 'none',
-                                    height: '100%',
-                                    minHeight: '220px'
-                                  }}
-                                />
-                              ) : (
-                                <div
-                                  dangerouslySetInnerHTML={renderMarkdown(note.content)}
-                                  style={{
-                                    flex: 1,
-                                    background: '#0d0e15',
-                                    padding: '12px',
-                                    border: '1px solid var(--border-glass)',
-                                    borderRadius: '8px',
-                                    overflowY: 'auto',
-                                    fontSize: '0.85rem',
-                                    lineHeight: '1.6',
-                                    color: 'var(--text-primary)',
-                                    height: '100%',
-                                    minHeight: '220px'
-                                  }}
-                                />
-                              )}
-                            </div>
-                          </>
-                        );
-                      })() : (
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-glass)', borderRadius: '8px', padding: '2rem' }}>
-                          <span>📝</span>
-                          <p style={{ margin: '8px 0 0', fontSize: '0.85rem' }}>No note selected or created</p>
-                          <button
-                            onClick={handleCreateNote}
-                            className="btn-neon"
-                            style={{ marginTop: '1rem', padding: '6px 12px', fontSize: '0.75rem' }}
-                          >
-                            Create a Note
-                          </button>
                         </div>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
-                </div>
 
-              </div>
-
-              {/* 3D Revision Flashcards Section */}
-              <div className="glass-panel">
-                <span style={{ fontSize: '0.8rem', color: '#00f2fe', fontFamily: 'monospace', display: 'block', marginBottom: '1.25rem' }}>
-                  3D_REVISION_FLASHCARDS
-                </span>
-
-                {/* Flip Cards List */}
-                <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
-                  {flashcards.map((card, idx) => {
-                    const isFlipped = flippedCardIdx === idx;
-                    return (
-                      <div
-                        key={idx}
-                        onClick={() => setFlippedCardIdx(isFlipped ? null : idx)}
-                        className={`flashcard ${isFlipped ? 'flipped' : ''}`}
-                      >
-                        <div className="flashcard-inner">
-                          <div className="flashcard-front">
-                            <div>
-                              <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
-                                Question
-                              </p>
-                              <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>{card.q}</p>
-                              <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: 'var(--neon-primary)', fontWeight: 'bold' }}>
-                                Tap to reveal answers →
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flashcard-back">
-                            <div>
-                              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
-                                Verified Concept
-                              </p>
-                              <p style={{ fontSize: '0.92rem', lineHeight: '1.4' }}>{card.a}</p>
-                              <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: '#ffd000' }}>
-                                Tap to flip back
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Flashcard creation Form */}
-                <div style={{ borderTop: '1px dashed var(--border-glass)', paddingTop: '1.5rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1rem' }}>Compile Custom Flashcard</h4>
-                  <form onSubmit={handleAddFlashcard} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '240px' }}>
+                  {/* Flashcard creation Form */}
+                  <div style={{ borderTop: '1px dashed var(--border-glass)', paddingTop: '1.5rem', marginTop: 'auto' }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1rem' }}>Compile Custom Flashcard</h4>
+                    <form onSubmit={handleAddFlashcard} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         <input
                           type="text"
                           required
@@ -3801,22 +3820,24 @@ export default function StudentDashboard() {
                           value={newFlashcardQ}
                           onChange={(e) => setNewFlashcardQ(e.target.value)}
                         />
-                      </div>
-                      <div style={{ flex: 1, minWidth: '240px' }}>
                         <input
                           type="text"
                           required
-                          placeholder="Concept Details (e.g. A closure lets a nested function access outer scope variables.)"
+                          placeholder="Concept Details (e.g. Nested scope access...)"
                           className="glass-input"
                           value={newFlashcardA}
                           onChange={(e) => setNewFlashcardA(e.target.value)}
                         />
                       </div>
-                    </div>
-                    <button type="submit" className="btn-neon" style={{ alignSelf: 'flex-end', padding: '8px 20px', fontSize: '0.8rem' }}>
-                      Add to Shelf
-                    </button>
-                  </form>
+                      <button type="submit" className="btn-neon btn-create" style={{ alignSelf: 'flex-end', padding: '8px 20px', fontSize: '0.8rem', gap: '6px' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add to Shelf
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
               </div>
@@ -4243,9 +4264,13 @@ export default function StudentDashboard() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !screenshotFile}
-                  className="btn-neon"
-                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff' }}
+                  className="btn-neon btn-transmit"
+                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff', gap: '8px' }}
                 >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
                   {isSubmitting ? 'Uploading...' : 'Transmit Deliverables'}
                 </button>
               </div>
@@ -4424,9 +4449,14 @@ export default function StudentDashboard() {
                 <button
                   type="submit"
                   disabled={isUpdatingProfile}
-                  className="btn-neon"
-                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff' }}
+                  className="btn-neon btn-save"
+                  style={{ background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)', color: '#fff', gap: '8px' }}
                 >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                  </svg>
                   {isUpdatingProfile ? 'Saving...' : 'Save Settings'}
                 </button>
               </div>

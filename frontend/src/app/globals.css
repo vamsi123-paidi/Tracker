@@ -1,68 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* Default Dark Theme variables */
+/* Default Dark Theme variables - Obsidian Void & Solar Gold & Plasma Emerald */
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #030307;
-  --bg-glass: rgba(8, 8, 20, 0.65);
-  --bg-glass-hover: rgba(14, 14, 32, 0.78);
-  --border-glass: rgba(255, 255, 255, 0.07);
-  --border-glass-hover: rgba(0, 242, 254, 0.45);
+  --bg-dark: #080413;
+  --bg-glass: rgba(13, 8, 28, 0.65);
+  --bg-glass-hover: rgba(20, 12, 42, 0.78);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-glass-hover: rgba(245, 158, 11, 0.45);
 
-  --neon-primary: #00f2fe;
-  --neon-secondary: #ff007f;    /* Vivid Pink-Magenta */
-  --neon-blue: #0055ff;         /* Saturated Sapphire */
-  --neon-green: #00ff87;        /* Hyper Emerald */
-  --neon-red: #ff0055;          /* Neon Red */
-  --neon-yellow: #ffd000;
+  --neon-primary: #f59e0b;       /* Solar Gold */
+  --neon-secondary: #10b981;     /* Plasma Emerald */
+  --neon-blue: #3b82f6;          /* Sapphire Blue */
+  --neon-green: #10b981;         /* Emerald */
+  --neon-red: #ef4444;           /* Crimson */
+  --neon-yellow: #f59e0b;        /* Amber */
 
-  --text-primary: #f8f9fa;
-  --text-secondary: #b8cbe4;
-  --text-muted: #6a7c96;
+  --text-primary: #ffffff;
+  --text-secondary: #d1c9e4;     /* Soft lavender */
+  --text-muted: #7c6f96;         /* Muted lavender */
 
-  --glow-primary: 0 0 25px rgba(0, 242, 254, 0.6), 0 0 10px rgba(0, 242, 254, 0.2);
-  --glow-secondary: 0 0 25px rgba(255, 0, 127, 0.6), 0 0 10px rgba(255, 0, 127, 0.2);
-  --glow-green: 0 0 25px rgba(0, 255, 135, 0.6), 0 0 10px rgba(0, 255, 135, 0.2);
-  --glow-red: 0 0 25px rgba(255, 0, 85, 0.6), 0 0 10px rgba(255, 0, 85, 0.2);
-  --glow-yellow: 0 0 25px rgba(255, 208, 0, 0.6), 0 0 10px rgba(255, 208, 0, 0.2);
+  --glow-primary: 0 0 25px rgba(245, 158, 11, 0.55), 0 0 10px rgba(245, 158, 11, 0.2);
+  --glow-secondary: 0 0 25px rgba(16, 185, 129, 0.55), 0 0 10px rgba(16, 185, 129, 0.2);
+  --glow-green: 0 0 25px rgba(16, 185, 129, 0.5), 0 0 10px rgba(16, 185, 129, 0.2);
+  --glow-red: 0 0 25px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.2);
+  --glow-yellow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 10px rgba(245, 158, 11, 0.2);
 
-  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(255, 255, 255, 0.01);
-  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 100%);
-  --grid-line: rgba(0, 242, 254, 0.07);
-  --modal-overlay: rgba(2, 2, 7, 0.88);
+  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(255, 255, 255, 0.01);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(245, 158, 11, 0.05);
+  --modal-overlay: rgba(4, 2, 9, 0.9);
 }
 
-/* Light Theme overrides */
+/* Light Theme overrides - Pearl White & Coral Orange & Ocean Teal */
 :root.light {
-  --bg-dark: #f2f5fa;
-  --bg-glass: rgba(255, 255, 255, 0.78);
-  --bg-glass-hover: rgba(255, 255, 255, 0.92);
-  --border-glass: rgba(0, 0, 0, 0.08);
-  --border-glass-hover: rgba(79, 70, 229, 0.5);
+  --bg-dark: #fafaff;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-hover: rgba(255, 255, 255, 0.94);
+  --border-glass: rgba(0, 0, 0, 0.07);
+  --border-glass-hover: rgba(255, 87, 34, 0.45);
 
-  --neon-primary: #4f46e5;      /* Indigo */
-  --neon-secondary: #d946ef;    /* Vivid Magenta */
-  --neon-blue: #2563eb;         /* Blue */
-  --neon-green: #059669;        /* Emerald Green */
-  --neon-red: #dc2626;          /* Red */
-  --neon-yellow: #d97706;       /* Amber */
+  --neon-primary: #ff5722;       /* Coral Orange */
+  --neon-secondary: #00a8cc;     /* Ocean Teal */
+  --neon-blue: #2979ff;          /* Electric Blue */
+  --neon-green: #00c853;         /* Vibrant Green */
+  --neon-red: #ff1744;           /* Vibrant Red */
+  --neon-yellow: #ffc400;        /* Vibrant Yellow */
 
-  --text-primary: #090d16;      /* High contrast dark slate text */
-  --text-secondary: #27303f;    /* Slate grey */
-  --text-muted: #8493a8;
+  --text-primary: #111625;
+  --text-secondary: #344256;
+  --text-muted: #8a9bb0;
 
-  --glow-primary: 0 0 18px rgba(79, 70, 229, 0.35);
-  --glow-secondary: 0 0 18px rgba(217, 70, 239, 0.35);
-  --glow-green: 0 0 18px rgba(5, 150, 105, 0.35);
-  --glow-red: 0 0 18px rgba(220, 38, 38, 0.35);
-  --glow-yellow: 0 0 18px rgba(217, 119, 6, 0.35);
+  --glow-primary: 0 0 18px rgba(255, 87, 34, 0.35);
+  --glow-secondary: 0 0 18px rgba(0, 168, 204, 0.35);
+  --glow-green: 0 0 18px rgba(0, 200, 83, 0.35);
+  --glow-red: 0 0 18px rgba(255, 23, 68, 0.35);
+  --glow-yellow: 0 0 18px rgba(255, 196, 0, 0.35);
 
-  --card-shadow: 0 20px 50px rgba(31, 38, 135, 0.06);
-  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%);
-  --grid-line: rgba(79, 70, 229, 0.07);
-  --modal-overlay: rgba(210, 216, 228, 0.85);
+  --card-shadow: 0 20px 40px rgba(26, 38, 57, 0.05);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(255, 87, 34, 0.05);
+  --modal-overlay: rgba(240, 243, 248, 0.88);
 }
 
 * {
@@ -74,18 +74,26 @@
 }
 
 body {
-  background-color: #030308;
+  background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 0%, hsla(225, 39%, 10%, 1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(339, 49%, 9%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 100%, hsla(180, 49%, 8%, 1) 0, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(276, 50%, 6%, 1) 0, transparent 55%),
+    radial-gradient(at 50% 0%, hsla(260, 45%, 8%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(20, 50%, 6%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(160, 40%, 6%, 1) 0, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
   -webkit-font-smoothing: antialiased;
+}
+
+:root.light body {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(255, 87, 34, 0.06) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 168, 204, 0.06) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(41, 121, 255, 0.04) 0, transparent 50%);
 }
 
 /* Aurora Background container */
@@ -741,4 +749,74 @@ body {
 @keyframes pulseScale {
   0%, 100% { transform: scale(1); opacity: 0.6; }
   50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Contextual click animations inside buttons */
+.btn-neon:active, .btn-glass:active {
+  transform: translateY(1px) scale(0.96) !important;
+}
+
+/* 1. Transmit/Upload Button (Blast off chevron) */
+.btn-transmit:active svg,
+.btn-transmit[disabled] svg {
+  animation: blastOff 0.6s ease-in-out infinite;
+}
+@keyframes blastOff {
+  0% { transform: translateY(0); opacity: 1; }
+  40% { transform: translateY(-12px); opacity: 0; }
+  41% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* 2. Decrypt/Login Button (Rotating padlock keyhole dial) */
+.btn-decrypt:active svg,
+.btn-decrypt[disabled] svg {
+  animation: decryptRotate 0.8s ease-in-out infinite;
+}
+@keyframes decryptRotate {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 3. Run/Execute Button (Pulsing Play Block) */
+.btn-run:active svg,
+.btn-run[disabled] svg {
+  animation: runPulse 0.5s ease-in-out infinite;
+}
+@keyframes runPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.3); filter: brightness(1.4); }
+}
+
+/* 4. Download Button (Chevron slide down) */
+.btn-download:active svg,
+.btn-download[disabled] svg {
+  animation: downloadSlide 0.6s ease-in-out infinite;
+}
+@keyframes downloadSlide {
+  0% { transform: translateY(0); opacity: 1; }
+  45% { transform: translateY(10px); opacity: 0; }
+  46% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* 5. Create/New Note Button (Spinning plus icon) */
+.btn-create:active svg {
+  animation: spinPlus 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes spinPlus {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(180deg); }
+}
+
+/* 6. Save Button (Floppy disk active pulse) */
+.btn-save:active svg,
+.btn-save[disabled] svg {
+  animation: savePulse 0.4s ease-in-out;
+}
+@keyframes savePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1.1); }
 }
