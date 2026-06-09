@@ -5,6 +5,152 @@ import { useRouter } from 'next/navigation';
 import { api, setAuthToken, getAuthToken } from '@/utils/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
+// Cybernetic Telemetry Loading Overlay
+const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
+  const [logIndex, setLogIndex] = useState(0);
+  const telemetryLogs = [
+    'ESTABLISHING SECURE PROTOCOLS...',
+    'ESTABLISHING HANDSHAKE WITH VERIFIER CORES...',
+    'TRANSMITTING ENCRYPTED ACCESS KEY...',
+    'AUTHENTICATING SESSION JWT SIGNATURES...',
+    'SYNC COMPLETE. REDIRECTING...'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLogIndex((prev) => (prev < telemetryLogs.length - 1 ? prev + 1 : prev));
+    }, 450);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(2, 2, 7, 0.93)',
+      backdropFilter: 'blur(16px)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 999999,
+      padding: '2rem'
+    }}>
+      {/* Dynamic 3D Concentric Ring Spinner */}
+      <div style={{ position: 'relative', width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', marginBottom: '2.5rem' }}>
+        {/* Outer clockwise circle */}
+        <div style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          border: '3px dashed var(--neon-primary)',
+          animation: 'rotateCW 10s linear infinite',
+          boxShadow: 'inset 0 0 15px rgba(0, 242, 254, 0.1)',
+          opacity: 0.8
+        }} />
+        
+        {/* Middle counter-clockwise circle */}
+        <div style={{
+          position: 'absolute',
+          width: '80%',
+          height: '80%',
+          borderRadius: '50%',
+          border: '2px dotted var(--neon-secondary)',
+          animation: 'rotateCCW 6s linear infinite',
+          boxShadow: '0 0 15px rgba(255, 0, 127, 0.15)',
+          opacity: 0.7
+        }} />
+
+        {/* Inner clockwise circle */}
+        <div style={{
+          position: 'absolute',
+          width: '60%',
+          height: '60%',
+          borderRadius: '50%',
+          border: '3px double var(--neon-blue)',
+          animation: 'rotateCW 3s linear infinite',
+          boxShadow: 'inset 0 0 10px rgba(0, 85, 255, 0.2)',
+          opacity: 0.6
+        }} />
+
+        {/* Pulsing Core */}
+        <div style={{
+          width: '28px',
+          height: '28px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
+          boxShadow: 'var(--glow-primary)',
+          animation: 'pulseScale 1.5s ease-in-out infinite'
+        }} />
+
+        {/* Scanning laser line overlay */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '3px',
+          background: 'linear-gradient(90deg, transparent, var(--neon-green), transparent)',
+          boxShadow: 'var(--glow-green)',
+          opacity: 0.7,
+          animation: 'scanVertically 3.5s ease-in-out infinite',
+          pointerEvents: 'none'
+        }} />
+      </div>
+
+      {/* Upload Telemetry Message */}
+      <h3 style={{
+        fontSize: '1.25rem',
+        fontWeight: 700,
+        color: '#fff',
+        letterSpacing: '1px',
+        marginBottom: '0.75rem',
+        fontFamily: 'var(--font-mono)',
+        textTransform: 'uppercase',
+        textShadow: '0 0 10px rgba(255, 255, 255, 0.2)'
+      }}>
+        {message || 'SYNCING WITH SECURE DATABASE'}
+      </h3>
+
+      {/* Terminal Readout Logs */}
+      <div className="glass-panel" style={{
+        width: '100%',
+        maxWidth: '480px',
+        background: 'rgba(0, 0, 0, 0.4)',
+        borderColor: 'var(--border-glass)',
+        padding: '1rem 1.25rem',
+        borderRadius: '10px',
+        fontFamily: 'monospace',
+        fontSize: '0.8rem',
+        lineHeight: '1.5',
+        color: 'var(--text-muted)'
+      }}>
+        <div style={{ color: 'var(--neon-green)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
+          <span>🛰️ CORE_NODE_STATUS</span>
+          <span style={{ animation: 'pulseScale 1s infinite' }}>ONLINE</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {telemetryLogs.slice(0, logIndex + 1).map((log, idx) => (
+            <div key={idx} style={{
+              color: idx === logIndex ? 'var(--neon-primary)' : 'var(--text-muted)',
+              display: 'flex',
+              gap: '6px',
+              textShadow: idx === logIndex ? '0 0 6px rgba(0, 242, 254, 0.3)' : 'none'
+            }}>
+              <span>&gt;</span>
+              <span>{log}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -151,6 +297,10 @@ export default function Login() {
           </form>
         </div>
       </div>
+
+      {isLoading && (
+        <QuantumLoader message="DECRYPTING LOGIN CREDENTIALS" />
+      )}
     </main>
   );
 }

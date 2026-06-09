@@ -5,64 +5,64 @@
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #020208;
-  --bg-glass: rgba(10, 10, 30, 0.55);
-  --bg-glass-hover: rgba(16, 16, 46, 0.7);
-  --border-glass: rgba(255, 255, 255, 0.09);
-  --border-glass-hover: rgba(0, 242, 254, 0.4);
+  --bg-dark: #030307;
+  --bg-glass: rgba(8, 8, 20, 0.65);
+  --bg-glass-hover: rgba(14, 14, 32, 0.78);
+  --border-glass: rgba(255, 255, 255, 0.07);
+  --border-glass-hover: rgba(0, 242, 254, 0.45);
 
   --neon-primary: #00f2fe;
-  --neon-secondary: #bd00ff;
-  --neon-blue: #0052ff;
-  --neon-green: #00ff87;
-  --neon-red: #ff0055;
+  --neon-secondary: #ff007f;    /* Vivid Pink-Magenta */
+  --neon-blue: #0055ff;         /* Saturated Sapphire */
+  --neon-green: #00ff87;        /* Hyper Emerald */
+  --neon-red: #ff0055;          /* Neon Red */
   --neon-yellow: #ffd000;
 
   --text-primary: #f8f9fa;
-  --text-secondary: #b0c0d5;
-  --text-muted: #627288;
+  --text-secondary: #b8cbe4;
+  --text-muted: #6a7c96;
 
-  --glow-primary: 0 0 20px rgba(0, 242, 254, 0.5);
-  --glow-secondary: 0 0 20px rgba(189, 0, 255, 0.5);
-  --glow-green: 0 0 20px rgba(0, 255, 87, 0.5);
-  --glow-red: 0 0 20px rgba(255, 0, 85, 0.5);
-  --glow-yellow: 0 0 20px rgba(255, 208, 0, 0.5);
+  --glow-primary: 0 0 25px rgba(0, 242, 254, 0.6), 0 0 10px rgba(0, 242, 254, 0.2);
+  --glow-secondary: 0 0 25px rgba(255, 0, 127, 0.6), 0 0 10px rgba(255, 0, 127, 0.2);
+  --glow-green: 0 0 25px rgba(0, 255, 135, 0.6), 0 0 10px rgba(0, 255, 135, 0.2);
+  --glow-red: 0 0 25px rgba(255, 0, 85, 0.6), 0 0 10px rgba(255, 0, 85, 0.2);
+  --glow-yellow: 0 0 25px rgba(255, 208, 0, 0.6), 0 0 10px rgba(255, 208, 0, 0.2);
 
-  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-  --grid-line: rgba(0, 242, 254, 0.06);
-  --modal-overlay: rgba(2, 2, 8, 0.82);
+  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(255, 255, 255, 0.01);
+  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 100%);
+  --grid-line: rgba(0, 242, 254, 0.07);
+  --modal-overlay: rgba(2, 2, 7, 0.88);
 }
 
 /* Light Theme overrides */
 :root.light {
-  --bg-dark: #f0f3f9;
-  --bg-glass: rgba(255, 255, 255, 0.72);
-  --bg-glass-hover: rgba(255, 255, 255, 0.88);
-  --border-glass: rgba(0, 0, 0, 0.09);
-  --border-glass-hover: rgba(79, 70, 229, 0.45);
+  --bg-dark: #f2f5fa;
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --bg-glass-hover: rgba(255, 255, 255, 0.92);
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --border-glass-hover: rgba(79, 70, 229, 0.5);
 
   --neon-primary: #4f46e5;      /* Indigo */
-  --neon-secondary: #8b5cf6;    /* Violet */
+  --neon-secondary: #d946ef;    /* Vivid Magenta */
   --neon-blue: #2563eb;         /* Blue */
   --neon-green: #059669;        /* Emerald Green */
   --neon-red: #dc2626;          /* Red */
   --neon-yellow: #d97706;       /* Amber */
 
-  --text-primary: #0f172a;      /* Dark slate text */
-  --text-secondary: #334155;    /* Slate grey */
-  --text-muted: #94a3b8;
+  --text-primary: #090d16;      /* High contrast dark slate text */
+  --text-secondary: #27303f;    /* Slate grey */
+  --text-muted: #8493a8;
 
-  --glow-primary: 0 0 15px rgba(79, 70, 229, 0.3);
-  --glow-secondary: 0 0 15px rgba(139, 92, 246, 0.3);
-  --glow-green: 0 0 15px rgba(5, 150, 105, 0.3);
-  --glow-red: 0 0 15px rgba(220, 38, 38, 0.3);
-  --glow-yellow: 0 0 15px rgba(217, 119, 6, 0.3);
+  --glow-primary: 0 0 18px rgba(79, 70, 229, 0.35);
+  --glow-secondary: 0 0 18px rgba(217, 70, 239, 0.35);
+  --glow-green: 0 0 18px rgba(5, 150, 105, 0.35);
+  --glow-red: 0 0 18px rgba(220, 38, 38, 0.35);
+  --glow-yellow: 0 0 18px rgba(217, 119, 6, 0.35);
 
-  --card-shadow: 0 20px 50px rgba(31, 38, 135, 0.08);
-  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
-  --grid-line: rgba(79, 70, 229, 0.06);
-  --modal-overlay: rgba(218, 224, 236, 0.82);
+  --card-shadow: 0 20px 50px rgba(31, 38, 135, 0.06);
+  --glass-glare: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%);
+  --grid-line: rgba(79, 70, 229, 0.07);
+  --modal-overlay: rgba(210, 216, 228, 0.85);
 }
 
 * {
@@ -75,6 +75,7 @@
 
 body {
   background-color: var(--bg-dark);
+  background-image: radial-gradient(circle at 50% 50%, rgba(10, 10, 30, 0.15) 0%, transparent 100%);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -730,4 +731,9 @@ body {
   background: rgba(255, 255, 255, 0.03) !important;
   color: #fff !important;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes pulseScale {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
 }
