@@ -498,7 +498,7 @@ export default function StudentDashboard() {
   const [studentCollege, setStudentCollege] = useState<College | null>(null);
   
   // Sidebar tab control
-  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'tools' | 'achievements'>('milestones');
+  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'assessments' | 'tools' | 'achievements'>('milestones');
   const [compilerLang, setCompilerLang] = useState<'c' | 'cpp' | 'python' | 'java' | 'javascript' | 'go' | 'rust' | 'csharp' | 'php'>('python');
   const [isCompilerFullscreen, setIsCompilerFullscreen] = useState(false);
   
@@ -547,6 +547,23 @@ export default function StudentDashboard() {
   const [flippedCardIdx, setFlippedCardIdx] = useState<number | null>(null);
   const [newFlashcardQ, setNewFlashcardQ] = useState('');
   const [newFlashcardA, setNewFlashcardA] = useState('');
+
+  // Assessments States
+  const [assessmentsList, setAssessmentsList] = useState<any[]>([]);
+  const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
+  const [assessmentHtml, setAssessmentHtml] = useState('');
+  const [assessmentCss, setAssessmentCss] = useState('');
+  const [assessmentJs, setAssessmentJs] = useState('');
+  const [assessmentActiveEditor, setAssessmentActiveEditor] = useState<'html' | 'css' | 'js'>('html');
+  const [assessmentTestResults, setAssessmentTestResults] = useState<{ description: string, passed: boolean, run: boolean }[]>([]);
+  const [leaderboardList, setLeaderboardList] = useState<any[]>([]);
+  const [isAssessmentsLoading, setIsAssessmentsLoading] = useState(false);
+  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(false);
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
+  const [assessmentCompletedCount, setAssessmentCompletedCount] = useState(0);
+  const [assessmentTotalPoints, setAssessmentTotalPoints] = useState(0);
+  const [assessmentTab, setAssessmentTab] = useState<'challenges' | 'leaderboard'>('challenges');
+  const [assessmentSearchQuery, setAssessmentSearchQuery] = useState('');
 
   // Status Feedback
   const [errorMsg, setErrorMsg] = useState('');
@@ -626,6 +643,8 @@ export default function StudentDashboard() {
           
           fetchStudentTasks();
           fetchActiveQuizzes();
+          fetchAssessments();
+          fetchLeaderboard();
         }
       })
       .catch(() => router.push('/login'));
@@ -736,6 +755,218 @@ export default function StudentDashboard() {
       console.error(err);
     } finally {
       setIsLoadingQuizzes(false);
+    }
+  };
+
+  const fetchAssessments = async () => {
+    setIsAssessmentsLoading(true);
+    try {
+      const data = await api.get('/assessments');
+      setAssessmentsList(data);
+      const solved = data.filter((a: any) => a.solvedStatus === 'solved');
+      setAssessmentCompletedCount(solved.length);
+      const points = solved.reduce((sum: number, a: any) => sum + a.points, 0);
+      setAssessmentTotalPoints(points);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to fetch assessments');
+    } finally {
+      setIsAssessmentsLoading(false);
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    setIsLeaderboardLoading(true);
+    try {
+      const data = await api.get('/assessments/leaderboard');
+      setLeaderboardList(data);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to fetch leaderboard');
+    } finally {
+      setIsLeaderboardLoading(false);
+    }
+  };
+
+  const handleSelectAssessment = (assessment: any) => {
+    setSelectedAssessment(assessment);
+    setAssessmentHtml(assessment.templateHtml || '');
+    setAssessmentCss(assessment.templateCss || '');
+    setAssessmentJs(assessment.templateJs || '');
+    setAssessmentActiveEditor(assessment.type === 'html' ? 'html' : (assessment.type === 'css' ? 'css' : 'js'));
+    setAssessmentTestResults(assessment.testCases.map((tc: any) => ({ description: tc.description, passed: false, run: false })));
+  };
+
+  const executeTestCases = async () => {
+    if (!selectedAssessment) return;
+    setErrorMsg('');
+    setSuccessMsg('');
+    
+    // Create temporary iframe for browser evaluation
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // Prepare combined HTML+CSS+JS document
+    const srcDoc = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>${assessmentCss}</style>
+        </head>
+        <body>
+          ${assessmentHtml}
+          <script>
+            try {
+              ${assessmentJs}
+            } catch(e) {
+              window.__jsExecutionError = e.message;
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    iframe.srcdoc = srcDoc;
+
+    await new Promise<void>((resolve) => {
+      iframe.onload = () => resolve();
+    });
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    const win = iframe.contentWindow;
+
+    if (!doc || !win) {
+      document.body.removeChild(iframe);
+      setErrorMsg('Failed to initialize execution sandbox');
+      return;
+    }
+
+    const results = selectedAssessment.testCases.map((tc: any) => {
+      let passed = false;
+      try {
+        (win as any).doc = doc;
+        let evalResult;
+        try {
+          evalResult = (win as any).eval(tc.assertCode);
+        } catch {
+          const evaluator = new Function('doc', 'win', `
+            try {
+              with (win) {
+                return (${tc.assertCode});
+              }
+            } catch(e) {
+              return false;
+            }
+          `);
+          evalResult = evaluator(doc, win);
+        }
+        passed = !!evalResult;
+      } catch (err) {
+        passed = false;
+      }
+      return {
+        description: tc.description,
+        passed,
+        run: true
+      };
+    });
+
+    setAssessmentTestResults(results);
+    document.body.removeChild(iframe);
+    
+    const passedAll = results.every((r: any) => r.passed);
+    if (passedAll) {
+      setSuccessMsg('All test cases passed! You can now submit your solution to claim your points.');
+    } else {
+      setErrorMsg('Some test cases failed. Please inspect your code structure or logic and try again.');
+    }
+  };
+
+  const handleAssessmentSubmit = async () => {
+    if (!selectedAssessment) return;
+    
+    setIsSubmittingAssessment(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      // Execute tests client-side first
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      const srcDoc = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>${assessmentCss}</style>
+          </head>
+          <body>
+            ${assessmentHtml}
+            <script>${assessmentJs}</script>
+          </body>
+        </html>
+      `;
+      iframe.srcdoc = srcDoc;
+
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+      });
+
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      const win = iframe.contentWindow;
+
+      if (!doc || !win) {
+        document.body.removeChild(iframe);
+        throw new Error('Sandbox error');
+      }
+
+      const passedAll = selectedAssessment.testCases.every((tc: any) => {
+        try {
+          (win as any).doc = doc;
+          let evalResult;
+          try {
+            evalResult = (win as any).eval(tc.assertCode);
+          } catch {
+            const evaluator = new Function('doc', 'win', `
+              try {
+                with (win) {
+                  return (${tc.assertCode});
+                }
+              } catch(e) {
+                return false;
+              }
+            `);
+            evalResult = evaluator(doc, win);
+          }
+          return !!evalResult;
+        } catch {
+          return false;
+        }
+      });
+
+      document.body.removeChild(iframe);
+
+      if (!passedAll) {
+        throw new Error('You must pass all test cases before submitting.');
+      }
+
+      // Submit to backend
+      await api.post(`/assessments/${selectedAssessment._id}/submit`, {
+        codeHtml: assessmentHtml,
+        codeCss: assessmentCss,
+        codeJs: assessmentJs,
+        scoreGained: selectedAssessment.points,
+        passedAll: true
+      });
+
+      setSuccessMsg(`Congratulations! Solved "${selectedAssessment.title}" and gained +${selectedAssessment.points} points.`);
+      setSelectedAssessment(null);
+      fetchAssessments();
+      fetchLeaderboard();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to submit solution.');
+    } finally {
+      setIsSubmittingAssessment(false);
     }
   };
 
@@ -1286,6 +1517,20 @@ export default function StudentDashboard() {
             </button>
 
             <button
+              onClick={() => {
+                setActiveTab('assessments');
+                fetchAssessments();
+                fetchLeaderboard();
+              }}
+              className={`sidebar-btn ${activeTab === 'assessments' ? 'active' : ''}`}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Assessments
+            </button>
+
+            <button
               onClick={() => setActiveTab('tools')}
               className={`sidebar-btn ${activeTab === 'tools' ? 'active' : ''}`}
             >
@@ -1698,6 +1943,394 @@ export default function StudentDashboard() {
               onLangChange={setCompilerLang}
               onFullscreenToggle={() => setIsCompilerFullscreen(!isCompilerFullscreen)}
             />
+          )}
+
+          {/* TAB: ASSESSMENTS */}
+          {activeTab === 'assessments' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              
+              {/* Assessments Header & Overall Stats */}
+              <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', padding: '1.5rem 2rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', color: '#bd00ff', fontFamily: 'monospace', display: 'block', marginBottom: '4px' }}>CODE_CHALLENGE_WORKSPACE</span>
+                  <h3 style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0 }}>Coding Assessments</h3>
+                  <p style={{ color: '#a0aec0', fontSize: '0.9rem', margin: '4px 0 0' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
+                </div>
+                
+                {/* Stats */}
+                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                  <div className="glass-panel" style={{ padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '120px', borderColor: 'rgba(0, 242, 254, 0.2)' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
+                    <h4 style={{ fontSize: '1.5rem', margin: '4px 0 0', color: '#00f2fe', textShadow: '0 0 10px rgba(0, 242, 254, 0.3)' }}>{assessmentTotalPoints} pts</h4>
+                  </div>
+                  <div className="glass-panel" style={{ padding: '0.75rem 1.25rem', textAlign: 'center', minWidth: '120px', borderColor: 'rgba(0, 255, 135, 0.2)' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>SOLVED</span>
+                    <h4 style={{ fontSize: '1.5rem', margin: '4px 0 0', color: '#00ff87', textShadow: '0 0 10px rgba(0, 255, 135, 0.3)' }}>
+                      {assessmentCompletedCount} / {assessmentsList.length}
+                    </h4>
+                  </div>
+                </div>
+              </div>
+
+              {/* Assessment Sub-Navigation (Challenges vs Leaderboard) */}
+              <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem' }}>
+                <button
+                  onClick={() => setAssessmentTab('challenges')}
+                  className={`btn-glass ${assessmentTab === 'challenges' ? 'btn-neon' : ''}`}
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                >
+                  Challenges
+                </button>
+                <button
+                  onClick={() => {
+                    setAssessmentTab('leaderboard');
+                    fetchLeaderboard();
+                  }}
+                  className={`btn-glass ${assessmentTab === 'leaderboard' ? 'btn-neon' : ''}`}
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}
+                >
+                  Leaderboard
+                </button>
+              </div>
+
+              {isAssessmentsLoading && assessmentsList.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem', color: '#a0aec0' }}>
+                  Loading assessments database...
+                </div>
+              ) : assessmentTab === 'challenges' ? (
+                /* Challenges Grid Workspace */
+                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '2rem', alignItems: 'start' }}>
+                  
+                  {/* Left Column: Challenges List & Search */}
+                  <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', height: '650px' }}>
+                    <input
+                      type="text"
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                      placeholder="Search challenges..."
+                      value={assessmentSearchQuery}
+                      onChange={(e) => setAssessmentSearchQuery(e.target.value)}
+                    />
+                    
+                    {/* List */}
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
+                      {assessmentsList
+                        .filter(a => a.title.toLowerCase().includes(assessmentSearchQuery.toLowerCase()))
+                        .map((a) => {
+                          const isSelected = selectedAssessment?._id === a._id;
+                          const isSolved = a.solvedStatus === 'solved';
+                          
+                          let borderCol = 'var(--border-glass)';
+                          if (isSelected) borderCol = 'var(--neon-primary)';
+                          else if (isSolved) borderCol = 'rgba(0, 255, 135, 0.2)';
+                          
+                          let badgeBg = 'rgba(255, 255, 255, 0.04)';
+                          let badgeTextCol = '#a0aec0';
+                          if (a.difficulty === 'easy') { badgeBg = 'rgba(0, 255, 135, 0.1)'; badgeTextCol = '#00ff87'; }
+                          else if (a.difficulty === 'medium') { badgeBg = 'rgba(255, 208, 0, 0.1)'; badgeTextCol = '#ffd000'; }
+                          else if (a.difficulty === 'hard') { badgeBg = 'rgba(255, 0, 85, 0.1)'; badgeTextCol = '#ff0055'; }
+
+                          return (
+                            <div
+                              key={a._id}
+                              onClick={() => handleSelectAssessment(a)}
+                              className="glass-panel"
+                              style={{
+                                padding: '10px 12px',
+                                cursor: 'pointer',
+                                borderColor: borderCol,
+                                background: isSelected ? 'rgba(189, 0, 255, 0.06)' : 'var(--bg-glass)',
+                                transition: '0.2s',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '6px'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+                                  {a.title}
+                                </span>
+                                {isSolved && (
+                                  <span style={{ fontSize: '0.75rem', color: '#00ff87', fontWeight: 'bold' }}>
+                                    ✓ SOLVED
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: badgeBg, color: badgeTextCol, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                                  {a.difficulty}
+                                </span>
+                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', fontWeight: 'bold' }}>
+                                  +{a.points} pts
+                                </span>
+                                <span style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: '#a0aec0', fontFamily: 'monospace' }}>
+                                  {a.type.toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      {assessmentsList.filter(a => a.title.toLowerCase().includes(assessmentSearchQuery.toLowerCase())).length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '2rem', color: '#718096', fontSize: '0.85rem' }}>
+                          No matching challenges.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Code Editor Workspace */}
+                  <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '650px' }}>
+                    {!selectedAssessment ? (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#718096', gap: '10px' }}>
+                        <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <polyline points="16 18 22 12 16 6" />
+                          <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                        <span>Select a challenge from the left to start coding!</span>
+                      </div>
+                    ) : (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
+                        {/* Title & Description */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{selectedAssessment.title}</h4>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Score Weight: <strong>+{selectedAssessment.points} pts</strong></span>
+                          </div>
+                          <p style={{ color: '#a0aec0', fontSize: '0.9rem', whiteSpace: 'pre-line', marginTop: '6px', background: 'rgba(0,0,0,0.15)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
+                            {selectedAssessment.description}
+                          </p>
+                        </div>
+
+                        {/* Editor Tabs & Workspace */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <button
+                                onClick={() => setAssessmentActiveEditor('html')}
+                                className={`btn-glass ${assessmentActiveEditor === 'html' ? 'btn-neon' : ''}`}
+                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                              >
+                                index.html
+                              </button>
+                              <button
+                                onClick={() => setAssessmentActiveEditor('css')}
+                                className={`btn-glass ${assessmentActiveEditor === 'css' ? 'btn-neon' : ''}`}
+                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                              >
+                                styles.css
+                              </button>
+                              <button
+                                onClick={() => setAssessmentActiveEditor('js')}
+                                className={`btn-glass ${assessmentActiveEditor === 'js' ? 'btn-neon' : ''}`}
+                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                              >
+                                app.js
+                              </button>
+                            </div>
+                            
+                            <span style={{ fontSize: '0.75rem', color: '#bd00ff', fontFamily: 'monospace' }}>
+                              EDITING: {assessmentActiveEditor === 'html' ? 'index.html' : assessmentActiveEditor === 'css' ? 'styles.css' : 'app.js'}
+                            </span>
+                          </div>
+
+                          <div style={{ flex: 1, borderRadius: '8px', overflow: 'hidden', border: '1.5px solid var(--border-glass)', background: '#1e1e1e', minHeight: 0 }}>
+                            <Editor
+                              height="100%"
+                              language={assessmentActiveEditor === 'js' ? 'javascript' : assessmentActiveEditor}
+                              theme={editorTheme}
+                              value={
+                                assessmentActiveEditor === 'html' ? assessmentHtml :
+                                assessmentActiveEditor === 'css' ? assessmentCss :
+                                assessmentJs
+                              }
+                              onChange={(val) => {
+                                const newVal = val || '';
+                                if (assessmentActiveEditor === 'html') setAssessmentHtml(newVal);
+                                else if (assessmentActiveEditor === 'css') setAssessmentCss(newVal);
+                                else setAssessmentJs(newVal);
+                              }}
+                              options={{
+                                minimap: { enabled: false },
+                                fontSize: 13,
+                                fontFamily: 'Consolas, "Courier New", monospace',
+                                tabSize: 2,
+                                automaticLayout: true,
+                                suggestOnTriggerCharacters: true,
+                                wordBasedSuggestions: 'allDocuments',
+                                snippetSuggestions: 'inline',
+                                quickSuggestions: { other: true, comments: true, strings: true },
+                                lineNumbers: 'on',
+                                autoClosingBrackets: 'always',
+                                autoClosingQuotes: 'always',
+                                autoClosingComments: 'always',
+                                scrollbar: {
+                                  vertical: 'visible',
+                                  horizontal: 'visible'
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Test Cases Run & Action Controls */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderTop: '1px solid var(--border-glass)', paddingTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                          
+                          {/* Test Checklist */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>VERIFICATION_CHECKLIST:</span>
+                            {assessmentTestResults.map((tc, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
+                                {tc.run ? (
+                                  tc.passed ? (
+                                    <span style={{ color: '#00ff87', fontWeight: 'bold' }}>✓</span>
+                                  ) : (
+                                    <span style={{ color: '#ff0055', fontWeight: 'bold' }}>✗</span>
+                                  )
+                                ) : (
+                                  <span style={{ color: '#718096' }}>○</span>
+                                )}
+                                <span style={{ color: tc.run ? (tc.passed ? '#00ff87' : '#ff0055') : 'var(--text-secondary)' }}>
+                                  {tc.description}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Trigger Buttons */}
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button
+                              onClick={executeTestCases}
+                              className="btn-glass"
+                              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                            >
+                              Run Tests
+                            </button>
+                            <button
+                              onClick={handleAssessmentSubmit}
+                              disabled={isSubmittingAssessment || assessmentTestResults.length === 0 || !assessmentTestResults.every(r => r.passed)}
+                              className="btn-neon"
+                              style={{
+                                padding: '8px 20px',
+                                fontSize: '0.85rem',
+                                background: 'linear-gradient(135deg, var(--neon-green) 0%, var(--neon-blue) 100%)',
+                                boxShadow: '0 4px 12px rgba(0, 255, 135, 0.2)',
+                                opacity: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 1 : 0.5,
+                                cursor: (assessmentTestResults.length > 0 && assessmentTestResults.every(r => r.passed)) ? 'pointer' : 'not-allowed'
+                              }}
+                            >
+                              {isSubmittingAssessment ? 'Submitting...' : 'Submit Challenge'}
+                            </button>
+                          </div>
+
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              ) : (
+                /* Leaderboard Table Workspace */
+                <div className="glass-panel" style={{ padding: '2rem' }}>
+                  <h4 style={{ fontSize: '1.25rem', fontFamily: 'monospace', color: '#00f2fe', marginBottom: '1.5rem' }}>
+                    GLOBAL_SCOREBOARD_LEADERBOARD
+                  </h4>
+                  
+                  {isLeaderboardLoading && leaderboardList.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#a0aec0' }}>
+                      Accessing server analytics...
+                    </div>
+                  ) : leaderboardList.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
+                      No submissions recorded on the leaderboard. Be the first to solve a challenge!
+                    </div>
+                  ) : (
+                    <div className="table-container">
+                      <table className="glass-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: '80px', textAlign: 'center' }}>Rank</th>
+                            <th>Student</th>
+                            <th>College Code</th>
+                            <th style={{ textAlign: 'center' }}>Challenges Solved</th>
+                            <th style={{ textAlign: 'center' }}>Total Score</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {leaderboardList.map((row, idx) => {
+                            const isTop3 = idx < 3;
+                            let rowBg = 'transparent';
+                            let glowShadow = 'none';
+                            let rankColor = 'var(--text-primary)';
+                            
+                            if (idx === 0) {
+                              rowBg = 'rgba(255, 208, 0, 0.05)';
+                              glowShadow = '0 0 10px rgba(255, 208, 0, 0.1)';
+                              rankColor = '#ffd000';
+                            } else if (idx === 1) {
+                              rowBg = 'rgba(255, 255, 255, 0.03)';
+                              glowShadow = '0 0 10px rgba(255, 255, 255, 0.05)';
+                              rankColor = '#e2e8f0';
+                            } else if (idx === 2) {
+                              rowBg = 'rgba(184, 115, 51, 0.05)';
+                              glowShadow = '0 0 10px rgba(184, 115, 51, 0.1)';
+                              rankColor = '#cd7f32';
+                            }
+
+                            return (
+                              <tr 
+                                key={row._id} 
+                                style={{ 
+                                  background: rowBg,
+                                  boxShadow: glowShadow,
+                                  borderLeft: isTop3 ? `3px solid ${rankColor}` : 'none'
+                                }}
+                              >
+                                <td style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 800, color: rankColor }}>
+                                  {idx === 0 ? '👑 1' : idx === 1 ? '🥈 2' : idx === 2 ? '🥉 3' : idx + 1}
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{
+                                      width: '32px',
+                                      height: '32px',
+                                      borderRadius: '50%',
+                                      background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
+                                      color: '#fff',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.8rem',
+                                      fontWeight: 700,
+                                      border: '1.5px solid rgba(255,255,255,0.1)'
+                                    }}>
+                                      {row.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <strong>{row.name}</strong>
+                                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#718096' }}>{row.email}</span>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  <span className="badge badge-not-submitted">{row.collegeCode || 'GLBL'}</span>
+                                </td>
+                                <td style={{ textAlign: 'center', fontWeight: 600 }}>
+                                  {row.solvedCount}
+                                </td>
+                                <td style={{ textAlign: 'center', fontWeight: 800, color: '#00f2fe' }}>
+                                  {row.totalPoints} pts
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
           )}
 
           {/* TAB 4: FOCUS & WORKSPACE TOOLS */}

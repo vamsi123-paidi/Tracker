@@ -118,6 +118,9 @@ export default function TrainerDashboard() {
 
   // Student Detail Performance Modal State
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
+  const [studentAnalytics, setStudentAnalytics] = useState<any>(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+  const [modalTab, setModalTab] = useState<'tasks' | 'assessments'>('tasks');
 
   // Filtering states for verification queue
   const [filterCollegeId, setFilterCollegeId] = useState('');
@@ -181,6 +184,26 @@ export default function TrainerDashboard() {
       })
       .catch(() => router.push('/login'));
   }, [router]);
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setModalTab('tasks');
+      setIsLoadingAnalytics(true);
+      setStudentAnalytics(null);
+      api.get(`/admin/student-analytics/${selectedStudent._id}`)
+        .then((data) => {
+          setStudentAnalytics(data);
+        })
+        .catch((err) => {
+          console.error('Failed to load student analytics:', err);
+        })
+        .finally(() => {
+          setIsLoadingAnalytics(false);
+        });
+    } else {
+      setStudentAnalytics(null);
+    }
+  }, [selectedStudent]);
 
   const fetchDashboardData = async () => {
     try {
@@ -2101,122 +2124,218 @@ export default function TrainerDashboard() {
               </button>
             </div>
 
-            {/* Split layout: doughnut progress left, task stats right */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-              {/* SVG doughnut ring chart */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                <div style={{ position: 'relative', width: '130px', height: '130px' }}>
-                  <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.05)"
-                      strokeWidth="3.5"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="url(#gradCyanPurple)"
-                      strokeWidth="3.5"
-                      strokeDasharray={`${selectedStudent.stats.totalTasksCount > 0 ? (selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100 : 0}, 100`}
-                    />
-                    <defs>
-                      <linearGradient id="gradCyanPurple" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#00f2fe" />
-                        <stop offset="100%" stopColor="#bd00ff" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    textAlign: 'center'
-                  }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
-                      {selectedStudent.stats.totalTasksCount > 0 ? Math.round((selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100) : 0}%
-                    </span>
-                    <p style={{ fontSize: '0.65rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Approved</p>
-                  </div>
-                </div>
-                <span style={{ marginTop: '10px', fontSize: '0.85rem', color: '#a0aec0', fontWeight: 600 }}>Completion Progress Ring</span>
-              </div>
-
-              {/* Progress Counters Panel */}
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px' }}>
-                <div style={{ background: 'rgba(0, 255, 135, 0.05)', border: '1px solid rgba(0, 255, 135, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600 }}>Approved Tasks</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.approvedCount}</span>
-                </div>
-                <div style={{ background: 'rgba(255, 208, 0, 0.05)', border: '1px solid rgba(255, 208, 0, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', color: '#ffd000', fontWeight: 600 }}>Awaiting Review</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.pendingCount}</span>
-                </div>
-                <div style={{ background: 'rgba(255, 0, 85, 0.05)', border: '1px solid rgba(255, 0, 85, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', color: '#ff0055', fontWeight: 600 }}>Rejected / Revision</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.rejectedCount}</span>
-                </div>
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Total Assigned Tasks</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.totalTasksCount}</span>
-                </div>
-              </div>
+            {/* Tab Bar Selector */}
+            <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+              <button
+                onClick={() => setModalTab('tasks')}
+                className={`btn-glass ${modalTab === 'tasks' ? 'btn-neon' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}
+              >
+                Milestone Tasks
+              </button>
+              <button
+                onClick={() => setModalTab('assessments')}
+                className={`btn-glass ${modalTab === 'assessments' ? 'btn-neon' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}
+              >
+                Coding Assessments
+              </button>
             </div>
 
-            {/* Task Checklist Breakdown */}
-            <h4 style={{ fontSize: '1rem', color: '#00f2fe', marginBottom: '1rem', fontFamily: 'monospace' }}>TASK_PROGRESSION_BREAKDOWN</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '250px', overflowY: 'auto' }}>
-              {tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>No tasks assigned to this student's college.</div>
-              ) : (
-                tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).map((task) => {
-                  const sub = submissions.find(s => s.task?._id === task._id && s.student._id === selectedStudent._id);
-                  const status = sub ? sub.status : 'not_submitted';
-
-                  let statusText = 'Not Submitted';
-                  let statusGlow = 'var(--text-muted)';
-                  if (status === 'approved') { statusText = 'Approved'; statusGlow = 'var(--neon-green)'; }
-                  else if (status === 'pending') { statusText = 'Pending Review'; statusGlow = 'var(--neon-yellow)'; }
-                  else if (status === 'rejected') { statusText = 'Needs Revision'; statusGlow = 'var(--neon-red)'; }
-
-                  return (
-                    <div key={task._id} style={{
-                      padding: '12px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.05)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '1rem'
-                    }}>
-                      <div>
-                        <strong style={{ fontSize: '0.95rem', display: 'block' }}>{task.title}</strong>
-                        <span style={{ fontSize: '0.8rem', color: '#718096' }}>Due Date: {new Date(task.dueDate).toLocaleDateString()}</span>
-                      </div>
-                      
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ color: statusGlow, fontWeight: 600, fontSize: '0.85rem' }}>{statusText}</span>
-                        {sub && (
-                          <button
-                            onClick={() => {
-                              setSelectedSubmission(sub);
-                              setReviewFeedback(sub.feedback || '');
-                              setSelectedStudent(null); // Close this modal to open verification proof
-                            }}
-                            className="btn-glass"
-                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                          >
-                            Inspect Submission
-                          </button>
-                        )}
+            {modalTab === 'tasks' ? (
+              <>
+                {/* Split layout: doughnut progress left, task stats right */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+                  {/* SVG doughnut ring chart */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.01)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                    <div style={{ position: 'relative', width: '130px', height: '130px' }}>
+                      <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                        <path
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          fill="none"
+                          stroke="rgba(255,255,255,0.05)"
+                          strokeWidth="3.5"
+                        />
+                        <path
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          fill="none"
+                          stroke="url(#gradCyanPurple)"
+                          strokeWidth="3.5"
+                          strokeDasharray={`${selectedStudent.stats.totalTasksCount > 0 ? (selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100 : 0}, 100`}
+                        />
+                        <defs>
+                          <linearGradient id="gradCyanPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#00f2fe" />
+                            <stop offset="100%" stopColor="#bd00ff" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        textAlign: 'center'
+                      }}>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+                          {selectedStudent.stats.totalTasksCount > 0 ? Math.round((selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100) : 0}%
+                        </span>
+                        <p style={{ fontSize: '0.65rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Approved</p>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
+                    <span style={{ marginTop: '10px', fontSize: '0.85rem', color: '#a0aec0', fontWeight: 600 }}>Completion Progress Ring</span>
+                  </div>
+
+                  {/* Progress Counters Panel */}
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px' }}>
+                    <div style={{ background: 'rgba(0, 255, 135, 0.05)', border: '1px solid rgba(0, 255, 135, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600 }}>Approved Tasks</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.approvedCount}</span>
+                    </div>
+                    <div style={{ background: 'rgba(255, 208, 0, 0.05)', border: '1px solid rgba(255, 208, 0, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#ffd000', fontWeight: 600 }}>Awaiting Review</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.pendingCount}</span>
+                    </div>
+                    <div style={{ background: 'rgba(255, 0, 85, 0.05)', border: '1px solid rgba(255, 0, 85, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#ff0055', fontWeight: 600 }}>Rejected / Revision</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.rejectedCount}</span>
+                    </div>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Total Assigned Tasks</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.totalTasksCount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Task Checklist Breakdown */}
+                <h4 style={{ fontSize: '1rem', color: '#00f2fe', marginBottom: '1rem', fontFamily: 'monospace' }}>TASK_PROGRESSION_BREAKDOWN</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '250px', overflowY: 'auto' }}>
+                  {tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).length === 0 ? (
+                    <div style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>No tasks assigned to this student's college.</div>
+                  ) : (
+                    tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).map((task) => {
+                      const sub = submissions.find(s => s.task?._id === task._id && s.student._id === selectedStudent._id);
+                      const status = sub ? sub.status : 'not_submitted';
+
+                      let statusText = 'Not Submitted';
+                      let statusGlow = 'var(--text-muted)';
+                      if (status === 'approved') { statusText = 'Approved'; statusGlow = 'var(--neon-green)'; }
+                      else if (status === 'pending') { statusText = 'Pending Review'; statusGlow = 'var(--neon-yellow)'; }
+                      else if (status === 'rejected') { statusText = 'Needs Revision'; statusGlow = 'var(--neon-red)'; }
+
+                      return (
+                        <div key={task._id} style={{
+                          padding: '12px 14px',
+                          borderRadius: '8px',
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.05)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: '1rem'
+                        }}>
+                          <div>
+                            <strong style={{ fontSize: '0.95rem', display: 'block' }}>{task.title}</strong>
+                            <span style={{ fontSize: '0.8rem', color: '#718096' }}>Due Date: {new Date(task.dueDate).toLocaleDateString()}</span>
+                          </div>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ color: statusGlow, fontWeight: 600, fontSize: '0.85rem' }}>{statusText}</span>
+                            {sub && (
+                              <button
+                                onClick={() => {
+                                  setSelectedSubmission(sub);
+                                  setReviewFeedback(sub.feedback || '');
+                                  setSelectedStudent(null); // Close this modal to open verification proof
+                                }}
+                                className="btn-glass"
+                                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                              >
+                                Inspect Submission
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Coding Assessments Tab View */}
+                {isLoadingAnalytics ? (
+                  <div style={{ textAlign: 'center', padding: '3rem', color: '#a0aec0' }}>
+                    Fetching coding telemetry records...
+                  </div>
+                ) : !studentAnalytics ? (
+                  <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
+                    Failed to fetch assessment records.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    
+                    {/* Summary Metrics */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 242, 254, 0.2)' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
+                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#00f2fe' }}>{studentAnalytics.totalPoints} pts</h4>
+                      </div>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 255, 135, 0.2)' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CHALLENGES_SOLVED</span>
+                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#00ff87' }}>{studentAnalytics.solvedCount} / 100</h4>
+                      </div>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(189, 0, 255, 0.2)' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CLASS_CODING_RANK</span>
+                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#bd00ff' }}>#{studentAnalytics.rank}</h4>
+                      </div>
+                      <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(255, 208, 0, 0.2)' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>COMPLETION_RATE</span>
+                        <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#ffd000' }}>{studentAnalytics.solvedCount}%</h4>
+                      </div>
+                    </div>
+
+                    {/* Challenges Solved List */}
+                    <h4 style={{ fontSize: '1rem', color: '#00f2fe', margin: '0.5rem 0 0', fontFamily: 'monospace' }}>SOLVED_CHALLENGES_DIRECTORY</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {studentAnalytics.submissions.length === 0 ? (
+                        <div style={{ textAlign: 'center', color: '#718096', padding: '2rem' }}>
+                          No solved coding challenges recorded yet.
+                        </div>
+                      ) : (
+                        studentAnalytics.submissions.map((s: any) => (
+                          <div key={s._id} style={{
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div>
+                              <strong style={{ fontSize: '0.9rem', color: '#fff' }}>{s.assessmentTitle}</strong>
+                              <div style={{ display: 'flex', gap: '6px', marginTop: '4px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.65rem', padding: '1px 5px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', color: '#a0aec0', fontFamily: 'monospace' }}>
+                                  {s.assessmentType.toUpperCase()}
+                                </span>
+                                <span style={{ fontSize: '0.65rem', color: '#718096' }}>
+                                  Solved: {new Date(s.completedAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#00ff87' }}>
+                              +{s.scoreGained} pts
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                  </div>
+                )}
+              </>
+            )}
             
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
               <button onClick={() => setSelectedStudent(null)} className="btn-glass">
