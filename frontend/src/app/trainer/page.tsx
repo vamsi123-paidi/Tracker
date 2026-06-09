@@ -109,6 +109,12 @@ export default function TrainerDashboard() {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [reviewFeedback, setReviewFeedback] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
+  const [isAiReviewing, setIsAiReviewing] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [selectedSubmission]);
 
   // Student Detail Performance Modal State
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
@@ -661,6 +667,23 @@ export default function TrainerDashboard() {
       setErrorMsg(err.message || 'Failed to submit review');
     } finally {
       setIsReviewing(false);
+    }
+  };
+
+  const handleAiAutoReview = async () => {
+    if (!selectedSubmission) return;
+    setIsAiReviewing(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      const res = await api.post(`/submissions/${selectedSubmission._id}/auto-review`, {});
+      setReviewFeedback(res.feedback);
+      setSuccessMsg(`AI Assessment Complete! Suggested: ${res.status.toUpperCase()}. Review feedback was pre-populated.`);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'AI Auto-review failed.');
+    } finally {
+      setIsAiReviewing(false);
     }
   };
 
@@ -1938,22 +1961,39 @@ export default function TrainerDashboard() {
               </button>
             </div>
 
-            <div style={{ marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', overflow: 'hidden', textAlign: 'center', background: '#000' }}>
-              <img
-                src={selectedSubmission.screenshotUrl.startsWith('http')
-                  ? selectedSubmission.screenshotUrl
-                  : `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') : 'http://localhost:5000'}${selectedSubmission.screenshotUrl}`
-                }
-                alt="Submission Proof"
-                style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
-              />
+            <div style={{ marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', overflow: 'hidden', textAlign: 'center', background: '#000', padding: imageError ? '2rem 1.5rem' : '0' }}>
+              {!imageError ? (
+                <img
+                  src={selectedSubmission.screenshotUrl.startsWith('http')
+                    ? selectedSubmission.screenshotUrl
+                    : `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') : 'http://localhost:5000'}${selectedSubmission.screenshotUrl}`
+                  }
+                  alt="Submission Proof"
+                  onError={() => setImageError(true)}
+                  style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }}
+                />
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                  <svg width="36" height="36" fill="none" stroke="var(--neon-primary)" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                  </svg>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Deliverable Screenshot Not Served (Render Ephemeral Storage)</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Evaluate via student Notes/Links below</span>
+                </div>
+              )}
             </div>
 
             {selectedSubmission.notes && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.9rem', color: '#a0aec0', marginBottom: '0.25rem' }}>Student Notes:</h4>
-                <p style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem' }}>
-                  {selectedSubmission.notes}
+                <h4 style={{ fontSize: '0.9rem', color: '#a0aec0', marginBottom: '0.25rem' }}>Student Notes / Links:</h4>
+                <p style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem', wordBreak: 'break-all' }}>
+                  {selectedSubmission.notes.startsWith('http') ? (
+                    <a href={selectedSubmission.notes} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--neon-primary)', textDecoration: 'underline' }}>
+                      {selectedSubmission.notes}
+                    </a>
+                  ) : (
+                    selectedSubmission.notes
+                  )}
                 </p>
               </div>
             )}
@@ -1970,20 +2010,36 @@ export default function TrainerDashboard() {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={handleAiAutoReview}
+                disabled={isAiReviewing || isReviewing}
+                className="btn-neon"
+                style={{
+                  background: 'linear-gradient(135deg, #bd00ff 0%, #0052ff 100%)',
+                  boxShadow: '0 4px 15px rgba(189, 0, 255, 0.3)',
+                  marginRight: 'auto',
+                  padding: '10px 20px',
+                  fontSize: '0.85rem'
+                }}
+              >
+                {isAiReviewing ? 'AI Assessing...' : '✨ AI Auto-Review'}
+              </button>
+
               <button
                 onClick={() => handleReviewSubmission('rejected')}
-                disabled={isReviewing}
+                disabled={isReviewing || isAiReviewing}
                 className="btn-glass"
-                style={{ border: '1px solid rgba(255, 0, 85, 0.4)', color: '#ff0055', background: 'rgba(255, 0, 85, 0.05)' }}
+                style={{ border: '1px solid rgba(255, 0, 85, 0.4)', color: '#ff0055', background: 'rgba(255, 0, 85, 0.05)', padding: '10px 20px', fontSize: '0.85rem' }}
               >
                 Reject / Request Rev
               </button>
               <button
                 onClick={() => handleReviewSubmission('approved')}
-                disabled={isReviewing}
+                disabled={isReviewing || isAiReviewing}
                 className="btn-neon"
-                style={{ background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)', color: '#03030b' }}
+                style={{ background: 'linear-gradient(135deg, #00ff87 0%, #60efff 100%)', color: '#03030b', padding: '10px 20px', fontSize: '0.85rem' }}
               >
                 Approve Submission
               </button>

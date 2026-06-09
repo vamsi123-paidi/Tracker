@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { login, registerTrainer, getCurrentUser, updateProfile } from '../controllers/authController.js';
 import { getColleges, createCollege } from '../controllers/collegeController.js';
 import { getTasks, createTask } from '../controllers/taskController.js';
-import { getSubmissions, submitTask, reviewSubmission } from '../controllers/submissionController.js';
+import { getSubmissions, submitTask, reviewSubmission, autoReviewSubmission } from '../controllers/submissionController.js';
 import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } from '../controllers/adminController.js';
 import { handleChat } from '../controllers/chatController.js';
 import { createQuiz, toggleQuizActive, getTrainerQuizzes, getQuizResultsForTrainer, getActiveQuizzes, submitQuiz } from '../controllers/quizController.js';
@@ -30,6 +30,7 @@ router.post('/tasks', authenticateToken, requireRole('trainer'), createTask);
 router.get('/submissions', authenticateToken, getSubmissions);
 router.post('/submissions', authenticateToken, requireRole('student'), upload.single('screenshot'), submitTask);
 router.put('/submissions/:submissionId/review', authenticateToken, requireRole('trainer'), reviewSubmission);
+router.post('/submissions/:submissionId/auto-review', authenticateToken, requireRole('trainer'), autoReviewSubmission);
 
 // Admin / Bulk importing & Manual Student Onboarding & Metrics Directory
 router.post('/admin/import-students', authenticateToken, requireRole('trainer'), uploadRoster.single('file'), bulkImportStudents);
