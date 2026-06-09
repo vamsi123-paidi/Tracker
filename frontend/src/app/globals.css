@@ -74,8 +74,13 @@
 }
 
 body {
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at 50% 50%, rgba(10, 10, 30, 0.15) 0%, transparent 100%);
+  background-color: #030308;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(225, 39%, 10%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(339, 49%, 9%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(180, 49%, 8%, 1) 0, transparent 50%);
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -213,15 +218,15 @@ body {
 /* Glassmorphism Styles */
 .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-glass);
   border-radius: 20px;
   padding: 28px;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
-  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
               border-color 0.4s ease, 
               box-shadow 0.4s ease;
 }
@@ -241,7 +246,7 @@ body {
 
 .glass-panel:hover {
   border-color: var(--border-glass-hover);
-  box-shadow: 0 15px 45px rgba(0, 242, 254, 0.05), inset 0 0 15px rgba(255, 255, 255, 0.02);
+  box-shadow: 0 20px 45px rgba(0, 242, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Interactive Card - 3D Tilt Hover */
