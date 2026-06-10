@@ -643,6 +643,14 @@ const MERN_QUESTIONS: any[] = [];
 
 const mernProjects = [
   {
+    id: 'proj-sru',
+    title: 'SRU (Student Resource Unit)',
+    description: 'Core Student Resource Unit repository containing academic tools and frameworks.',
+    cloneUrl: 'https://github.com/vamsi123-paidi/SRU.git',
+    githubUrl: 'https://github.com/vamsi123-paidi/SRU',
+    tags: ['SRU', 'Academic', 'Framework', 'Portal']
+  },
+  {
     id: 'proj-1',
     title: 'MERN Full-Stack Starter Template',
     description: 'Complete baseline setup integrating Express REST controller directories, Mongoose schemas, and a React (Vite) frontend with proxy configurations.',
@@ -667,6 +675,66 @@ const mernProjects = [
     tags: ['Express-Validator', 'CORS', 'Morgan', 'REST']
   }
 ];
+
+const flattenResources = (items: any[]): any[] => {
+  let list: any[] = [];
+  if (!items) return list;
+  items.forEach((item: any) => {
+    if (item.type === 'folder') {
+      if (item.children) {
+        list = list.concat(flattenResources(item.children));
+      }
+    } else {
+      list.push(item);
+    }
+  });
+  return list;
+};
+
+const getFileMeta = (file: any) => {
+  const pathParts = file.path.split('/');
+  let category = 'General Study';
+  if (pathParts.length > 0) {
+    const parent = pathParts[0].toLowerCase();
+    if (parent === 'mongodb') category = 'MongoDB Database';
+    else if (parent === 'backend') category = 'Express & Node.js';
+    else if (parent === 'frontend') {
+      if (file.path.toLowerCase().includes('html and css') || file.path.toLowerCase().includes('html notes') || file.path.toLowerCase().includes('css notes')) {
+        category = 'HTML & CSS Design';
+      } else {
+        category = 'JavaScript & React';
+      }
+    }
+    else if (parent === 'bonus') category = 'MERN Case Studies';
+  }
+  
+  // Pretty name: remove leading numbers, capitalize, remove extensions
+  const cleanBase = file.name
+    .replace(/^\d+-/, '') // remove leading numbers
+    .replace(/\.txt$|\.pdf$|\.rar$|\.docx$/gi, ''); // remove extension
+  
+  // Format readable name
+  let displayName = cleanBase
+    .replace(/([A-Z])/g, ' $1') // split camelCase
+    .trim();
+  
+  // Clean up display name typos or abbreviations
+  displayName = displayName
+    .replace(/Kwywordinjs/gi, 'Keyword in JS')
+    .replace(/callapplybind/gi, 'Call, Apply, Bind')
+    .replace(/clouser/gi, 'Closure')
+    .replace(/deepcopy/gi, 'Deep Copy')
+    .replace(/localstorageandsessionstorage/gi, 'LocalStorage & SessionStorage')
+    .replace(/reactintro/gi, 'React Introduction')
+    .replace(/redux_complete/gi, 'Redux Complete Guide')
+    .replace(/spreadrest/gi, 'Spread & Rest Operator')
+    .replace(/uptouseRef/gi, 'Usage of useRef')
+    .replace(/advencedpart/gi, 'Advanced Part')
+    .replace(/agrregations/gi, 'Aggregations')
+    .replace(/FirebaseAuth/gi, 'Firebase Auth Guide');
+
+  return { category, displayName };
+};
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -774,6 +842,7 @@ export default function StudentDashboard() {
   const [studyNotes, setStudyNotes] = useState<any[]>([]);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [noteSearchQuery, setNoteSearchQuery] = useState('');
+  const [noteCategoryFilter, setNoteCategoryFilter] = useState('All');
 
   // Status Feedback
   const [errorMsg, setErrorMsg] = useState('');
@@ -1874,113 +1943,126 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {/* Main Grid: Sidebar + Workspace */}
+      {/* Sleek Top Horizontal Navigation Bar */}
+      <nav className="glass-panel" style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        padding: '0.75rem 1rem',
+        marginBottom: '2rem',
+        flexWrap: 'wrap',
+        gap: '0.65rem',
+        background: 'rgba(5, 5, 8, 0.4)',
+        border: '1px solid var(--border-glass)',
+        borderRadius: '16px'
+      }}>
+        <button
+          onClick={() => setActiveTab('milestones')}
+          className={`sidebar-btn ${activeTab === 'milestones' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Milestones
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('quizzes');
+            fetchActiveQuizzes();
+            fetchQuizResults();
+          }}
+          className={`sidebar-btn ${activeTab === 'quizzes' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Quiz Hub
+        </button>
+
+        <button
+          onClick={() => setActiveTab('playground')}
+          className={`sidebar-btn ${activeTab === 'playground' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          Playground
+        </button>
+
+        <button
+          onClick={() => setActiveTab('compiler')}
+          className={`sidebar-btn ${activeTab === 'compiler' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M6 10l3 2-3 2" />
+            <line x1="11" y1="14" x2="15" y2="14" />
+          </svg>
+          Compiler
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('assessments');
+            fetchAssessments();
+            fetchLeaderboard();
+          }}
+          className={`sidebar-btn ${activeTab === 'assessments' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Assessments
+        </button>
+
+        <button
+          onClick={() => setActiveTab('tools')}
+          className={`sidebar-btn ${activeTab === 'tools' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Make a Note
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('mern');
+            fetchMernResources();
+          }}
+          className={`sidebar-btn ${activeTab === 'mern' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          MERN Hub
+        </button>
+
+        <button
+          onClick={() => setActiveTab('achievements')}
+          className={`sidebar-btn ${activeTab === 'achievements' ? 'active' : ''}`}
+          style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="7" />
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+          </svg>
+          Badge Shelf
+        </button>
+      </nav>
+
+      {/* Main Workspace Layout (stretched 100% width) */}
       <div className="workspace-layout">
-        
-        {/* Left Nav Bar */}
-        <aside className="glass-panel" style={{ padding: '1.25rem' }}>
-          <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: '1rem', letterSpacing: '1px' }}>
-            STUDENT_WORKPLACE
-          </h4>
-          <nav className="sidebar-nav">
-            <button
-              onClick={() => setActiveTab('milestones')}
-              className={`sidebar-btn ${activeTab === 'milestones' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Milestones
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveTab('quizzes');
-                fetchActiveQuizzes();
-                fetchQuizResults();
-              }}
-              className={`sidebar-btn ${activeTab === 'quizzes' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              Quiz Hub
-            </button>
-
-            <button
-              onClick={() => setActiveTab('playground')}
-              className={`sidebar-btn ${activeTab === 'playground' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-              </svg>
-              Code Playground
-            </button>
-
-            <button
-              onClick={() => setActiveTab('compiler')}
-              className={`sidebar-btn ${activeTab === 'compiler' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M6 10l3 2-3 2" />
-                <line x1="11" y1="14" x2="15" y2="14" />
-              </svg>
-              Code Compiler
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveTab('assessments');
-                fetchAssessments();
-                fetchLeaderboard();
-              }}
-              className={`sidebar-btn ${activeTab === 'assessments' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Assessments
-            </button>
-
-            <button
-              onClick={() => setActiveTab('tools')}
-              className={`sidebar-btn ${activeTab === 'tools' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Make a Note
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('mern');
-                fetchMernResources();
-              }}
-              className={`sidebar-btn ${activeTab === 'mern' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              MERN Hub
-            </button>
-
-            <button
-              onClick={() => setActiveTab('achievements')}
-              className={`sidebar-btn ${activeTab === 'achievements' ? 'active' : ''}`}
-            >
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="7" />
-                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-              </svg>
-              Badge Shelf
-            </button>
-          </nav>
-        </aside>
-
-        {/* Right workspace area */}
-        <section className="workspace-content">
+        <section className="workspace-content" style={{ width: '100%' }}>
           
           {/* TAB 1: MILESTONES (Tasks Listing & Stats) */}
           {activeTab === 'milestones' && (
@@ -4268,145 +4350,225 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                   )}
-
-                  {/* SUB-TAB 2: FULL-STACK STUDY NOTES */}
+                          {/* SUB-TAB 2: FULL-STACK STUDY NOTES */}
                   {mernTab === 'notes' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '1.25rem' }} className="dashboard-grid">
-                      {/* Left: Notes Explorer Tree */}
-                      <div className="glass-panel" style={{ padding: '1rem', minHeight: '480px' }}>
-                        <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
-                          DIRECTORY_EXPLORER
-                        </h4>
-                        
-                        {mernResources ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '420px', overflowY: 'auto' }}>
-                            {/* Render Directory Tree */}
-                            {mernResources.notes.map((cat, idx) => (
-                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--neon-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                  📁 {cat.name.toUpperCase()}
-                                </div>
-                                <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '3px', borderLeft: '1px dashed var(--border-glass)', marginLeft: '6px' }}>
-                                  {cat.children && cat.children.map((file: any, fIdx: number) => {
-                                    const isSelected = selectedMernNote?.path === file.path;
-                                    return (
-                                      <div 
-                                        key={fIdx}
-                                        onClick={() => handleSelectMernNote(file)}
-                                        style={{ 
-                                          fontSize: '0.8rem', 
-                                          cursor: 'pointer', 
-                                          padding: '4px 8px', 
-                                          borderRadius: '4px',
-                                          background: isSelected ? 'rgba(245,158,11,0.08)' : 'transparent',
-                                          color: isSelected ? 'var(--neon-primary)' : 'var(--text-secondary)',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center'
-                                        }}
-                                      >
-                                        <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '160px' }}>
-                                          📄 {file.name}
-                                        </span>
-                                        <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.04)', padding: '1px 4px', borderRadius: '3px', fontFamily: 'monospace' }}>
-                                          {file.type}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0', fontSize: '0.85rem' }}>
-                            Loading file structure...
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right: Document Reading Pane */}
-                      <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '480px' }}>
-                        {selectedMernNote ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
-                              <div>
-                                <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>{selectedMernNote.name}</h3>
-                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                                  PATH: {selectedMernNote.path} | SIZE: {(selectedMernNote.size / 1024).toFixed(1)} KB
-                                </span>
-                              </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      
+                      {/* Active Preview Panel for TXT notes */}
+                      {selectedMernNote && selectedMernNote.type === 'txt' && (
+                        <div className="glass-panel" style={{ padding: '1.5rem', border: '1.5px solid var(--neon-primary)', background: 'rgba(5, 5, 8, 0.65)', borderRadius: '14px', position: 'relative', animation: 'zoomIn 0.3s ease' }}>
+                          <button 
+                            onClick={() => setSelectedMernNote(null)} 
+                            style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1.2rem' }}
+                          >
+                            ✕
+                          </button>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <div>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>ACTIVE_LECTURE_NOTE_PREVIEW</span>
+                              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', marginTop: '2px' }}>{getFileMeta(selectedMernNote).displayName}</h3>
+                              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0 }}>Path: {selectedMernNote.path} | Size: {(selectedMernNote.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
                               <button
                                 onClick={() => handleDownloadMernFile(selectedMernNote, 'notes')}
-                                className="btn-glass btn-download"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem', gap: '4px', borderRadius: '6px' }}
+                                className="btn-glass"
+                                style={{ padding: '8px 16px', fontSize: '0.75rem', borderRadius: '8px' }}
                               >
-                                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                                </svg>
-                                Download
+                                Download TXT
+                              </button>
+                              <button
+                                onClick={() => handleImportMernNoteToNotepad(selectedMernNote.name, selectedMernNoteContent)}
+                                className="btn-neon"
+                                style={{ padding: '8px 16px', fontSize: '0.75rem', borderRadius: '8px' }}
+                              >
+                                Import to Notepad
                               </button>
                             </div>
+                          </div>
+                          {isLoadingMernContent ? (
+                            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading note details...</div>
+                          ) : (
+                            <div 
+                              style={{ 
+                                maxHeight: '350px', 
+                                overflowY: 'auto', 
+                                padding: '1.25rem', 
+                                background: 'rgba(0,0,0,0.3)', 
+                                borderRadius: '10px', 
+                                fontSize: '0.92rem', 
+                                lineHeight: '1.65',
+                                border: '1px solid var(--border-glass)',
+                                color: 'var(--text-primary)'
+                              }}
+                              dangerouslySetInnerHTML={renderMarkdown(selectedMernNoteContent)}
+                            />
+                          )}
+                        </div>
+                      )}
 
-                            {/* Content Renders based on File Type */}
-                            {selectedMernNote.type === 'txt' ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                                {isLoadingMernContent ? (
-                                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                                    Loading note details...
-                                  </div>
-                                ) : (
-                                  <>
-                                    <div 
-                                      style={{ 
-                                        maxHeight: '380px', 
-                                        overflowY: 'auto', 
-                                        padding: '1rem', 
-                                        background: 'rgba(0,0,0,0.15)', 
-                                        borderRadius: '10px', 
-                                        fontSize: '0.9rem',
-                                        lineHeight: '1.6',
-                                        border: '1px solid var(--border-glass)'
-                                      }}
-                                      dangerouslySetInnerHTML={renderMarkdown(selectedMernNoteContent)}
-                                    />
-                                    <button
-                                      onClick={() => handleImportMernNoteToNotepad(selectedMernNote.name, selectedMernNoteContent)}
-                                      className="btn-neon btn-create"
-                                      style={{ width: '100%', padding: '10px', fontSize: '0.85rem', borderRadius: '8px' }}
-                                    >
-                                      Import into Make a Note Workspace
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            ) : (
-                              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem', background: 'rgba(0,0,0,0.15)', borderRadius: '10px' }}>
-                                <span style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📄</span>
-                                <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>Document Resource File</h4>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', maxWidth: '300px', margin: '0.5rem 0 1.5rem 0' }}>
-                                  This file is in a binary format ({selectedMernNote.type.toUpperCase()}) and cannot be previewed directly in the browser.
-                                </p>
-                                <button
-                                  onClick={() => handleDownloadMernFile(selectedMernNote, 'notes')}
-                                  className="btn-neon btn-download"
-                                  style={{ padding: '10px 24px', fontSize: '0.85rem', borderRadius: '8px' }}
-                                >
-                                  Download & Read Document
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'var(--text-muted)', padding: '4rem 2rem' }}>
-                            <span style={{ fontSize: '2rem', marginBottom: '1rem' }}>📂</span>
-                            <h4 style={{ fontSize: '0.95rem', fontWeight: 600 }}>No Note Selected</h4>
-                            <p style={{ fontSize: '0.8rem', maxWidth: '280px', marginTop: '4px' }}>
-                              Select any lecture note or document from the file tree directory to start studying or downloading.
-                            </p>
-                          </div>
-                        )}
+                      {/* Header controls: Search & Filters */}
+                      <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.25rem' }}>
+                        <div>
+                          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Full-Stack Study Library</h3>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: '2px 0 0 0' }}>Access, study, and download all materials in a premium card interface.</p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                          <select 
+                            value={noteCategoryFilter} 
+                            onChange={(e) => setNoteCategoryFilter(e.target.value)}
+                            className="glass-input" 
+                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
+                          >
+                            <option value="All">All Categories</option>
+                            <option value="MongoDB Database">MongoDB Database</option>
+                            <option value="Express & Node.js">Express & Node.js</option>
+                            <option value="HTML & CSS Design">HTML & CSS Design</option>
+                            <option value="JavaScript & React">JavaScript & React</option>
+                            <option value="MERN Case Studies">Case Studies & Bonus</option>
+                            <option value="pdf">PDF Documents</option>
+                            <option value="rar">Archives (RAR)</option>
+                            <option value="txt">Lecture Notes (TXT)</option>
+                          </select>
+                          <input 
+                            type="text" 
+                            placeholder="Search notes..." 
+                            value={noteSearchQuery} 
+                            onChange={(e) => setNoteSearchQuery(e.target.value)}
+                            className="glass-input" 
+                            style={{ padding: '6px 12px', fontSize: '0.85rem', maxWidth: '200px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
+                          />
+                        </div>
                       </div>
+
+                      {/* Notes Cards Grid */}
+                      {mernResources ? (
+                        (() => {
+                          const flatNotes = flattenResources(mernResources.notes);
+                          const filtered = flatNotes.filter(file => {
+                            const meta = getFileMeta(file);
+                            const matchesSearch = file.name.toLowerCase().includes(noteSearchQuery.toLowerCase()) || meta.category.toLowerCase().includes(noteSearchQuery.toLowerCase());
+                            let matchesFilter = true;
+                            if (noteCategoryFilter !== 'All') {
+                              if (noteCategoryFilter === 'pdf' || noteCategoryFilter === 'rar' || noteCategoryFilter === 'txt') {
+                                matchesFilter = file.type === noteCategoryFilter;
+                              } else {
+                                matchesFilter = meta.category === noteCategoryFilter;
+                              }
+                            }
+                            return matchesSearch && matchesFilter;
+                          });
+
+                          if (filtered.length === 0) {
+                            return (
+                              <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                <span style={{ fontSize: '2rem' }}>🔍</span>
+                                <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No notes found</h4>
+                                <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>Try refining your search query or category filter selection.</p>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                              {filtered.map((file, idx) => {
+                                const meta = getFileMeta(file);
+                                const isSelected = selectedMernNote?.path === file.path;
+                                const isPdf = file.type === 'pdf';
+                                const isRar = file.type === 'rar';
+                                const isDocx = file.type === 'docx';
+                                const isTxt = file.type === 'txt';
+
+                                let tagBg = 'rgba(255,107,53,0.1)';
+                                let tagColor = '#ff6b35';
+                                if (isPdf) {
+                                  tagBg = 'rgba(16,185,129,0.1)';
+                                  tagColor = 'var(--neon-secondary)';
+                                } else if (isRar) {
+                                  tagBg = 'rgba(245,158,11,0.1)';
+                                  tagColor = 'var(--neon-primary)';
+                                } else if (isDocx) {
+                                  tagBg = 'rgba(59,130,246,0.1)';
+                                  tagColor = '#3b82f6';
+                                }
+
+                                return (
+                                  <div 
+                                    key={idx}
+                                    className="glass-panel tilt-card"
+                                    style={{ 
+                                      padding: '1.25rem', 
+                                      display: 'flex', 
+                                      flexDirection: 'column', 
+                                      justifyContent: 'space-between',
+                                      gap: '1rem',
+                                      border: isSelected ? '1.5px solid var(--neon-primary)' : '1px solid var(--border-glass)',
+                                      background: isSelected ? 'rgba(245,158,11,0.02)' : 'rgba(255,255,255,0.01)',
+                                      transition: 'all 0.3s ease'
+                                    }}
+                                  >
+                                    <div>
+                                      {/* Tags row */}
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                                          {meta.category}
+                                        </span>
+                                        <span style={{ fontSize: '0.65rem', background: tagBg, color: tagColor, padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                          {file.type.toUpperCase()}
+                                        </span>
+                                      </div>
+
+                                      {/* Title */}
+                                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 4px 0', color: '#fff', lineHeight: '1.4' }}>
+                                        {meta.displayName}
+                                      </h4>
+                                      
+                                      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0, fontFamily: 'monospace' }}>
+                                        Size: {(file.size / 1024).toFixed(1)} KB
+                                      </p>
+                                    </div>
+
+                                    {/* Action Row */}
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                      {isTxt ? (
+                                        <>
+                                          <button
+                                            onClick={() => handleSelectMernNote(file)}
+                                            className="btn-neon"
+                                            style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', textAlign: 'center' }}
+                                          >
+                                            Study Note
+                                          </button>
+                                          <button
+                                            onClick={() => handleDownloadMernFile(file, 'notes')}
+                                            className="btn-glass"
+                                            style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                            title="Download TXT file"
+                                          >
+                                            📥
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <button
+                                          onClick={() => handleDownloadMernFile(file, 'notes')}
+                                          className="btn-neon"
+                                          style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
+                                        >
+                                          <span>📥 Download</span>
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 0', fontSize: '0.85rem' }}>
+                          Loading full-stack library resources...
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -4473,19 +4635,19 @@ export default function StudentDashboard() {
                   <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(245,158,11,0.25)', background: 'linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(255,107,53,0.01) 100%)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '8px' }}>
                       <span style={{ fontSize: '1.2rem', color: 'var(--neon-primary)' }}>✦</span>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Active Portal Repository</h4>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Active SRU Project Repository</h4>
                     </div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
-                      This portal repository is active and deployed. Students can review and clone the main codebase directly.
+                      This project repository is active and deployed. Students can review and clone the main academic codebase directly.
                     </p>
                     <a
-                      href="https://github.com/vamsi123-paidi/Tracker"
+                      href="https://github.com/vamsi123-paidi/SRU"
                       target="_blank"
                       rel="noreferrer"
                       className="btn-neon"
                       style={{ textDecoration: 'none', display: 'block', textAlign: 'center', padding: '10px', fontSize: '0.8rem', borderRadius: '8px' }}
                     >
-                      View Main Repo on GitHub
+                      View SRU on GitHub
                     </a>
                   </div>
 
@@ -5285,7 +5447,7 @@ export default function StudentDashboard() {
         /* Workspace layout styles */
         .workspace-layout {
           display: grid;
-          grid-template-columns: 240px 1fr;
+          grid-template-columns: 1fr;
           gap: 2rem;
           align-items: start;
         }
