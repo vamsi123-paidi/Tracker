@@ -1189,19 +1189,77 @@ export default function StudentDashboard() {
     }
   };
 
-  const handleDownloadNote = () => {
+  const handleDownloadNote = (format: 'md' | 'txt' | 'doc' | 'html' = 'md') => {
     const activeNote = studyNotes.find(n => n.id === activeNoteId);
     if (!activeNote) return;
+    
+    let content = activeNote.content;
+    let filename = `${activeNote.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    let mimeType = 'text/plain';
+    
+    if (format === 'md') {
+      mimeType = 'text/markdown';
+      filename += '.md';
+    } else if (format === 'txt') {
+      mimeType = 'text/plain';
+      filename += '.txt';
+    } else if (format === 'html') {
+      mimeType = 'text/html';
+      filename += '.html';
+      content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${activeNote.title}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 800px; margin: 2rem auto; padding: 2rem; color: #f3f4f6; background-color: #0d1117; }
+    pre { background: #161b22; padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid #30363d; }
+    code { font-family: monospace; background: #21262d; padding: 2px 6px; border-radius: 4px; color: #ff7b72; }
+    blockquote { border-left: 4px solid #00ff87; padding-left: 1rem; margin-left: 0; color: #8b949e; }
+    h1, h2, h3 { color: #58a6ff; }
+  </style>
+</head>
+<body>
+  <h1>${activeNote.title}</h1>
+  <p style="color: #8b949e; font-size: 0.85rem;">Updated: ${activeNote.updatedAt}</p>
+  <hr style="border-color: #30363d;">
+  <div>${activeNote.content}</div>
+</body>
+</html>`;
+    } else if (format === 'doc') {
+      mimeType = 'application/msword';
+      filename += '.doc';
+      content = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${activeNote.title}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; }
+    h1 { color: #111; }
+    blockquote { border-left: 4px solid #00ff87; padding-left: 10px; margin: 10px 0; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>${activeNote.title}</h1>
+  <p style="color: #666;">Updated: ${activeNote.updatedAt}</p>
+  <hr />
+  <div>${activeNote.content.replace(/\n/g, '<br>')}</div>
+</body>
+</html>`;
+    }
+    
     const element = document.createElement("a");
-    const file = new Blob([activeNote.content], { type: 'text/plain' });
+    const file = new Blob(['\ufeff' + content], { type: mimeType });
     element.href = URL.createObjectURL(file);
-    element.download = `${activeNote.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.md`;
+    element.download = filename;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    setSuccessMsg(`Note downloaded successfully as ${format.toUpperCase()}!`);
   };
 
-  const insertTemplate = (type: 'definition' | 'question' | 'code' | 'list') => {
+  const insertTemplate = (type: 'definition' | 'question' | 'code' | 'list' | 'table' | 'callout' | 'checklist') => {
     const activeNote = studyNotes.find(n => n.id === activeNoteId);
     if (!activeNote) return;
     
@@ -1214,6 +1272,12 @@ export default function StudentDashboard() {
       templateText = '\n\n```javascript\n// Code snippet\n\n```\n';
     } else if (type === 'list') {
       templateText = '\n\n- Key Point 1\n- Key Point 2\n';
+    } else if (type === 'table') {
+      templateText = '\n\n| Topic | Key Concept | Status |\n| ----- | ----------- | ------ |\n| HTML5 | Semantics   | Done   |\n| React | Hooks       | Active |\n';
+    } else if (type === 'callout') {
+      templateText = '\n\n> ⚠️ **Important Callout**:\n> [Enter key details here]\n';
+    } else if (type === 'checklist') {
+      templateText = '\n\n- [ ] Task 1: Complete exercises\n- [ ] Task 2: Test code locally\n';
     }
 
     const newContent = activeNote.content + templateText;
@@ -1550,14 +1614,12 @@ export default function StudentDashboard() {
   };
 
   const handleSelectMernNote = async (noteItem: any) => {
-    setSelectedMernNote(noteItem);
-    setSelectedMernNoteContent('');
     if (noteItem.type !== 'txt') return;
 
     setIsLoadingMernContent(true);
     try {
       const data = await api.get(`/mern/notes/content?filePath=${encodeURIComponent(noteItem.path)}`);
-      setSelectedMernNoteContent(data.content);
+      handleImportMernNoteToNotepad(noteItem.name, data.content);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || 'Failed to retrieve note content');
@@ -3672,10 +3734,10 @@ export default function StudentDashboard() {
 
           {/* TAB 4: MAKE A NOTE WORKSPACE */}
           {activeTab === 'tools' && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', width: '100%', alignItems: 'stretch' }}>
+            <div style={{ width: '100%' }}>
               
-              {/* Left Column: Client-side Study Notes Workspace */}
-              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', flex: '2 1 650px', minHeight: '640px' }}>
+              {/* Client-side Study Notes Workspace (Full Width) */}
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '680px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '1.2rem' }}>📝</span>
@@ -3688,9 +3750,22 @@ export default function StudentDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span style={{ fontSize: '0.7rem', color: '#00ff87', background: 'rgba(0, 255, 135, 0.1)', padding: '3px 8px', borderRadius: '12px', fontFamily: 'monospace' }}>
-                    ● Auto-saved to LocalStorage
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {(() => {
+                      const note = studyNotes.find(n => n.id === activeNoteId);
+                      if (!note) return null;
+                      const charCount = note.content.length;
+                      const wordCount = note.content.trim() === '' ? 0 : note.content.trim().split(/\s+/).length;
+                      return (
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'monospace', background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+                          📊 Words: {wordCount} | Chars: {charCount}
+                        </span>
+                      );
+                    })()}
+                    <span style={{ fontSize: '0.7rem', color: '#00ff87', background: 'rgba(0, 255, 135, 0.1)', padding: '3px 8px', borderRadius: '12px', fontFamily: 'monospace' }}>
+                      ● Auto-saved to LocalStorage
+                    </span>
+                  </div>
                 </div>
 
                 {/* Two Column Layout */}
@@ -3847,28 +3922,33 @@ export default function StudentDashboard() {
                               </button>
                             </div>
 
-                            {/* Download Button */}
-                            <button
-                              onClick={handleDownloadNote}
-                              className="btn-glass btn-download"
+                            {/* Download Format Select */}
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleDownloadNote(e.target.value as any);
+                                  e.target.value = '';
+                                }
+                              }}
+                              className="glass-input"
                               style={{
-                                padding: '6px 12px',
+                                padding: '5px 10px',
                                 fontSize: '0.7rem',
                                 borderRadius: '6px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
+                                width: 'auto',
+                                background: 'rgba(0,0,0,0.3)',
                                 color: '#00ff87',
-                                borderColor: 'rgba(0, 255, 137, 0.3)'
+                                borderColor: 'rgba(0, 255, 137, 0.3)',
+                                outline: 'none',
+                                cursor: 'pointer'
                               }}
                             >
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                              </svg>
-                              Download
-                            </button>
+                              <option value="">📥 Download Note...</option>
+                              <option value="md">Markdown (.md)</option>
+                              <option value="txt">Plain Text (.txt)</option>
+                              <option value="doc">Word Document (.doc)</option>
+                              <option value="html">HTML Webpage (.html)</option>
+                            </select>
                           </div>
 
                           {/* Template insertion buttons */}
@@ -3902,6 +3982,27 @@ export default function StudentDashboard() {
                                 style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
                               >
                                 📋 Bullet List
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('table')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                📊 Table
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('callout')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                ⚠️ Callout
+                              </button>
+                              <button
+                                onClick={() => insertTemplate('checklist')}
+                                className="btn-glass"
+                                style={{ padding: '4px 8px', fontSize: '0.65rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}
+                              >
+                                ☑️ Checklist
                               </button>
                             </div>
                           )}
@@ -3971,170 +4072,7 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              {/* Right Column: Stacked Pomodoro & Revision Flashcards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: '1 1 350px', minWidth: '320px' }}>
-                
-                {/* 1. Pomodoro Focus Timer */}
-                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '340px' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#ef4444', fontFamily: 'monospace', alignSelf: 'flex-start', marginBottom: '1rem' }}>
-                    CYBER_POMODORO
-                  </span>
-                  
-                  {/* Timer Progress Circle */}
-                  <div style={{ position: 'relative', width: '150px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                    <svg width="150" height="150" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
-                      {/* Gray track */}
-                      <circle cx="75" cy="75" r="65" stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="transparent" />
-                      {/* Colored dash */}
-                      <circle
-                        cx="75"
-                        cy="75"
-                        r="65"
-                        stroke="#ef4444"
-                        strokeWidth="6"
-                        fill="transparent"
-                        strokeDasharray="408.4"
-                        strokeDashoffset={408.4 - (408.4 * (pomodoroTime / (pomodoroMode === 'focus' ? 1500 : pomodoroMode === 'short' ? 300 : 900)))}
-                        style={{ transition: 'stroke-dashoffset 1s linear' }}
-                      />
-                    </svg>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
-                      <span style={{ fontSize: '2.2rem', fontWeight: 700, fontFamily: 'monospace' }}>
-                        {Math.floor(pomodoroTime / 60).toString().padStart(2, '0')}:
-                        {(pomodoroTime % 60).toString().padStart(2, '0')}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'monospace', marginTop: '2px' }}>
-                        {pomodoroMode}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Mode Buttons */}
-                  <div style={{ display: 'flex', gap: '6px', marginBottom: '1rem' }}>
-                    <button
-                      onClick={() => switchPomodoroMode('focus')}
-                      className={`btn-glass ${pomodoroMode === 'focus' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.7rem', borderRadius: '6px' }}
-                    >
-                      Focus
-                    </button>
-                    <button
-                      onClick={() => switchPomodoroMode('short')}
-                      className={`btn-glass ${pomodoroMode === 'short' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.7rem', borderRadius: '6px' }}
-                    >
-                      Short Break
-                    </button>
-                    <button
-                      onClick={() => switchPomodoroMode('long')}
-                      className={`btn-glass ${pomodoroMode === 'long' ? 'btn-neon' : ''}`}
-                      style={{ padding: '6px 12px', fontSize: '0.7rem', borderRadius: '6px' }}
-                    >
-                      Long Break
-                    </button>
-                  </div>
-
-                  {/* Playback control */}
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => setPomodoroActive(!pomodoroActive)}
-                      className="btn-neon"
-                      style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'linear-gradient(135deg, #ef4444 0%, #10b981 100%)', boxShadow: '0 4px 10px rgba(255,0,85,0.2)' }}
-                    >
-                      {pomodoroActive ? 'Pause' : 'Start'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPomodoroActive(false);
-                        switchPomodoroMode(pomodoroMode);
-                      }}
-                      className="btn-glass"
-                      style={{ padding: '8px 20px', fontSize: '0.8rem' }}
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </div>
-
-                {/* 2. 3D Revision Flashcards Section */}
-                <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '320px', flex: 1 }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'block', marginBottom: '1.25rem' }}>
-                    3D_REVISION_FLASHCARDS
-                  </span>
-
-                  {/* Flip Cards List */}
-                  <div className="dashboard-grid" style={{ marginBottom: '2rem', gridTemplateColumns: '1fr', gap: '1rem' }}>
-                    {flashcards.map((card, idx) => {
-                      const isFlipped = flippedCardIdx === idx;
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => setFlippedCardIdx(isFlipped ? null : idx)}
-                          className={`flashcard ${isFlipped ? 'flipped' : ''}`}
-                        >
-                          <div className="flashcard-inner">
-                            <div className="flashcard-front">
-                              <div>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
-                                  Question
-                                </p>
-                                <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>{card.q}</p>
-                                <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: 'var(--neon-primary)', fontWeight: 'bold' }}>
-                                  Tap to reveal answers →
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flashcard-back">
-                              <div>
-                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', fontFamily: 'monospace', textTransform: 'uppercase', marginBottom: '8px' }}>
-                                  Verified Concept
-                                </p>
-                                <p style={{ fontSize: '0.92rem', lineHeight: '1.4' }}>{card.a}</p>
-                                <span style={{ display: 'block', marginTop: '15px', fontSize: '0.75rem', color: '#ffd000' }}>
-                                  Tap to flip back
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Flashcard creation Form */}
-                  <div style={{ borderTop: '1px dashed var(--border-glass)', paddingTop: '1.5rem', marginTop: 'auto' }}>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1rem' }}>Compile Custom Flashcard</h4>
-                    <form onSubmit={handleAddFlashcard} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <input
-                          type="text"
-                          required
-                          placeholder="Study Question (e.g. What is closure?)"
-                          className="glass-input"
-                          value={newFlashcardQ}
-                          onChange={(e) => setNewFlashcardQ(e.target.value)}
-                        />
-                        <input
-                          type="text"
-                          required
-                          placeholder="Concept Details (e.g. Nested scope access...)"
-                          className="glass-input"
-                          value={newFlashcardA}
-                          onChange={(e) => setNewFlashcardA(e.target.value)}
-                        />
-                      </div>
-                      <button type="submit" className="btn-neon btn-create" style={{ alignSelf: 'flex-end', padding: '8px 20px', fontSize: '0.8rem', gap: '6px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="12" y1="5" x2="12" y2="19" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Add to Shelf
-                      </button>
-                    </form>
-                  </div>
-                </div>
-
-              </div>
 
             </div>
           )}
@@ -4496,58 +4434,7 @@ export default function StudentDashboard() {
                   {mernTab === 'notes' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                       
-                      {/* Active Preview Panel for TXT notes */}
-                      {selectedMernNote && selectedMernNote.type === 'txt' && (
-                        <div className="glass-panel" style={{ padding: '1.5rem', border: '1.5px solid var(--neon-primary)', background: 'rgba(5, 5, 8, 0.65)', borderRadius: '14px', position: 'relative', animation: 'zoomIn 0.3s ease' }}>
-                          <button 
-                            onClick={() => setSelectedMernNote(null)} 
-                            style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1.2rem' }}
-                          >
-                            ✕
-                          </button>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <div>
-                              <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>ACTIVE_LECTURE_NOTE_PREVIEW</span>
-                              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', marginTop: '2px' }}>{getFileMeta(selectedMernNote).displayName}</h3>
-                              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0 }}>Path: {selectedMernNote.path} | Size: {(selectedMernNote.size / 1024).toFixed(1)} KB</p>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              <button
-                                onClick={() => handleDownloadMernFile(selectedMernNote, 'notes')}
-                                className="btn-glass"
-                                style={{ padding: '8px 16px', fontSize: '0.75rem', borderRadius: '8px' }}
-                              >
-                                Download TXT
-                              </button>
-                              <button
-                                onClick={() => handleImportMernNoteToNotepad(selectedMernNote.name, selectedMernNoteContent)}
-                                className="btn-neon"
-                                style={{ padding: '8px 16px', fontSize: '0.75rem', borderRadius: '8px' }}
-                              >
-                                Import to Notepad
-                              </button>
-                            </div>
-                          </div>
-                          {isLoadingMernContent ? (
-                            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading note details...</div>
-                          ) : (
-                            <div 
-                              style={{ 
-                                maxHeight: '350px', 
-                                overflowY: 'auto', 
-                                padding: '1.25rem', 
-                                background: 'rgba(0,0,0,0.3)', 
-                                borderRadius: '10px', 
-                                fontSize: '0.92rem', 
-                                lineHeight: '1.65',
-                                border: '1px solid var(--border-glass)',
-                                color: 'var(--text-primary)'
-                              }}
-                              dangerouslySetInnerHTML={renderMarkdown(selectedMernNoteContent)}
-                            />
-                          )}
-                        </div>
-                      )}
+
 
                       {selectedNoteFolder === null ? (
                         /* Note Folder Category Cards */
