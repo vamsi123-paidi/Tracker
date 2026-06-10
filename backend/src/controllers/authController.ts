@@ -184,7 +184,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     // Process profile image upload
     if (file) {
       let profileImageUrl = '';
-      if (useCloudinary) {
+      const hasCloudinaryEnv = !!(
+        process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_SECRET
+      );
+
+      if (hasCloudinaryEnv) {
         try {
           profileImageUrl = await new Promise<string>((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
@@ -198,16 +204,28 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
             Readable.from(file.buffer).pipe(stream);
           });
         } catch (uploadError: any) {
-          console.error('Cloudinary upload failed for profile image, falling back to Base64:', uploadError);
-          const base64Data = file.buffer.toString('base64');
-          profileImageUrl = `data:${file.mimetype};base64,${base64Data}`;
+          console.error('Cloudinary upload failed for profile image:', uploadError);
+          res.status(500).json({ 
+            message: `Cloudinary upload failed: ${uploadError.message || uploadError}. Please verify your CLOUDINARY credentials in your environment/.env file.` 
+          });
+          return;
         }
       } else {
-        const base64Data = file.buffer.toString('base64');
-        profileImageUrl = `data:${file.mimetype};base64,${base64Data}`;
+        // Save file locally to process.cwd()/uploads/ and return relative static URL path
+        try {
+          const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
+          const filepath = path.join(process.cwd(), 'uploads', filename);
+          fs.writeFileSync(filepath, file.buffer);
+          profileImageUrl = `/uploads/${filename}`;
+        } catch (localError: any) {
+          console.error('Local file save failed:', localError);
+          res.status(500).json({ message: 'Failed to save profile image file locally', error: localError.message });
+          return;
+        }
       }
       user.profileImage = profileImageUrl;
     }
+
 
     await user.save();
 

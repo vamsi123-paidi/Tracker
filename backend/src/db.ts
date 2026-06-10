@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { Assessment } from './models/Assessment.js';
 import { generate100Assessments } from './data/assessmentsSeed.js';
+import { migrateBase64ImagesToCloudinary } from './utils/migration.js';
 
 dotenv.config();
 
@@ -28,8 +29,11 @@ export const connectDB = async (): Promise<void> => {
     await mongoose.connect(MONGO_URI);
     console.log('Successfully connected to MongoDB.');
     await seedAssessments();
+    // Clean up large Base64 images to lower database storage usage
+    await migrateBase64ImagesToCloudinary();
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
     process.exit(1);
   }
 };
+

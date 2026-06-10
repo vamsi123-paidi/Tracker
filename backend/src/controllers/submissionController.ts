@@ -90,19 +90,36 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
 
     let screenshotUrl = '';
 
-    if (useCloudinary) {
+    const hasCloudinaryEnv = !!(
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    );
+
+    if (hasCloudinaryEnv) {
       try {
         screenshotUrl = await uploadToCloudinary(file.buffer);
       } catch (uploadError: any) {
-        console.error('Cloudinary upload failed, falling back to Base64 data URL:', uploadError);
-        const base64Data = file.buffer.toString('base64');
-        screenshotUrl = `data:${file.mimetype};base64,${base64Data}`;
+        console.error('Cloudinary upload failed:', uploadError);
+        res.status(500).json({ 
+          message: `Cloudinary upload failed: ${uploadError.message || uploadError}. Please verify your CLOUDINARY credentials in your environment/.env file.` 
+        });
+        return;
       }
     } else {
-      // Base64 data URL fallback
-      const base64Data = file.buffer.toString('base64');
-      screenshotUrl = `data:${file.mimetype};base64,${base64Data}`;
+      // Save file locally to process.cwd()/uploads/ and return relative static URL path
+      try {
+        const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
+        const filepath = path.join(process.cwd(), 'uploads', filename);
+        fs.writeFileSync(filepath, file.buffer);
+        screenshotUrl = `/uploads/${filename}`;
+      } catch (localError: any) {
+        console.error('Local file save failed:', localError);
+        res.status(500).json({ message: 'Failed to save screenshot file locally', error: localError.message });
+        return;
+      }
     }
+
 
     // Create or update submission
     let submission = await Submission.findOne({
