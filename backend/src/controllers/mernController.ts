@@ -15,7 +15,7 @@ const INTERVIEW_DIR = path.resolve(process.cwd(), '../interview questions');
 interface FileItem {
   name: string;
   path: string;
-  type: 'txt' | 'pdf' | 'rar' | 'docx' | 'folder' | 'other';
+  type: 'txt' | 'pdf' | 'rar' | 'docx' | 'folder' | 'zip' | 'other';
   size?: number;
   children?: FileItem[];
 }
@@ -47,6 +47,7 @@ const scanDir = (dirPath: string, rootDir: string): FileItem[] => {
       else if (ext === '.pdf') type = 'pdf';
       else if (ext === '.rar') type = 'rar';
       else if (ext === '.docx') type = 'docx';
+      else if (ext === '.zip') type = 'zip';
 
       items.push({
         name: file,

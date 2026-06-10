@@ -711,12 +711,14 @@ const getFileMeta = (file: any) => {
   // Pretty name: remove leading numbers, capitalize, remove extensions
   const cleanBase = file.name
     .replace(/^\d+-/, '') // remove leading numbers
-    .replace(/\.txt$|\.pdf$|\.rar$|\.docx$/gi, ''); // remove extension
+    .replace(/\.txt$|\.pdf$|\.rar$|\.docx$|\.zip$/gi, ''); // remove extension
   
   // Format readable name
-  let displayName = cleanBase
-    .replace(/([A-Z])/g, ' $1') // split camelCase
-    .trim();
+  let displayName = cleanBase;
+  if (!cleanBase.includes(' ') && /[a-z]/.test(cleanBase) && /[A-Z]/.test(cleanBase)) {
+    displayName = cleanBase.replace(/([A-Z])/g, ' $1').trim();
+  }
+  displayName = displayName.replace(/[_-]/g, ' ').replace(/\s+/g, ' ').trim();
   
   // Clean up display name typos or abbreviations
   displayName = displayName
@@ -4621,13 +4623,14 @@ export default function StudentDashboard() {
                                     const isRar = file.type === 'rar';
                                     const isDocx = file.type === 'docx';
                                     const isTxt = file.type === 'txt';
+                                    const isZip = file.type === 'zip';
 
                                     let tagBg = 'rgba(255,107,53,0.1)';
                                     let tagColor = '#ff6b35';
                                     if (isPdf) {
                                       tagBg = 'rgba(16,185,129,0.1)';
                                       tagColor = 'var(--neon-secondary)';
-                                    } else if (isRar) {
+                                    } else if (isRar || isZip) {
                                       tagBg = 'rgba(245,158,11,0.1)';
                                       tagColor = 'var(--neon-primary)';
                                     } else if (isDocx) {
