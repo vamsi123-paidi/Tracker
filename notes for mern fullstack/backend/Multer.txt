@@ -1,0 +1,187 @@
+🔴 13. File Uploads
+
+Express doesn’t handle file uploads by default, so we use a middleware like `multer` to handle multipart/form-data, which is used for uploading files.
+
+---
+
+ 📁 Folder Structure
+
+
+student-api/
+│
+├── server.js
+├── .env
+├── /uploads          ← uploaded files go here
+│
+├── /routes
+│   └── uploadRoutes.js
+│
+├── /middleware
+│   └── authMiddleware.js
+
+
+---
+
+ 📦 Step 1: Install Multer
+
+Run this in terminal:
+
+bash
+npm install multer
+
+
+---
+
+ 🔧 13.1 Using Multer for Uploads
+
+Create `uploadRoutes.js` under `/routes`:
+
+js
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const router = express.Router();
+
+// Set storage engine
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); 
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname;   
+    cb(null, uniqueName);
+  }
+});
+
+// File filter (optional)
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif/;
+  const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mime = allowedTypes.test(file.mimetype);
+  if (ext && mime) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only images are allowed'));
+  }
+};
+
+// Initialize multer
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5  1024  1024 }, // 5MB
+  fileFilter: fileFilter
+});
+
+// 📤 Upload single file
+router.post('/upload-single', upload.single('image'), (req, res) => {
+  res.json({
+    message: 'File uploaded successfully',
+    file: req.file
+  });
+});
+
+// 📤 Upload multiple files
+router.post('/upload-multiple', upload.array('images', 5), (req, res) => {
+  res.json({
+    message: 'Files uploaded successfully',
+    files: req.files
+  });
+});
+
+module.exports = router;
+
+
+---
+
+ 🔌 Update `server.js` to Use Routes
+
+js
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
+
+const authRoutes = require('./routes/authRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/files', uploadRoutes);
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Error Middleware
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(500).json({ error: err.message || 'Internal server error' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+---
+
+ 📤 13.2 Handling Single and Multiple File Uploads
+
+ 📍 Single File Upload with Postman
+
+ Endpoint: `POST /api/files/upload-single`
+ Body: `form-data`
+
+   Key: `image` (type: file)
+   Value: Choose an image file
+
+ 📍 Multiple Files Upload with Postman
+
+ Endpoint: `POST /api/files/upload-multiple`
+ Body: `form-data`
+
+   Key: `images` (type: file) – allow multiple
+   Value: Select multiple image files
+
+---
+
+ ✅ Sample Response
+
+json
+{
+  "message": "File uploaded successfully",
+  "file": {
+    "fieldname": "image",
+    "originalname": "pic.png",
+    "encoding": "7bit",
+    "mimetype": "image/png",
+    "destination": "uploads/",
+    "filename": "1716738142620-pic.png",
+    "path": "uploads/1716738142620-pic.png",
+    "size": 24048
+  }
+}
+
+
+---
+
+ 📁 Uploaded File Location
+
+Files will be stored in the `/uploads` folder and accessible via:
+
+
+http://localhost:3000/uploads/<filename>
+
+
+

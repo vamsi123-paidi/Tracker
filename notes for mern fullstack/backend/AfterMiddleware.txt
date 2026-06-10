@@ -1,0 +1,745 @@
+🟡 5. Static Files in Express.js
+
+Express makes it super simple to serve static assets like:
+
+ HTML pages
+ CSS stylesheets
+ JavaScript files
+ Images, fonts, or any public content
+
+We use the built-in middleware function:
+
+js
+express.static()
+
+
+---
+
+ ✅ 5.1 Using `express.static()`
+
+ 📘 What It Does:
+
+It tells Express to serve files from a specific folder — usually called `public`.
+
+---
+
+ 📂 Folder Structure Example
+
+
+project-folder/
+│
+├── server.js
+├── public/
+│   ├── index.html
+│   ├── style.css
+│   ├── script.js
+│   └── images/
+│       └── logo.png
+
+
+---
+
+ ✅ Step-by-Step Example
+
+ 🔹 `server.js`
+
+js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// ✅ Serve static files from the "public" folder
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
+---
+
+ ✅ 5.2 Serving HTML, CSS, JS, and Images
+
+ 🔹 `public/index.html`
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Static Files Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to Static Page</h1>
+  <p>This is served by Express.</p>
+  <img src="images/logo.png" alt="Logo" width="200">
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+---
+
+ 🔹 `public/style.css`
+
+css
+body {
+  font-family: Arial;
+  background: f4f4f4;
+  text-align: center;
+  color: 333;
+}
+
+
+---
+
+ 🔹 `public/script.js`
+
+js
+console.log('Script loaded from public folder!');
+alert('JavaScript file is working!');
+
+
+---
+
+ 🔹 `public/images/logo.png`
+
+Place any image file here. You can use a sample logo or download one.
+
+---
+
+ ✅ 5.3 Folder Structure for Static Assets
+
+You can name your static folder anything, but `public` is the conventional name.
+
+If you want multiple folders, you can even do this:
+
+js
+app.use(express.static('public'));
+app.use(express.static('assets'));
+
+
+---
+
+ 🧪 Test in Browser
+
+ Open `http://localhost:3000/`
+ The `index.html` loads
+ It pulls:
+
+   `style.css`
+   `script.js`
+   `logo.png`
+
+---
+
+ ✅ Sample Output
+
+🖼️ You’ll see:
+
+ Title: "Static Files Demo"
+ Text: “Welcome to Static Page”
+ Image: your `logo.png`
+ Alert: “JavaScript file is working!”
+
+Console will also log:
+
+bash
+Script loaded from public folder!
+
+Got it! Here’s the full 7. Handling Data and Forms topic explained in the same detailed format as before, with clear explanations, practical examples, and how to test with sample outputs.
+
+---
+
+ 🟠 7. Handling Data and Forms
+
+1. Save your project with this structure:
+
+project/
+├── public/
+│   └── form.html
+└── server.js
+---
+
+ 7.1 Parsing form data (`express.urlencoded`)
+
+ When a form is submitted via POST with content type `application/x-www-form-urlencoded` (default for HTML forms), Express needs middleware to parse the incoming form data so you can access it in `req.body`.
+ `express.urlencoded({ extended: true })` is the built-in middleware for this purpose.
+
+Example:
+
+js
+app.use(express.urlencoded({ extended: true }));
+
+
+This means Express will parse form data and populate `req.body` with an object of key-value pairs from the form.
+
+---
+
+ 7.2 Parsing JSON (`express.json`)
+
+ For APIs or frontends that send JSON data (e.g., from `fetch` or Postman), you use `express.json()` middleware.
+ It parses incoming JSON requests and sets `req.body` with the parsed object.
+
+Example:
+
+js
+app.use(express.json());
+
+
+---
+
+ 7.3 Handling POST requests
+
+ You create a POST route to receive data (form or JSON).
+ After parsing, you get the data from `req.body`.
+ You can then save it, validate, or respond accordingly.
+
+---
+
+ 7.4 Validating inputs (basic)
+
+ Validations are necessary to ensure data is correct and safe.
+ Common validations: required fields, length limits, format (email, numbers), value ranges.
+ You can write manual validations in your POST route.
+
+---
+
+ Complete Practical Example with Form Parsing & Validation
+
+---
+
+ Step 1: Setup Express and middleware
+
+js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware to parse URL-encoded form data (from HTML forms)
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware to parse JSON data (from APIs or Postman)
+app.use(express.json());
+
+// Serve static files (for HTML form)
+app.use(express.static('public'));
+
+
+---
+
+ Step 2: Create HTML form (in `public/form.html`)
+
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Registration Form</title>
+</head>
+<body>
+  <h1>Student Registration</h1>
+  <form action="/submit-form" method="POST">
+    <label>Name:</label>
+    <input type="text" name="name" required minlength="3" maxlength="30" />
+    <br /><br />
+
+    <label>Email:</label>
+    <input type="email" name="email" required />
+    <br /><br />
+
+    <label>Course:</label>
+    <input type="text" name="course" required minlength="2" maxlength="20" />
+    <br /><br />
+
+    <label>Age:</label>
+    <input type="number" name="age" min="10" max="100" required />
+    <br /><br />
+
+    <button type="submit">Register</button>
+  </form>
+</body>
+</html>
+
+
+---
+
+ Step 3: Handle POST request and validate inputs
+
+js
+app.post('/submit-form', (req, res) => {
+  const { name, email, course, age } = req.body;
+
+  const errors = [];
+
+  // Validate Name: required, length 3-30
+  if (!name || name.trim().length < 3 || name.trim().length > 30) {
+    errors.push('Name must be between 3 and 30 characters.');
+  }
+
+  // Validate Email: required, simple regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    errors.push('Valid email is required.');
+  }
+
+  // Validate Course: requi red, length 2-20
+  if (!course || course.trim().length < 2 || course.trim().length > 20) {
+    errors.push('Course must be between 2 and 20 characters.');
+  }
+
+  // Validate Age: number between 10 and 100
+  const ageNum = Number(age);
+  if (!age || isNaN(ageNum) || ageNum < 10 || ageNum > 100) {
+    errors.push('Age must be a number between 10 and 100.');
+  }
+
+  if (errors.length > 0) {
+    // If errors found, respond with error messages and a link to retry
+    res.status(400).send(`
+      <h3>Errors:</h3>
+      <ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul>
+      <a href="/form.html">Go Back</a>
+    `);
+  } else {
+    // If valid, show success message and submitted data
+    res.send(`
+      <h2>Student Registered Successfully!</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Course:</strong> ${course}</p>
+      <p><strong>Age:</strong> ${age}</p>
+      <a href="/form.html">Register another student</a>
+    `);
+  }
+});
+
+
+---
+
+ Step 4: Start server
+
+js
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
+---
+
+ How to Test This?
+
+
+2. Run:
+
+bash
+node server.js
+
+
+3. Open browser at:
+
+
+http://localhost:3000/form.html
+
+
+4. Fill the form with different inputs and submit:
+
+ Leaving fields empty → see validation errors
+ Enter invalid email → see validation error
+ Enter age less than 10 or more than 100 → validation error
+ Enter valid inputs → success message with submitted data
+
+---
+
+ Sample Outputs
+
+---
+
+ On Invalid Input (empty name, invalid email):
+
+
+Errors:
+- Name must be between 3 and 30 characters.
+- Valid email is required.
+[Go Back]
+
+
+---
+
+ On Valid Input:
+
+
+Student Registered Successfully!
+
+Name: Anjali
+Email: anjali@example.com
+Course: Math
+Age: 22
+
+[Register another student]
+
+
+---
+
+ Summary
+
+ Use `express.urlencoded()` to parse form data (`application/x-www-form-urlencoded`).
+ Use `express.json()` to parse JSON data.
+ Validate inputs on the server side to ensure correctness.
+ Send meaningful error messages or success responses.
+ Serve the form with static middleware (`express.static`).
+ Test with browser for forms and with Postman or curl for JSON APIs.
+
+
+🔵 9. Database Integration (with MongoDB Atlas & Mongoose)
+
+---
+
+ 📁 Folder Structure
+
+Here’s how your Express project should look with MongoDB and environment variables:
+
+
+student-api/
+│
+├── .env                       Contains PORT and MongoDB URI
+├── package.json               Project metadata and dependencies
+├── server.js                  Main server entry point
+├── /models
+│   └── Student.js             Mongoose schema for students
+
+
+---
+
+ 9.1 📘 MongoDB Introduction
+
+MongoDB is a NoSQL database that stores data in a flexible, JSON-like format called BSON.
+
+Instead of tables and rows, you have:
+
+ Database ➝ like `school`
+ Collection ➝ like `students`
+ Document ➝ like `{ name: "Anjali", course: "Math" }`
+
+We’ll use MongoDB Atlas (cloud-based MongoDB service) and Mongoose (an ODM - Object Data Modeling tool for Node.js).
+
+---
+
+ 9.2 🧩 Using Mongoose with Express
+
+Install the required packages:
+
+bash
+npm install mongoose dotenv
+
+
+---
+
+ 9.3 🌐 Connecting to MongoDB Atlas
+
+ Step 1: Create `.env` file
+
+env
+PORT=3000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/school?retryWrites=true&w=majority
+
+
+> Replace `<username>` and `<password>` with your MongoDB Atlas credentials.
+
+---
+
+ Step 2: Create `server.js`
+
+js
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const Student = require('./models/Student');
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+// Connect to MongoDB
+mongoose.connect(MONGODB_URI)
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
+
+---
+
+ 9.4 🏗️ Creating and Using Models
+
+ Step 3: Create `models/Student.js`
+
+js
+const mongoose = require('mongoose');
+
+const studentSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  course: {
+    type: String,
+    required: true
+  }
+});
+
+module.exports = mongoose.model('Student', studentSchema);
+
+
+---
+
+ 9.5 🔁 Performing CRUD with a Database
+
+ Add the following in `server.js` below the DB connection:
+
+js
+// ➕ Create a student
+app.post('/students', async (req, res) => {
+  try {
+    const student = new Student(req.body);
+    const saved = await student.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 📥 Get all students
+app.get('/students', async (req, res) => {
+  const students = await Student.find();
+  res.json(students);
+});
+
+// 🔍 Get student by ID
+app.get('/students/:id', async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+    res.json(student);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 🛠️ Update student
+app.put('/students/:id', async (req, res) => {
+  try {
+    const updated = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Student not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ❌ Delete student
+app.delete('/students/:id', async (req, res) => {
+  try {
+    const deleted = await Student.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Student not found' });
+    res.json(deleted);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+---
+
+ ✅ Sample Output in Postman
+
+ `POST /students`
+
+json
+{
+  "name": "Anjali",
+  "course": "Math"
+}
+
+
+ `GET /students`
+
+json
+[
+  {
+    "_id": "663acf56a063bf202a2f8bc9",
+    "name": "Anjali",
+    "course": "Math",
+    "__v": 0
+  }
+]
+
+
+ `GET /students/:id`
+
+json
+{
+  "_id": "663acf56a063bf202a2f8bc9",
+  "name": "Anjali",
+  "course": "Math",
+  "__v": 0
+}
+
+
+---
+
+ 🔃 To Run the App
+
+bash
+node server.js
+
+ 🔵 10. Error Handling in Express
+
+Handling errors properly is crucial in any application. Express provides a clean way to handle errors, both for unknown routes (404) and for any unexpected failures.
+
+---
+
+ 📁 Folder Structure (same as before)
+
+
+student-api/
+│
+├── .env
+├── package.json
+├── server.js
+├── /models
+│   └── Student.js
+
+
+---
+
+ 10.1 🚫 Handling 404 Errors
+
+404 error occurs when the user tries to access a route that doesn’t exist.
+
+ ✅ Add this at the bottom of all routes in `server.js`:
+
+js
+// 404 - Route not found
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+
+ 🧪 Example in Postman
+
+Request:
+`GET http://localhost:3000/unknown`
+
+Response:
+
+json
+{
+  "error": "Route not found"
+}
+
+
+---
+
+ 10.2 ⚠️ Custom Error Middleware
+
+Express allows you to define a centralized error handler using error-handling middleware.
+
+> Note: It should have four arguments: `err, req, res, next`.
+
+ ✅ Add this after 404 handler in `server.js`:
+
+js
+// Centralized error handler
+app.use((err, req, res, next) => {
+  console.error('🔥 Error:', err.message);
+  res.status(err.status || 500).json({
+    error: err.message || 'Something went wrong!'
+  });
+});
+
+
+You can now use `next(err)` to forward errors into this handler.
+
+---
+
+ 10.3 🧪 Using `try-catch` in Async Routes
+
+When using async/await, you should wrap your logic inside a `try-catch` block and call `next(err)` for centralized handling.
+
+ Example: Modify POST route with try-catch
+
+js
+// ➕ Create a student with error handling
+app.post('/students', async (req, res, next) => {
+  try {
+    const student = new Student(req.body);
+    const saved = await student.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    next(err); // forward to error middleware
+  }
+});
+
+
+ Example: Get student by ID with try-catch
+
+js
+app.get('/students/:id', async (req, res, next) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      const error = new Error('Student not found');
+      error.status = 404;
+      throw error;
+    }
+    res.json(student);
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+---
+
+ ✅ Postman Test Case
+
+Request: `GET http://localhost:3000/students/invalid-id`
+
+Response:
+
+json
+{
+  "error": "Cast to ObjectId failed for value \"invalid-id\" at path \"_id\" for model \"Student\""
+}
+
+
+Or, if student not found:
+
+json
+{
+  "error": "Student not found"
+}
+
+
+---
+
+ 🧪 Run the Server
+
+bash
+node server.js
+
+
+Console output if error happens:
+
+
+🔥 Error: Cast to ObjectId failed for value "abc" at path "_id"
+
+
+

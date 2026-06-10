@@ -639,6 +639,35 @@ const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
   );
 };
 
+const MERN_QUESTIONS: any[] = [];
+
+const mernProjects = [
+  {
+    id: 'proj-1',
+    title: 'MERN Full-Stack Starter Template',
+    description: 'Complete baseline setup integrating Express REST controller directories, Mongoose schemas, and a React (Vite) frontend with proxy configurations.',
+    cloneUrl: 'https://github.com/vamsi123-paidi/mern-starter-template.git',
+    githubUrl: 'https://github.com/vamsi123-paidi/mern-starter-template',
+    tags: ['Vite', 'Express', 'Mongoose', 'Tailwind']
+  },
+  {
+    id: 'proj-2',
+    title: 'Secure Authentication Boilerplate',
+    description: 'Starter project preconfigured with JSON Web Token (JWT) authorization, HTTP-Only cookie session storage, Bcrypt hashing, and React login guards.',
+    cloneUrl: 'https://github.com/vamsi123-paidi/mern-auth-kit.git',
+    githubUrl: 'https://github.com/vamsi123-paidi/mern-auth-kit',
+    tags: ['JWT', 'Cookies', 'Bcrypt', 'React Router']
+  },
+  {
+    id: 'proj-3',
+    title: 'Node REST API & Validation Boilerplate',
+    description: 'Express microservice template pre-seeded with Morgan logging, CORS config, express-validator schemas, and error-handling middleware.',
+    cloneUrl: 'https://github.com/vamsi123-paidi/node-api-boilerplate.git',
+    githubUrl: 'https://github.com/vamsi123-paidi/node-api-boilerplate',
+    tags: ['Express-Validator', 'CORS', 'Morgan', 'REST']
+  }
+];
+
 export default function StudentDashboard() {
   const router = useRouter();
   
@@ -649,7 +678,24 @@ export default function StudentDashboard() {
   const [studentCollege, setStudentCollege] = useState<College | null>(null);
   
   // Sidebar tab control
-  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'assessments' | 'tools' | 'achievements'>('milestones');
+  const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'assessments' | 'tools' | 'achievements' | 'mern'>('milestones');
+  const [mernTab, setMernTab] = useState<'questions' | 'notes' | 'projects'>('questions');
+  const [mernSearchQuery, setMernSearchQuery] = useState('');
+  const [mernCategoryFilter, setMernCategoryFilter] = useState('All');
+  const [expandedMernQ, setExpandedMernQ] = useState<string | null>(null);
+  const [userGuesses, setUserGuesses] = useState<{ [key: string]: string }>({});
+  const [aiVerifications, setAiVerifications] = useState<{ [key: string]: string }>({});
+  const [revealAnswers, setRevealAnswers] = useState<{ [key: string]: boolean }>({});
+  const [isVerifyingIndex, setIsVerifyingIndex] = useState<{ [key: string]: boolean }>({});
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+
+  // MERN Resources file tree
+  const [mernResources, setMernResources] = useState<{ notes: any[], interviewFiles: any[] } | null>(null);
+  const [mernQuestions, setMernQuestions] = useState<any[]>([]);
+  const [selectedMernNote, setSelectedMernNote] = useState<any | null>(null);
+  const [selectedMernNoteContent, setSelectedMernNoteContent] = useState<string>('');
+  const [isLoadingMernContent, setIsLoadingMernContent] = useState(false);
+
   const [compilerLang, setCompilerLang] = useState<'c' | 'cpp' | 'python' | 'java' | 'javascript' | 'go' | 'rust' | 'csharp' | 'php'>('python');
   const [isCompilerFullscreen, setIsCompilerFullscreen] = useState(false);
   
@@ -1353,6 +1399,93 @@ export default function StudentDashboard() {
     }
   };
 
+  const fetchMernResources = async () => {
+    try {
+      const [resourcesData, questionsData] = await Promise.all([
+        api.get('/mern/resources'),
+        api.get('/mern/questions')
+      ]);
+      setMernResources(resourcesData);
+      setMernQuestions(questionsData);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Failed to load MERN resources');
+    }
+  };
+
+  const handleSelectMernNote = async (noteItem: any) => {
+    setSelectedMernNote(noteItem);
+    setSelectedMernNoteContent('');
+    if (noteItem.type !== 'txt') return;
+
+    setIsLoadingMernContent(true);
+    try {
+      const data = await api.get(`/mern/notes/content?filePath=${encodeURIComponent(noteItem.path)}`);
+      setSelectedMernNoteContent(data.content);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Failed to retrieve note content');
+    } finally {
+      setIsLoadingMernContent(false);
+    }
+  };
+
+  const handleDownloadMernFile = (noteItem: any, folder: 'notes' | 'interview') => {
+    const token = getAuthToken();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const downloadUrl = `${apiUrl}/mern/download?filePath=${encodeURIComponent(noteItem.path)}&folder=${folder}&token=${token}`;
+    
+    // Open in a new tab or trigger direct download
+    window.open(downloadUrl, '_blank');
+    setSuccessMsg(`Initiating download for "${noteItem.name}"...`);
+  };
+
+  const handleImportMernNoteToNotepad = (title: string, content: string) => {
+    const newNote = {
+      id: 'note-' + Date.now(),
+      title: title.replace('.txt', ''),
+      content: content,
+      updatedAt: new Date().toLocaleString()
+    };
+    const updated = [newNote, ...studyNotes];
+    setStudyNotes(updated);
+    setActiveNoteId(newNote.id);
+    localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+    setActiveTab('tools'); // Switch to Notepad tab
+    setSuccessMsg(`"${newNote.title}" imported successfully to your local Make a Note workspace!`);
+  };
+
+  const handleVerifyMernAnswerWithAi = async (qId: string, question: string, standard: string) => {
+    const guess = userGuesses[qId];
+    if (!guess || guess.trim() === '') {
+      setErrorMsg('Please type your guess before verifying.');
+      return;
+    }
+
+    setIsVerifyingIndex(prev => ({ ...prev, [qId]: true }));
+    setAiVerifications(prev => ({ ...prev, [qId]: '' }));
+
+    try {
+      const res = await api.post('/mern/verify-answer', {
+        question,
+        userAnswer: guess,
+        standardAnswer: standard
+      });
+      setAiVerifications(prev => ({ ...prev, [qId]: res.reply }));
+    } catch (err: any) {
+      console.error(err);
+      setAiVerifications(prev => ({ ...prev, [qId]: `Error: ${err.message || 'Failed to verify with AI.'}` }));
+    } finally {
+      setIsVerifyingIndex(prev => ({ ...prev, [qId]: false }));
+    }
+  };
+
+  const handleCopyTextToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(id);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
   // Sound generator using Web Audio API
   const playBellSound = () => {
     try {
@@ -1819,6 +1952,18 @@ export default function StudentDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               Make a Note
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('mern');
+                fetchMernResources();
+              }}
+              className={`sidebar-btn ${activeTab === 'mern' ? 'active' : ''}`}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              MERN Hub
             </button>
 
             <button
@@ -3908,6 +4053,486 @@ export default function StudentDashboard() {
 
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: MERN HUB WORKSPACE */}
+          {activeTab === 'mern' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
+              <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.5rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>SPARK_STUDY_CENTER</span>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>MERN Full-Stack Hub</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
+                    S - Student Progress | A - Assessment | R - Resources | K - Knowledge
+                  </p>
+                </div>
+                {/* Horizontal pill navigation */}
+                <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+                  <button 
+                    onClick={() => setMernTab('questions')} 
+                    className={`sidebar-btn ${mernTab === 'questions' ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
+                  >
+                    📋 Guess & AI Verify
+                  </button>
+                  <button 
+                    onClick={() => setMernTab('notes')} 
+                    className={`sidebar-btn ${mernTab === 'notes' ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
+                  >
+                    📝 Full-Stack Notes
+                  </button>
+                  <button 
+                    onClick={() => setMernTab('projects')} 
+                    className={`sidebar-btn ${mernTab === 'projects' ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
+                  >
+                    💻 Clone Starter Kits
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content Split: Resources on Left, Project Hub on Right */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }} className="dashboard-grid">
+                
+                {/* Left Column: MERN Tabs Content */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  
+                  {/* SUB-TAB 1: INTERACTIVE INTERVIEW QUESTIONS */}
+                  {mernTab === 'questions' && (
+                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem' }}>
+                        <div>
+                          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Interactive Interview Practice</h3>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>First guess the answer, verify via Gemini AI review, then reveal standard answers.</p>
+                        </div>
+                        {/* Filters */}
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                          <select 
+                            value={mernCategoryFilter} 
+                            onChange={(e) => setMernCategoryFilter(e.target.value)}
+                            className="glass-input" 
+                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
+                          >
+                            <option value="All">All Topics</option>
+                            <option value="HTML">HTML</option>
+                            <option value="CSS">CSS</option>
+                            <option value="Bootstrap">Bootstrap</option>
+                            <option value="JavaScript">JavaScript</option>
+                            <option value="React">React</option>
+                            <option value="Backend">Node & Express & Mongo</option>
+                          </select>
+                          <input 
+                            type="text" 
+                            placeholder="Search questions..." 
+                            value={mernSearchQuery} 
+                            onChange={(e) => setMernSearchQuery(e.target.value)}
+                            className="glass-input" 
+                            style={{ padding: '6px 12px', fontSize: '0.85rem', maxWidth: '200px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Accordion List */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {mernQuestions.filter(q => {
+                          const matchesCat = mernCategoryFilter === 'All' || q.category === mernCategoryFilter;
+                          const matchesSearch = q.question.toLowerCase().includes(mernSearchQuery.toLowerCase()) || q.answer.toLowerCase().includes(mernSearchQuery.toLowerCase());
+                          return matchesCat && matchesSearch;
+                        }).map((q) => {
+                          const isOpen = expandedMernQ === q.id;
+                          return (
+                            <div 
+                              key={q.id} 
+                              className="glass-panel" 
+                              style={{ 
+                                padding: '1.25rem', 
+                                borderLeft: isOpen ? '4px solid var(--neon-primary)' : '1px solid var(--border-glass)',
+                                background: isOpen ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)'
+                              }}
+                            >
+                              {/* Header Trigger */}
+                              <div 
+                                onClick={() => setExpandedMernQ(isOpen ? null : q.id)}
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                  <span style={{ 
+                                    fontSize: '0.7rem', 
+                                    fontWeight: 'bold', 
+                                    background: q.category === 'React' ? 'rgba(16,185,129,0.1)' : q.category === 'JavaScript' ? 'rgba(245,158,11,0.1)' : 'rgba(255,107,53,0.1)', 
+                                    color: q.category === 'React' ? 'var(--neon-secondary)' : q.category === 'JavaScript' ? 'var(--neon-primary)' : '#ff6b35', 
+                                    padding: '3px 8px', 
+                                    borderRadius: '4px',
+                                    fontFamily: 'monospace'
+                                  }}>
+                                    {q.category}
+                                  </span>
+                                  <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>{q.question}</h4>
+                                </div>
+                                <span>{isOpen ? '▲' : '▼'}</span>
+                              </div>
+
+                              {/* Accordion Content */}
+                              {isOpen && (
+                                <div style={{ marginTop: '1.25rem', borderTop: '1px dashed var(--border-glass)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                  
+                                  {/* Guess Input */}
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
+                                      GUESS_YOUR_ANSWER
+                                    </label>
+                                    <textarea
+                                      rows={4}
+                                      value={userGuesses[q.id] || ''}
+                                      onChange={(e) => setUserGuesses({ ...userGuesses, [q.id]: e.target.value })}
+                                      className="glass-input"
+                                      placeholder="Type your explanation or core logic here to verify..."
+                                      style={{ resize: 'vertical', minHeight: '100px', fontSize: '0.9rem' }}
+                                    />
+                                  </div>
+
+                                  {/* Actions Row */}
+                                  <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button
+                                      onClick={() => handleVerifyMernAnswerWithAi(q.id, q.question, q.answer)}
+                                      disabled={isVerifyingIndex[q.id]}
+                                      className="btn-neon btn-run"
+                                      style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
+                                    >
+                                      {isVerifyingIndex[q.id] ? 'ANALYZING...' : 'Verify with AI'}
+                                    </button>
+
+                                    <button
+                                      onClick={() => setRevealAnswers({ ...revealAnswers, [q.id]: !revealAnswers[q.id] })}
+                                      className="btn-glass"
+                                      style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
+                                    >
+                                      {revealAnswers[q.id] ? 'Hide Standard Answer' : 'Reveal Standard Answer'}
+                                    </button>
+                                  </div>
+
+                                  {/* AI Verification Report */}
+                                  {aiVerifications[q.id] && (
+                                    <div 
+                                      className="glass-panel" 
+                                      style={{ 
+                                        background: 'rgba(0,0,0,0.3)', 
+                                        borderColor: 'var(--border-glass-hover)', 
+                                        padding: '1rem', 
+                                        borderRadius: '10px',
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.85rem',
+                                        lineHeight: '1.6'
+                                      }}
+                                    >
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)' }}>
+                                        <span>🛰️ TELEMETRY_VERIFIER_AI</span>
+                                        <span>STATUS: RUN_COMPLETE</span>
+                                      </div>
+                                      <div dangerouslySetInnerHTML={renderMarkdown(aiVerifications[q.id])} />
+                                    </div>
+                                  )}
+
+                                  {/* Standard Reference Answer */}
+                                  {revealAnswers[q.id] && (
+                                    <div 
+                                      className="glass-panel" 
+                                      style={{ 
+                                        background: 'rgba(16,185,129,0.02)', 
+                                        borderColor: 'rgba(16,185,129,0.2)', 
+                                        padding: '1.25rem', 
+                                        borderRadius: '10px'
+                                      }}
+                                    >
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.1)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                                        <span>📂 STANDARD_REFERENCE_ANSWER</span>
+                                        <button 
+                                          onClick={() => handleCopyTextToClipboard(`Question: ${q.question}\nAnswer: ${q.answer}`, q.id)} 
+                                          style={{ background: 'none', border: 'none', color: 'var(--neon-primary)', cursor: 'pointer', fontSize: '0.75rem' }}
+                                        >
+                                          {copiedIndex === q.id ? '✓ Copied' : '📋 Copy QA'}
+                                        </button>
+                                      </div>
+                                      <p style={{ fontSize: '0.92rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>{q.answer}</p>
+                                    </div>
+                                  )}
+
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SUB-TAB 2: FULL-STACK STUDY NOTES */}
+                  {mernTab === 'notes' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '1.25rem' }} className="dashboard-grid">
+                      {/* Left: Notes Explorer Tree */}
+                      <div className="glass-panel" style={{ padding: '1rem', minHeight: '480px' }}>
+                        <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+                          DIRECTORY_EXPLORER
+                        </h4>
+                        
+                        {mernResources ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '420px', overflowY: 'auto' }}>
+                            {/* Render Directory Tree */}
+                            {mernResources.notes.map((cat, idx) => (
+                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--neon-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  📁 {cat.name.toUpperCase()}
+                                </div>
+                                <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '3px', borderLeft: '1px dashed var(--border-glass)', marginLeft: '6px' }}>
+                                  {cat.children && cat.children.map((file: any, fIdx: number) => {
+                                    const isSelected = selectedMernNote?.path === file.path;
+                                    return (
+                                      <div 
+                                        key={fIdx}
+                                        onClick={() => handleSelectMernNote(file)}
+                                        style={{ 
+                                          fontSize: '0.8rem', 
+                                          cursor: 'pointer', 
+                                          padding: '4px 8px', 
+                                          borderRadius: '4px',
+                                          background: isSelected ? 'rgba(245,158,11,0.08)' : 'transparent',
+                                          color: isSelected ? 'var(--neon-primary)' : 'var(--text-secondary)',
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center'
+                                        }}
+                                      >
+                                        <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '160px' }}>
+                                          📄 {file.name}
+                                        </span>
+                                        <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.04)', padding: '1px 4px', borderRadius: '3px', fontFamily: 'monospace' }}>
+                                          {file.type}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0', fontSize: '0.85rem' }}>
+                            Loading file structure...
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right: Document Reading Pane */}
+                      <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '480px' }}>
+                        {selectedMernNote ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
+                              <div>
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>{selectedMernNote.name}</h3>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                                  PATH: {selectedMernNote.path} | SIZE: {(selectedMernNote.size / 1024).toFixed(1)} KB
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => handleDownloadMernFile(selectedMernNote, 'notes')}
+                                className="btn-glass btn-download"
+                                style={{ padding: '6px 12px', fontSize: '0.75rem', gap: '4px', borderRadius: '6px' }}
+                              >
+                                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                                </svg>
+                                Download
+                              </button>
+                            </div>
+
+                            {/* Content Renders based on File Type */}
+                            {selectedMernNote.type === 'txt' ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                                {isLoadingMernContent ? (
+                                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                    Loading note details...
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div 
+                                      style={{ 
+                                        maxHeight: '380px', 
+                                        overflowY: 'auto', 
+                                        padding: '1rem', 
+                                        background: 'rgba(0,0,0,0.15)', 
+                                        borderRadius: '10px', 
+                                        fontSize: '0.9rem',
+                                        lineHeight: '1.6',
+                                        border: '1px solid var(--border-glass)'
+                                      }}
+                                      dangerouslySetInnerHTML={renderMarkdown(selectedMernNoteContent)}
+                                    />
+                                    <button
+                                      onClick={() => handleImportMernNoteToNotepad(selectedMernNote.name, selectedMernNoteContent)}
+                                      className="btn-neon btn-create"
+                                      style={{ width: '100%', padding: '10px', fontSize: '0.85rem', borderRadius: '8px' }}
+                                    >
+                                      Import into Make a Note Workspace
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            ) : (
+                              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem', background: 'rgba(0,0,0,0.15)', borderRadius: '10px' }}>
+                                <span style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📄</span>
+                                <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>Document Resource File</h4>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', maxWidth: '300px', margin: '0.5rem 0 1.5rem 0' }}>
+                                  This file is in a binary format ({selectedMernNote.type.toUpperCase()}) and cannot be previewed directly in the browser.
+                                </p>
+                                <button
+                                  onClick={() => handleDownloadMernFile(selectedMernNote, 'notes')}
+                                  className="btn-neon btn-download"
+                                  style={{ padding: '10px 24px', fontSize: '0.85rem', borderRadius: '8px' }}
+                                >
+                                  Download & Read Document
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'var(--text-muted)', padding: '4rem 2rem' }}>
+                            <span style={{ fontSize: '2rem', marginBottom: '1rem' }}>📂</span>
+                            <h4 style={{ fontSize: '0.95rem', fontWeight: 600 }}>No Note Selected</h4>
+                            <p style={{ fontSize: '0.8rem', maxWidth: '280px', marginTop: '4px' }}>
+                              Select any lecture note or document from the file tree directory to start studying or downloading.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SUB-TAB 3: PROJECT TEMPLATES & CLONING STARTER KITS */}
+                  {mernTab === 'projects' && (
+                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Project Cloning & Starter Boilerplates</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>Use these pre-configured code structures to quickly boot and start your assignments.</p>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                        {mernProjects.map((proj) => (
+                          <div key={proj.id} className="glass-panel tilt-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
+                                {proj.tags.map((t, idx) => (
+                                  <span key={idx} style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', color: 'var(--neon-primary)', fontFamily: 'monospace' }}>
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                              <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{proj.title}</h4>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4', minHeight: '65px' }}>
+                                {proj.description}
+                              </p>
+                            </div>
+
+                            {/* Git Clone Command Block */}
+                            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <code style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--neon-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
+                                git clone {proj.cloneUrl}
+                              </code>
+                              <button 
+                                onClick={() => handleCopyTextToClipboard(`git clone ${proj.cloneUrl}`, proj.id)} 
+                                style={{ background: 'none', border: 'none', color: 'var(--neon-primary)', cursor: 'pointer', fontSize: '0.8rem', paddingLeft: '4px' }}
+                              >
+                                {copiedIndex === proj.id ? '✓' : '📋'}
+                              </button>
+                            </div>
+
+                            {/* View Repo link button */}
+                            <a 
+                              href={proj.githubUrl} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="btn-glass" 
+                              style={{ textDecoration: 'none', fontSize: '0.8rem', padding: '8px', borderRadius: '6px', textAlign: 'center', width: '100%' }}
+                            >
+                              View GitHub Repository
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Right Column: Platform Core Links & Curriculum Guide */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  
+                  {/* Card 1: Core Portal Repository */}
+                  <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(245,158,11,0.25)', background: 'linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(255,107,53,0.01) 100%)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '1.2rem', color: 'var(--neon-primary)' }}>✦</span>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Active Portal Repository</h4>
+                    </div>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
+                      This portal repository is active and deployed. Students can review and clone the main codebase directly.
+                    </p>
+                    <a
+                      href="https://github.com/vamsi123-paidi/Tracker"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-neon"
+                      style={{ textDecoration: 'none', display: 'block', textAlign: 'center', padding: '10px', fontSize: '0.8rem', borderRadius: '8px' }}
+                    >
+                      View Main Repo on GitHub
+                    </a>
+                  </div>
+
+                  {/* Card 2: Interview PDFs quick links */}
+                  <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', margin: 0 }}>
+                      Interview Material Downloads
+                    </h4>
+                    
+                    {mernResources && mernResources.interviewFiles ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {mernResources.interviewFiles.map((file, idx) => (
+                          <div 
+                            key={idx}
+                            onClick={() => handleDownloadMernFile(file, 'interview')}
+                            style={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              alignItems: 'center',
+                              fontSize: '0.75rem',
+                              padding: '6px 8px',
+                              borderRadius: '4px',
+                              background: 'rgba(255,255,255,0.02)',
+                              cursor: 'pointer',
+                              border: '1px solid var(--border-glass)'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-glass-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-glass)'}
+                          >
+                            <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '180px' }}>
+                              📥 {file.name.replace(/^\d+-/, '')}
+                            </span>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--neon-primary)', fontFamily: 'monospace' }}>
+                              {file.type.toUpperCase()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Loading PDF list...
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+
               </div>
             </div>
           )}

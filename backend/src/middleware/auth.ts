@@ -14,7 +14,11 @@ export interface AuthRequest extends Request {
 
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = authHeader && authHeader.split(' ')[1];
+
+  if (!token && req.query.token && typeof req.query.token === 'string') {
+    token = req.query.token;
+  }
 
   if (!token) {
     res.status(401).json({ message: 'Access token required' });

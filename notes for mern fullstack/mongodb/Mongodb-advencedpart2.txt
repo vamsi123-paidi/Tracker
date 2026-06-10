@@ -1,0 +1,303 @@
+MongoDB Advanced Concepts - Comprehensive Guide
+===============================================
+
+1. DATA MODELING
+----------------
+
+1.1 Embedded Documents Approach
+Use when:
+- 1:1 or 1:few relationships
+- Data is read together frequently
+- Atomic updates are critical
+
+Example:
+db.users.insertOne({
+  _id: "user101",
+  name: "John Doe",
+  address: {
+    street: "123 Main St",
+    city: "New York",
+    zip: "10001"
+  },
+  contacts: [
+    { type: "mobile", number: "555-0101" },
+    { type: "email", address: "john@example.com" }
+  ]
+});
+
+1.2 Referenced Documents Approach
+Use when:
+- 1:many or many:many relationships
+- Data grows without bound
+- Independent access needed
+
+Example:
+// Authors collection
+db.authors.insertOne({
+  _id: "auth202",
+  name: "Jane Smith",
+  specialty: "Database Systems"
+});
+
+// Books collection
+db.books.insertMany([
+  {
+    _id: "book305",
+    title: "MongoDB Essentials",
+    author_id: "auth202",
+  },
+  {
+    _id: "book306",
+    title: "Advanced MongoDB",
+    author_id: "auth203",
+  }
+]);
+
+1.3 Hybrid Approach with $lookup
+Example joining books with authors:
+    db.books.aggregate([
+      {
+        $lookup: {
+          from: "authors",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author_details"
+        }
+      },
+      {
+        $unwind: "$author_details"
+      },
+      {
+        $project: {
+          title: 1,
+          "author_details.name": 1.
+        }
+      }
+    ]);
+
+2. SCHEMA VALIDATION
+--------------------
+
+2.1 Basic Schema Validation
+db.createCollection("employees", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["employee_id", "full_name", "department","salary"],
+      properties: {
+        employee_id: {
+          bsonType: "string",
+          pattern: "^EMP-[0-9]{5}$",
+          description: "Must be in format EMP-12345"
+        },
+        full_name: {
+          bsonType: "string",
+          minLength: 3,
+          maxLength: 25
+        },
+        department: {
+          enum: ["Engineering", "HR", "Finance", "Marketing"],
+          description: "Must be a valid department"
+        },
+        salary: {
+          bsonType: "number",
+          minimum: 30000,
+          maximum: 500000
+        }
+      }
+    }
+  }
+});
+
+  db.employees.insertOne({
+    employee_id: "12345",  // ❌ doesn't match EMP-xxxxx
+    full_name: "Al",       // ❌ too short
+    department: "Sales",   // ❌ not in enum
+    salary: 10000          // ❌ too low
+  })
+
+    db.employees.insertOne({
+    employee_id: "EMP-12345",  
+    full_name: "Ali",       
+    department: "HR",   
+    salary: 50000        
+  })
+
+
+2.2 Complex Conditional Validation
+db.createCollection("orders", {
+  validator: {
+    $expr: {
+      $and: [
+        { $gte: ["$order_date", "$created_at"] },
+        { $oq: ["$status", "pending"] },
+            { $anr: [
+            { $ed: [
+                { $ne: ["$status", "pending"] },
+                { $gt: ["$processed_at", "$created_at"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+});
+
+sucess output :
+db.orders.insertOne({
+  order_date: new Date("2023-10-05"),
+  created_at: new Date("2023-10-01"),
+  status: "shipped",
+  processed_at: new Date("2023-10-03")
+})
+
+another valid expression :
+db.orders.insertOne({
+  order_date: new Date("2023-10-02"),
+  created_at: new Date("2023-10-01"),
+  status: "pending"
+  // no need for processed_at
+})
+
+failure Expression:
+db.orders.insertOne({
+  order_date: new Date("2023-09-30"),
+  created_at: new Date("2023-10-01"),
+  status: "pending"
+})
+
+another failure expression :
+db.orders.insertOne({
+  order_date: new Date("2023-10-03"),
+  created_at: new Date("2023-10-01"),
+  status: "shipped",
+  processed_at: new Date("2023-09-30")
+})
+
+
+3. TRANSACTIONS
+--------------
+
+3.1 Basic Money Transfer Transaction
+// Initialize accounts
+db.accounts.insertMany([
+  { _id: "account1", balance: 1000, owner: "user1" },
+  { _id: "account2", balance: 500, owner: "user2" }
+]);
+
+// Transaction execution
+const session = db.getMongo().startSession();
+session.startTransaction({
+  readConcern: { level: "snapshot" },
+  writeConcern: { w: "majority" }
+});
+
+try {
+  const accounts = session.getDatabase("bank").accounts;
+  
+  // 1. Withdraw from source
+  const withdrawResult = accounts.updateOne(
+    { _id: "account1", balance: { $gte: 200 } },
+    { $inc: { balance: -200 } }
+  );
+  
+  if (withdrawResult.modifiedCount === 0) {
+    throw new Error("Insufficient funds or account not found");
+  }
+
+  // 2. Deposit to target
+  accounts.updateOne(
+    { _id: "account2" },
+    { $inc: { balance: 200 } }
+  );
+
+  // 3. Record transaction
+  session.getDatabase("bank").transactions.insertOne({
+    from_account: "account1",
+    to_account: "account2",
+    amount: 200,
+    transaction_date: new Date(),
+    status: "completed"
+  });
+
+  session.commitTransaction();
+  print("Transaction completed successfully");
+} catch (error) {
+  session.abortTransaction();
+  print("Transaction failed: " + error.message);
+} finally {
+  session.endSession();
+}
+
+3.2 Multi-Operation Inventory Transaction
+const session = db.getMongo().startSession();
+
+try {
+  session.startTransaction();
+  
+  // 1. Check product availability
+  const product = session.getDatabase("store").products.findOne(
+    { _id: "prod123", stock: { $gte: 5 } },
+    { session }
+  );
+  
+  if (!product) throw new Error("Not enough stock");
+  
+  // 2. Reduce inventory
+  session.getDatabase("store").products.updateOne(
+    { _id: "prod123" },
+    { $inc: { stock: -5 } },
+    { session }
+  );
+  
+  // 3. Create order
+  session.getDatabase("store").orders.insertOne({
+    product_id: "prod123",
+    quantity: 5,
+    order_date: new Date(),
+    status: "processed"
+  }, { session });
+  
+  session.commitTransaction();
+  print("Order processed successfully");
+} catch (error) {
+  session.abortTransaction();
+  print("Order failed: " + error.message);
+} finally {
+  session.endSession();
+}
+
+4. BEST PRACTICES
+----------------
+
+4.1 Data Modeling:
+- Analyze your read/write patterns first
+- Embed for frequent co-access, reference for independent access
+- Consider document growth when embedding arrays
+
+4.2 Schema Validation:
+- Start with strict validation in development
+- Use descriptive error messages
+- Consider validationLevel: "moderate" for existing collections
+
+4.3 Transactions:
+- Keep transactions short (under 1000ms)
+- Set appropriate timeout values
+- Always implement error handling
+- Use retry logic for transient errors
+
+5. TROUBLESHOOTING
+------------------
+
+5.1 Common Validation Errors:
+- Error: Document failed validation
+  Solution: Check required fields and data types
+
+5.2 Transaction Errors:
+- Error: Transaction aborted due to conflict
+  Solution: Implement retry logic with exponential backoff
+
+5.3 Performance Issues:
+- Symptom: Slow $lookup operations
+  Solution: Consider embedding frequently accessed data

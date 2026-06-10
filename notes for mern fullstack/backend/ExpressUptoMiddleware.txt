@@ -1,0 +1,1173 @@
+📘 Express.js - Table of Contents (TOC)
+
+🟢 1. Introduction to Express.js
+
+ 1.1 What is Express.js?
+ 1.2 Why use Express with Node.js?
+ 1.3 Installing Node.js and npm
+ 1.4 Installing Express.js
+
+---
+
+🟡 2. Getting Started
+
+ 2.1 Setting up a new project
+ 2.2 Creating your first Express app
+ 2.3 Understanding `req` and `res`
+ 2.4 `app.listen()` explained
+
+---
+
+🟡 3. Routing
+
+ 3.1 What is routing?
+ 3.2 Basic routes: GET, POST, PUT, DELETE
+ 3.3 Route parameters (`:id`)
+ 3.4 Query parameters (`?name=value`)
+ 3.5 Route chaining and grouping
+
+---
+
+🟡 4. Middleware
+
+ 4.1 What is middleware?
+ 4.2 Using built-in middleware
+ 4.3 Third-party middleware (`morgan`, `cors`)
+ 4.4 Custom middleware functions
+ 4.5 Order of middleware execution
+
+---
+
+🟡 5. Static Files
+
+ 5.1 Using `express.static()`
+ 5.2 Serving HTML, CSS, JS, and images
+ 5.3 Folder structure for static assets
+
+---
+
+🟠 6. Templating Engines
+
+ 6.1 Introduction to templating
+ 6.2 Setting up EJS or Pug
+ 6.3 Rendering dynamic HTML
+ 6.4 Passing data to views
+
+---
+
+🟠 7. Handling Data and Forms
+
+ 7.1 Parsing form data (`express.urlencoded`)
+ 7.2 Parsing JSON (`express.json`)
+ 7.3 Handling POST requests
+ 7.4 Validating inputs (basic)
+
+---
+
+🟠 8. RESTful API with Express
+
+ 8.1 What is a REST API?
+ 8.2 Creating REST routes
+ 8.3 Sending JSON responses
+ 8.4 CRUD operations with in-memory data
+
+---
+
+🔵 9. Database Integration
+
+ 9.1 MongoDB introduction
+ 9.2 Using Mongoose with Express
+ 9.3 Connecting to a MongoDB database
+ 9.4 Creating and using models
+ 9.5 Performing CRUD with a database
+
+---
+
+🔵 10. Error Handling
+
+ 10.1 Handling 404 errors
+ 10.2 Custom error middleware
+ 10.3 Using `try-catch` in async routes
+
+---
+
+🔴 11. Authentication and Authorization
+
+ 11.1 Introduction to auth
+ 11.2 Sessions and cookies
+ 11.3 Using JWT (JSON Web Tokens)
+ 11.4 Protected routes and middleware
+
+---
+
+🔴 12. Express Router (Modular Routing)
+
+ 12.1 What is Router?
+ 12.2 Creating and using routers
+ 12.3 Organizing routes in separate files
+
+---
+
+🔴 13. File Uploads
+
+ 13.1 Using Multer for uploads
+ 13.2 Handling single and multiple file uploads
+
+---
+
+🔴 14. CORS and Security
+
+ 14.1 Understanding CORS
+ 14.2 Enabling CORS in Express
+ 14.3 Using Helmet for security headers
+
+---
+
+🔴 15. Deployment
+
+ 15.1 Using environment variables with `.env`
+ 15.2 Preparing app for production
+ 15.3 Deploying to Render, Vercel, or Railway
+ 15.4 Handling production error
+
+Topic 1: Introduction to Express.js
+
+📌 1.1 What is Express.js?
+
+Express.js is a Node.js web application framework that simplifies building server-side applications.
+
+ 🔍 Why do we use Express.js?
+
+ Writing server logic in plain Node.js is lengthy and repetitive.
+ Express provides a clean, simple API to handle routes, HTTP requests, and more.
+
+ 🔧 Without Express:
+
+
+// Node.js only
+const http = require('http');
+
+http.createServer((req, res) => {
+  res.write('Hello from Node.js');
+  res.end();
+}).listen(3000);
+
+
+ ✅ With Express:
+
+npm i express //installation
+// Express.js
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello from Express!');
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+
+
+🔗 Conclusion: Express saves time, code, and effort.
+
+---
+
+📌 1.2 Why Use Express with Node.js?
+
+| Feature             | Node.js (Core) | Express.js            |
+| ------------------- | -------------- | --------------------- |
+| Routing             | Manual         | Easy with `app.get()` |
+| Middleware support  | Manual         | Built-in              |
+| API creation        | Tedious        | Fast and clean        |
+| Static file serving | Manual setup   | Built-in method       |
+
+---
+
+📌 1.3 Installing Node.js and npm
+
+✅ Visit: [https://nodejs.org/](https://nodejs.org/)
+🔹 Download and install LTS version.
+🔹 Confirm installation in terminal:
+
+bash
+node -v
+npm -v
+
+
+---
+
+📌 1.4 Installing Express.js
+
+ 🔨 Step-by-step Practical:
+
+✅ Step 1: Create a folder
+
+bash
+mkdir express-students
+cd express-students
+
+
+✅ Step 2: Initialize project
+
+bash
+npm init -y
+
+
+✅ Step 3: Install Express
+
+bash
+npm install express
+
+
+---
+
+🔁 Mini Practical Task
+
+Let’s make a small web server with a homepage and a "hello" route.
+
+📁 Create `index.js`:
+
+
+const express = require('express');
+const app = express();
+
+// Homepage route
+app.get('/', (req, res) => {
+  res.send('<h1>Welcome to Express.js</h1>');
+});
+
+// Hello route
+app.get('/hello', (req, res) => {
+  res.send('Hello Student!');
+});
+
+// Server listener
+app.listen(3000, () => {
+  console.log('Server is running at http://localhost:3000');
+});
+
+
+🚀 Run:
+
+bash
+node index.js
+
+
+🌐 Visit in browser:
+
+ `http://localhost:3000` → Welcome page
+ `http://localhost:3000/hello` → Hello message
+
+---
+
+🧠 Practice Task
+
+1. Create 3 new routes:
+
+    `/about` → "This is the about page"
+    `/contact` → "Contact us at: [student@school.com](mailto:student@school.com)"
+    `/students` → "List of students will come here"
+
+Try changing the port to `5000`.
+
+---
+
+✅ Summary
+
+ Express.js is built on Node.js for fast backend development.
+ It simplifies routing and request handling.
+ Setting up an Express project is quick using `npm init` and `npm install express`.
+
+---
+🟡 Topic 2: Getting Started with Express.js
+
+
+📌 2.1 Setting Up a New Project
+
+
+✅ Step-by-Step Instructions
+
+1. Create a folder for your project:
+
+   bash
+   mkdir express-first-app
+   cd express-first-app
+   
+
+2. Initialize a Node project:
+
+   bash
+   npm init -y
+   
+
+   This creates a `package.json` file that keeps track of dependencies.
+
+3. Install Express.js:
+
+   bash
+   npm install express
+   
+
+4. Create a new file:
+
+   bash
+   touch index.js
+   
+
+---
+
+📌 2.2 Creating Your First Express App
+
+---
+
+📄 File: index.js
+
+js
+// Import express module
+const express = require('express');
+
+// Initialize express app
+const app = express();
+
+// Create a route for GET request on "/"
+app.get('/', (req, res) => {
+  res.send('<h1>Hello World from Express.js!</h1>');
+});
+
+// Start the server on port 3000
+app.listen(3000, () => {
+  console.log('Server started at http://localhost:3000');
+});
+
+
+✅ Run the app
+
+bash
+node index.js
+
+
+🌐 Open browser and visit:
+
+ `http://localhost:3000` → You’ll see "Hello World from Express.js!"
+
+---
+
+📌 2.3 Understanding `req` and `res`
+
+In Express.js, when a request is made:
+
+ `req` (request) = contains information sent by the client (e.g., browser)
+ `res` (response) = is used to send a response back to the client
+
+📄 Example: Log request details
+
+js
+app.get('/info', (req, res) => {
+  console.log('Request Method:', req.method);
+  console.log('Request URL:', req.url);
+  res.send('Check your terminal for request info');
+});
+
+
+🧪 Try opening `http://localhost:3000/info` and check the terminal output.
+
+---
+
+📌 2.4 `app.listen()` Explained
+
+This line:
+
+js
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
+
+🔍 Means:
+
+ The server listens for incoming connections on port 3000
+ The callback function runs once the server is ready
+
+---
+
+ 🛠️ PRACTICAL TASKS
+
+
+🧪 Task 1: Create Multiple Routes
+
+Add these routes:
+
+js
+app.get('/about', (req, res) => {
+  res.send('This is the About page');
+});
+
+app.get('/contact', (req, res) => {
+  res.send('Contact us at contact@mysite.com');
+});
+
+app.get('/help', (req, res) => {
+  res.send('How can we help you?');
+});
+
+
+Test in browser:
+
+ `/about`
+ `/contact`
+ `/help`
+
+---
+
+🧪 Task 2: Practice with `req` object
+
+Create a route that prints the user’s query:
+
+js 
+// URL: /greet?name=John
+app.get('/greet', (req, res) => {
+  const name = req.query.name;
+  res.send(`Hello ${name || 'Guest'}!`);
+});
+
+
+Try:
+
+
+http://localhost:3000/greet?name=John
+http://localhost:3000/greet
+
+
+---
+
+🧪 Task 3: Change the port number
+
+Modify `app.listen()` to:
+
+js
+app.listen(5000, () => {
+  console.log('Running on http://localhost:5000');
+});
+
+
+Then run the server again and test the new port.
+
+---
+🟣 Topic 3: Routing in Express.js (GET, POST, Params, Query)
+
+📌 3.1 What is Routing?
+Routing in Express means defining how your server responds to different HTTP requests (GET, POST, etc.) for different paths (URLs).
+
+ 🧾 Complete Express.js Routing (CRUD) - In Proper Order
+
+We’ll build a Student Management System (in-memory only — no database yet) with these 4 main features:
+
+1. ✅ GET - Fetch all students or one student
+2. 🟡 POST - Add a new student
+3. 🔵 PUT - Update an existing student
+4. 🔴 DELETE - Remove a student
+
+---
+
+ ✅ STEP 1: Setup
+
+ 📁 Create a folder:
+
+
+express-routing
+
+
+ 📦 Inside terminal:
+
+bash
+npm init -y
+npm install express
+
+
+ 📄 Create `index.js` file:
+
+js
+
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Enable JSON body parser
+app.use(express.json());
+
+// Temporary Student List
+let students = [
+  { id: 1, name: "Anjali", course: "Math" },
+  { id: 2, name: "Ravi", course: "Science" },
+];
+
+// Home Route
+app.get('/', (req, res) => {
+  res.send('Welcome to Student Management System');
+});
+
+
+---
+
+ 🔍 STEP 2: GET Routes
+
+ ✅ Get All Students
+
+js
+app.get('/students', (req, res) => {
+  res.json(students);
+});
+
+
+ ✅ Get a Single Student by ID
+
+js
+app.get('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const student = students.find(s => s.id === id);
+  if (student) {
+    res.json(student);
+  } else {
+    res.status(404).send('Student not found');
+  }
+});
+
+
+---
+
+ ✍️ STEP 3: POST Route
+
+ 🟡 Add a New Student
+
+js
+app.post('/students', (req, res) => {
+  const { name, course } = req.body;
+  const newStudent = {
+    id: students.length + 1,
+    name,
+    course
+  };
+  students.push(newStudent);
+  res.status(201).json(newStudent);
+});
+
+
+📌 Test this with Postman:
+
+json
+POST http://localhost:3000/students
+Body (JSON):
+{
+  "name": "Neha",
+  "course": "English"
+}
+
+
+---
+
+ ✏️ STEP 4: PUT Route
+
+ 🔵 Update an Existing Student
+
+js
+app.put('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, course } = req.body;
+  const student = students.find(s => s.id === id);
+
+  if (student) {
+    student.name = name || student.name;
+    student.course = course || student.course;
+    res.json(student);
+  } else {
+    res.status(404).send('Student not found');
+  }
+});
+
+
+📌 Test this with Postman:
+
+json
+PUT http://localhost:3000/students/2
+Body (JSON):
+{
+  "name": "Ravi Kumar",
+  "course": "Physics"
+}
+
+
+---
+
+ ❌ STEP 5: DELETE Route
+
+ 🔴 Remove a Student
+
+js
+app.delete('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = students.findIndex(s => s.id === id);
+
+  if (index !== -1) {
+    const deleted = students.splice(index, 1);
+    res.json(deleted[0]);
+  } else {
+    res.status(404).send('Student not found');
+  }
+});
+
+
+📌 Test this with Postman:
+
+http
+DELETE http://localhost:3000/students/1
+
+
+---
+
+ 🔍 STEP 6: Query Parameters (Optional Search)
+
+ 🔎 Search by Course
+
+js
+app.get('/search', (req, res) => {
+  const { course } = req.query;
+  const result = students.filter(s => s.course.toLowerCase() === course.toLowerCase());
+  res.json(result);
+});
+
+
+Try in browser:
+
+
+http://localhost:3000/search?course=math
+
+
+---
+
+ 🚀 STEP 7: Start the Server
+
+js
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
+---
+
+ ✅ FINAL STRUCTURE (Complete Working Code)
+
+js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.use(express.json());
+
+let students = [
+  { id: 1, name: "Anjali", course: "Math" },
+  { id: 2, name: "Ravi", course: "Science" },
+];
+
+app.get('/', (req, res) => {
+  res.send('Welcome to Student Management System');
+});
+
+app.get('/students', (req, res) => {
+  res.json(students);
+});
+
+app.get('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const student = students.find(s => s.id === id);
+  student ? res.json(student) : res.status(404).send('Student not found');
+});
+
+app.post('/students', (req, res) => {
+  const { name, course } = req.body;
+  const newStudent = {
+    id: students.length + 1,
+    name,
+    course
+  };
+  students.push(newStudent);
+  res.status(201).json(newStudent);
+});
+
+app.put('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, course } = req.body;
+  const student = students.find(s => s.id === id);
+  if (student) {
+    student.name = name || student.name;
+    student.course = course || student.course;
+    res.json(student);
+  } else {
+    res.status(404).send('Student not found');
+  }
+});
+
+app.delete('/students/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = students.findIndex(s => s.id === id);
+  if (index !== -1) {
+    const deleted = students.splice(index, 1);
+    res.json(deleted[0]);
+  } else {
+    res.status(404).send('Student not found');
+  }
+});
+
+app.get('/search', (req, res) => {
+  const { course } = req.query;
+  const result = students.filter(s => s.course === course);
+  res.json(result);
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+
+---
+
+ 🧪Practice Checklist ✅
+
+| Task                 | Route Type                |
+| -------------------- | ------------------------- |
+| Show all students    | GET `/students`           |
+| Show a student by ID | GET `/students/:id`       |
+| Add a student        | POST `/students`          |
+| Update a student     | PUT `/students/:id`       |
+| Delete a student     | DELETE `/students/:id`    |
+| Search by course     | GET `/search?course=math` |
+
+
+🟡 4. Middleware in Express.js 
+
+---
+
+ 🔹 4.1 What is Middleware?
+
+✅ Explanation:
+
+Middleware is a function that runs between the client request and the server response. It can:
+
+ Log requests
+ Authenticate users
+ Parse request data
+ Modify request or response
+ Stop or continue the request cycle
+
+It has this structure:
+
+js
+(req, res, next) => { ... }
+
+
+To continue to the next middleware, call `next()`.
+
+---
+
+🔧 Example: Logger Middleware
+
+🔍 What Logger Middleware Does in Express.js
+A logger middleware in Express logs details about each incoming HTTP request to your server. 
+
+This includes information like:
+HTTP method (GET, POST, etc.)
+Requested URL (/api/users)
+Response status code (200, 404, etc.)
+Time taken to process the request
+
+✅ Why Use It?
+Debugging: See what routes are being hit.
+Monitoring: Track server activity and performance.
+Auditing: Record request data (optionally with timestamps or IP addresses).
+
+example:
+
+const express = require('express');
+const app = express();
+
+const logger = (req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+};
+
+app.use(logger); // Applies to all routes
+
+app.get('/', (req, res) => {
+  res.send('Hello from Home!');
+});
+
+app.listen(3000, () => console.log('Server running at http://localhost:3000'));
+
+
+🔍 Open Postman
+
+ Method: `GET`
+ URL: `http://localhost:3000/`
+
+🖥️ Console Output:
+
+
+GET /
+
+
+🧾 Postman Output:
+
+
+Hello from Home!
+
+
+---
+
+ 🔹 4.2 Using Built-in Middleware
+
+| Middleware             | Description                              |
+| ---------------------- | ---------------------------------------- |
+| `express.json()`       | Parses JSON in request body              |
+| `express.urlencoded()` | Parses form data from URL-encoded bodies |
+| `express.static()`     | Serves static files from a directory     |
+
+---
+express.urlencoded() is built-in middleware in Express used to parse incoming request bodies with URL-encoded data (the format used by HTML forms).
+
+options:
+extended: false – Parses data using the querystring library (limited, simple).
+extended: true – Parses data using the qs library (allows nested objects).
+
+🔁 Use Case
+Submitting forms with method="POST" and enctype="application/x-www-form-urlencoded" (default form encoding).
+Reading data like username=john&age=25 in the server.
+
+js
+const express = require('express');
+const app = express();
+
+app.use(express.json());                         // Handle JSON
+app.use(express.urlencoded({ extended: true })); // Handle form-data
+
+app.post('/submit', (req, res) => {
+  res.send(`Received: ${req.body.name}`);
+});
+
+app.listen(3000);
+
+
+🔍 Postman Setup:
+
+ Method: `POST`
+ URL: `http://localhost:3000/submit`
+ Body → Select x-www-form-urlencoded
+
+   Key: `name`
+   Value: `Alice`
+
+🧾 Postman Output:
+
+
+Received: Alice
+
+
+---
+
+🔧 Example: Serving Static Files
+
+js
+const express = require('express');
+const app = express();
+
+app.use('/static', express.static('public')); // Folder: public
+
+app.listen(3000);
+
+
+📝 In your project, create a folder `public/hello.txt` with any text.
+
+🔍 Postman or Browser
+
+ Method: `GET`
+ URL: `http://localhost:3000/static/hello.txt`
+
+🧾 Output: Content of `hello.txt`
+
+---
+
+ 🔹 4.3 Using Third-party Middleware (`morgan`, `cors`)
+
+✅ Explanation:
+
+Third-party middleware adds features like logging, security, etc.
+🔍 What morgan Does
+When a client makes a request (like GET /api/users), morgan logs details about that request to the console.
+
+It logs:
+HTTP method (GET, POST, etc.)
+URL (/login, /api/products)
+Status code (200, 404, etc.)
+Response time (in ms)
+And more, depending on format
+
+🧠 Why Use morgan?
+Debugging: See what routes are being hit
+Monitoring: Track request volume and server responses
+Quick setup: No need to manually log requests
+
+✅ What is cors in Express?
+CORS stands for Cross-Origin Resource Sharing. It is a security feature implemented by browsers that blocks requests from different origins unless explicitly allowed by the server.
+
+🔍 Why Do We Need cors in Express?
+When your frontend (React, etc.) runs on http://localhost:3000 and your Express backend runs on http://localhost:5000, the browser sees this as a cross-origin request and may block it unless CORS is enabled.
+That’s where the cors middleware comes in.
+
+
+
+📦 Install:
+
+bash
+npm install morgan cors
+
+
+---
+
+🔧 Example: `morgan` & `cors`
+
+js
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const app = express();
+
+app.use(morgan('dev')); // Request logs
+app.use(cors());        // Enables Cross-Origin support
+
+app.get('/', (req, res) => {
+  res.send('Third-party middleware demo!');
+});
+
+app.listen(3000);
+
+
+🔍 Postman
+
+ Method: `GET`
+ URL: `http://localhost:3000/`
+
+🖥️ Console Output:
+
+
+GET / 200 10ms - 32
+
+
+🧾 Postman Output:
+
+
+Third-party middleware demo!
+
+
+---
+
+ 🔹 4.4 Custom Middleware Functions
+
+✅ Explanation:
+
+Create your own middleware for:
+
+ Logging
+ Authentication
+ Input validation
+
+Each one must call `next()` to pass control.
+
+---
+
+🔧 Logger + Auth Example
+
+js
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+// Custom logger middleware
+function logger(req, res, next) {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+}
+
+// Custom auth middleware
+function auth(req, res, next) {
+  const token = req.headers['authorization'];
+  if (token === 'secret123') {
+    next(); // Proceed
+  } else {
+    res.status(401).send('Unauthorized');
+  }
+}
+
+app.use(logger); // global logger
+
+app.get('/open', (req, res) => {
+  res.send('Public route, no auth needed');
+});
+
+app.get('/secure', auth, (req, res) => {
+  res.send('Protected route, auth successful');
+});
+
+app.listen(3000);
+
+
+---
+
+🔍 Testing in Postman
+
+1. Access `/open`:
+
+ Method: `GET`
+ URL: `http://localhost:3000/open`
+
+✅ Output:
+
+
+Public route, no auth needed
+
+
+2. Access `/secure` with Auth:
+
+ Method: `GET`
+ URL: `http://localhost:3000/secure`
+ Headers → Add:
+
+   Key: `Authorization`
+   Value: `secret123`
+
+✅ Output:
+
+
+Protected route, auth successful
+
+
+3. Without Header:
+❌ Output:
+
+
+Unauthorized
+
+
+---
+
+ 🔹 4.5 Order of Middleware Execution
+
+✅ Explanation:
+
+Middleware runs in the order it’s declared (top to bottom). Order is important!
+
+---
+
+🔧 Example: Order Flow
+
+js
+const express = require('express');
+const app = express();
+
+app.use((req, res, next) => {
+  console.log('🔹 Middleware 1');
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log('🔸 Middleware 2');
+  next();
+});
+
+app.get('/', (req, res) => {
+  console.log('✅ Final Handler');
+  res.send('Done!');
+});
+
+app.listen(3000);
+
+
+🔍 Postman
+
+ Method: `GET`
+ URL: `http://localhost:3000/`
+
+🖥️ Console Output:
+
+
+🔹 Middleware 1
+🔸 Middleware 2
+✅ Final Handler
+
+
+🧾 Postman Output:
+
+
+Done!
+
+
+---
+
+ 🧪 Final Practice Exercise for Students
+
+js
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+function step1(req, res, next) {
+  console.log('Step 1 executed');
+  next();
+}
+
+function step2(req, res, next) {
+  console.log('Step 2 executed');
+  next();
+}
+
+function finalStep(req, res) {
+  console.log('Final step executed');
+  res.send('Middleware flow complete!');
+}
+
+app.get('/flow', step1, step2, finalStep);
+
+app.listen(3000, () => console.log('Server running'));
+
+
+🔍 Postman
+
+ Method: `GET`
+ URL: `http://localhost:3000/flow`
+
+🖥️ Console Output:
+
+
+Step 1 executed
+Step 2 executed
+Final step executed
+
+
+🧾 Postman Output:
+
+
+Middleware flow complete!
+
+
+---
+
+ ✅ Summary
+
+| Concept            | You Learned...                      |
+| ------------------ | ----------------------------------- |
+| What is middleware | Function that handles request flow  |
+| Built-in           | `express.json`, `express.static`    |
+| Third-party        | `morgan`, `cors`                    |
+| Custom             | Auth, logging, validation           |
+| Order              | Top-to-bottom flow, `next()` is key |
+
+---
+

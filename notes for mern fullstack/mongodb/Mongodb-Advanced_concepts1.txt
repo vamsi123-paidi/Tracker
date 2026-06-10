@@ -1,0 +1,274 @@
+MongoDB Advanced Concepts - The Ultimate Guide
+=============================================
+
+1. COMPLETE AGGREGATION FRAMEWORK
+---------------------------------
+
+// Setup data first
+db.orders.insertMany([
+  { _id: 1, customer: "A", amount: 120, date: ISODate("2023-01-01"), items: ["pen", "book"] },
+  { _id: 2, customer: "B", amount: 80, date: ISODate("2023-01-02"), items: ["pencil"] },
+  { _id: 3, customer: "A", amount: 200, date: ISODate("2023-02-01"), items: [-"book", "eraser"] }
+])
+
+// 1. $match (Filtering)
+> db.orders.aggregate([
+  { $match: { amount: { $gt: 100 } } }
+])
+
+OUTPUT: 
+[{ _id: 1, customer: "A", amount: 120, ... }, { _id: 3, customer: "A", amount: 200, ... }]
+
+// 2. $group (With accumulators)
+> db.orders.aggregate([
+  { $group: {
+      _id: "$customer",
+      total: { $sum: "$amount" },
+      avg: { $avg: "$amount" },
+      max: { $max: "$amount" },
+      min: { $min: "$amount" },
+      count: { $sum: 1 }
+    }
+  }
+])
+
+OUTPUT:
+[
+  { _id: "A", total: 320, avg: 160, max: 200, min: 120, count: 2 },
+  { _id: "B", total: 80, avg: 80, max: 80, min: 80, count: 1 }
+]
+
+// 3. $project (Reshaping)
+> db.orders.aggregate([
+  { $project: {
+      customer: 1,
+      amount: 1,
+      discount: { $multiply: ["$amount", 0.1] },
+      year: { $year: "$date" }
+    }
+  }
+])
+
+OUTPUT:
+[
+  { _id: 1, customer: "A", amount: 120, discount: 12, year: 2023 },
+  ...
+]
+
+// 4. $unwind (Array flattening)
+> db.orders.aggregate([
+  { $unwind: "$items" }
+])
+
+OUTPUT:
+[
+  { _id: 1, customer: "A", items: "pen" },
+  { _id: 1, customer: "A", items: "book" },
+  ...
+]
+
+// 5. $lookup (Joins)
+db.customers.insertOne({ _id: "A", name: "Alice" })
+
+> db.orders.aggregate([
+  { $lookup: {
+      from: "customers",
+      localField: "customer",
+      foreignField: "_id",
+      as: "customer_info"
+    }
+  }
+])
+
+OUTPUT:
+[
+  { 
+    _id: 1, 
+    customer: "A",
+    customer_info: [{ _id: "A", name: "Alice" }]
+  }
+]
+
+// 6. $bucket (Group by ranges)
+> db.orders.aggregate([
+  { $bucket: {
+      groupBy: "$amount",
+      boundaries: [0, 100, 200, 300],
+      default: "Other",
+      output: {
+        count: { $sum: 1 },
+        orders: { $push: "$_id" }
+      }
+    }
+  }
+])
+
+OUTPUT:
+[
+  { _id: 0, count: 1, orders: [2] },
+  { _id: 100, count: 1, orders: [1] },
+  { _id: 200, count: 1, orders: [3] }
+]
+
+// 7. $facet (Multiple pipelines)
+> db.orders.aggregate([
+  { $facet: {
+      "summary": [
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ],
+      "monthly": [
+        { $group: { 
+            _id: { $month: "$date" },
+            total: { $sum: "$amount" }
+          }
+        }
+      ]
+    }
+  }
+])
+
+OUTPUT:
+[{
+  "summary": [{ _id: null, total: 400 }],
+  "monthly": [
+    { _id: 1, total: 200 },
+    { _id: 2, total: 200 }
+  ]
+}]
+
+2. COMPLETE INDEXING METHODS
+---------------------------
+
+// 1. Single Field Index
+> db.orders.createIndex({ customer: 1 })
+OUTPUT: "customer_1"
+
+// 2. Compound Index
+> db.orders.createIndex({ customer: 1, amount: -1 })
+OUTPUT: "customer_1_amount_-1"
+
+// 3. Multikey Index (Arrays)
+> db.orders.createIndex({ items: 1 })
+OUTPUT: "items_1"
+
+// 4. Text Index
+> db.orders.createIndex({ items: "text" })
+OUTPUT: "items_text"
+
+// 5. Hashed Index
+> db.orders.createIndex({ customer: "hashed" })
+OUTPUT: "customer_hashed"
+
+// 6. Geospatial Index
+db.places.insertOne({ loc: [ -73.97, 40.77 ] })
+> db.places.createIndex({ loc: "2dsphere" })
+OUTPUT: "loc_2dsphere"
+
+// 7. Partial Index
+> db.orders.createIndex(
+  { customer: 1 },
+  { partialFilterExpression: { amount: { $gt: 100 } } }
+)
+OUTPUT: "customer_1"
+
+// 8. TTL Index
+> db.logs.createIndex(
+  { createdAt: 1 },
+  { expireAfterSeconds: 3600 }
+)
+OUTPUT: "createdAt_1"
+
+// 9. Unique Index
+> db.customers.createIndex(
+  { email: 1 },
+  { unique: true }
+)
+OUTPUT: "email_1"
+
+// 10. Case Insensitive Index
+> db.customers.createIndex(
+  { name: 1 },
+  { collation: { locale: "en", strength: 2 } }
+)
+OUTPUT: "name_1"
+
+| Index Type            | Command Example                              | Purpose                            |
+| --------------------- | -------------------------------------------- | ---------------------------------- |
+| Single Field          | `{ customer: 1 }`                            | Fast search on one field           |
+| Compound              | `{ customer: 1, amount: -1 }`                | Combined field queries and sorting |
+| Multikey (Array)      | `{ items: 1 }`                               | Array field search                 |
+| Text Search           | `{ items: "text" }`                          | Full-text search                   |
+| Hashed                | `{ customer: "hashed" }`                     | Sharding, exact match              |
+| Geospatial (2dsphere) | `{ loc: "2dsphere" }`                        | Geo queries (location, proximity)  |
+| Partial               | `{ customer: 1 }, filter on amount > 100`    | Index specific docs, reduce size   |
+| TTL                   | `{ createdAt: 1 }, expireAfterSeconds: 3600` | Auto-delete after time             |
+| Unique                | `{ email: 1 }, unique: true`                 | Prevent duplicates                 |
+| Case-Insensitive      | `{ name: 1 }, collation: { strength: 2 }`    | Match names ignoring case          |
+
+
+3. INDEX USAGE ANALYSIS
+-----------------------
+
+// View all indexes
+> db.orders.getIndexes()
+
+// Check index usage
+> db.orders.find({ customer: "A" }).explain("executionStats")
+
+// Force index hint
+> db.orders.find({ amount: { $gt: 100 } })
+  .hint({ customer: 1 })
+  .explain()
+
+// Index stats
+> db.orders.aggregate([ { $indexStats: { } } ])
+
+4. SPECIALIZED AGGREGATION OPERATORS
+------------------------------------
+
+// $graphLookup (Recursive)
+db.employees.insertMany([
+  { _id: 1, name: "CEO", reportsTo: null },
+  { _id: 2, name: "CTO", reportsTo: 1 },
+  { _id: 3, name: "Dev", reportsTo: 2 }
+])
+
+> db.employees.aggregate([
+  { $graphLookup: {
+      from: "employees",
+      startWith: "$reportsTo",
+      connectFromField: "reportsTo",
+      connectToField: "_id",
+      as: "managementChain"
+    }
+  }
+])
+
+This query finds the management hierarchy (chain of command) for each employee by recursively looking up who each person reports to, all the way up to the top.
+
+| Option                          | Description                                             |
+| ------------------------------- | ------------------------------------------------------- |
+| `from: "employees"`             | Search within the same collection.                  |
+| `startWith: "$reportsTo"`       | Start from the person this employee reports to.     |
+| `connectFromField: "reportsTo"` | Go up the chain using the `reportsTo` field.        |
+| `connectToField: "_id"`         | Match `reportsTo` to another person's `_id`.            |
+| `as: "managementChain"`         | Output the management chain into a new array field. |
+
+
+5. PERFORMANCE OPTIMIZATION
+--------------------------
+
+// Covered Query
+> db.orders.createIndex({ customer: 1, amount: 1 })
+> db.orders.find(
+  { customer: "A" },
+  { _id: 0, customer: 1, amount: 1 }
+) 
+
+// Index Intersection
+> db.orders.createIndex({ customer: 1 })
+> db.orders.createIndex({ amount: 1 })
+> db.orders.find({
+  customer: "A",
+  amount: { $gt: 100 }
+}).explain() // Uses both indexes

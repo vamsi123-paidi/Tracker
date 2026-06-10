@@ -1,0 +1,562 @@
+🔹 STEP 0: DATABASE & COLLECTION SETUP (FULL)
+
+js
+use shopDB
+
+js
+db.orders.insertMany([
+  {
+    _id: 1,
+    customer: "A",
+    amount: 120,
+    date: ISODate("2023-01-01"),
+    items: ["pen", "book"],
+    category: "stationery",
+    city: "Hyderabad"
+  },
+  {
+    _id: 2,
+    customer: "B",
+    amount: 80,
+    date: ISODate("2023-01-02"),
+    items: ["pencil"],
+    category: "stationery",
+    city: "Bangalore"
+  },
+  {
+    _id: 3,
+    customer: "A",
+    amount: 200,
+    date: ISODate("2023-02-01"),
+    items: ["book", "eraser"],
+    category: "stationery",
+    city: "Hyderabad"
+  },
+  {
+    _id: 4,
+    customer: "C",
+    amount: 300,
+    date: ISODate("2023-02-10"),
+    items: ["bag"],
+    category: "accessories",
+    city: "Chennai"
+  }
+])
+
+---
+
+# 🔥 What is Aggregation in MongoDB?
+
+Aggregation = Data Processing Pipeline
+
+👉 Similar to SQL:
+
+| SQL      | MongoDB             |
+| -------- | ------------------- |
+| SELECT   | $project            |
+| WHERE    | $match              |
+| GROUP BY | $group              |
+| JOIN     | $lookup             |
+| HAVING   | $match after $group |
+| ORDER BY | $sort               |
+
+MongoDB processes data in stages like a pipeline.
+
+---
+
+# 1️⃣ $match — FILTERING STAGE
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $match: { amount: { $gt: 100 } }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  {
+    _id: 1,
+    customer: "A",
+    amount: 120,
+    date: ISODate("2023-01-01"),
+    items: ["pen", "book"],
+    category: "stationery",
+    city: "Hyderabad"
+  },
+  {
+    _id: 3,
+    customer: "A",
+    amount: 200,
+    date: ISODate("2023-02-01"),
+    items: ["book", "eraser"],
+    category: "stationery",
+    city: "Hyderabad"
+  },
+  {
+    _id: 4,
+    customer: "C",
+    amount: 300,
+    date: ISODate("2023-02-10"),
+    items: ["bag"],
+    category: "accessories",
+    city: "Chennai"
+  }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+# What $match does?
+
+* Filters documents based on condition.
+* Works like SQL WHERE clause.
+
+# Condition used:
+
+js
+amount > 100
+
+
+# Step-by-step:
+
+1. MongoDB scans documents.
+2. Checks each document’s amount.
+3. Keeps only documents where amount > 100.
+4. Removes others.
+
+---
+
+# 2️⃣ $group — GROUPING + CALCULATION
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $group: {
+      _id: "$customer",
+      totalAmount: { $sum: "$amount" },
+      averageAmount: { $avg: "$amount" },
+      maxAmount: { $max: "$amount" },
+      minAmount: { $min: "$amount" },
+      orderCount: { $sum: 1 }
+    }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  {
+    _id: "A",
+    totalAmount: 320,
+    averageAmount: 160,
+    maxAmount: 200,
+    minAmount: 120,
+    orderCount: 2
+  },
+  {
+    _id: "B",
+    totalAmount: 80,
+    averageAmount: 80,
+    maxAmount: 80,
+    minAmount: 80,
+    orderCount: 1
+  },
+  {
+    _id: "C",
+    totalAmount: 300,
+    averageAmount: 300,
+    maxAmount: 300,
+    minAmount: 300,
+    orderCount: 1
+  }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+# What $group does?
+
+* Groups documents based on a field.
+* Performs calculations on grouped data.
+
+# Group key:
+
+js
+_id: "$customer"
+
+
+Means:
+
+* Group all orders by customer.
+
+# Accumulators:
+
+| Operator | Meaning         |
+| -------- | --------------- |
+| $sum     | Adds values     |
+| $avg     | Average         |
+| $max     | Maximum         |
+| $min     | Minimum         |
+| $sum: 1  | Count documents |
+
+---
+
+# Example for Customer "A":
+
+Orders:
+
+
+120
+200
+
+
+Calculations:
+
+
+totalAmount = 120 + 200 = 320
+averageAmount = 320 / 2 = 160
+maxAmount = 200
+minAmount = 120
+orderCount = 2
+
+
+---
+
+# 3️⃣ $project — FIELD TRANSFORMATION
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $project: {
+      customer: 1,
+      amount: 1,
+      city: 1,
+      discount: { $multiply: ["$amount", 0.1] },
+      year: { $year: "$date" },
+      month: { $month: "$date" }
+    }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  {
+    _id: 1,
+    customer: "A",
+    amount: 120,
+    city: "Hyderabad",
+    discount: 12,
+    year: 2023,
+    month: 1
+  },
+  {
+    _id: 2,
+    customer: "B",
+    amount: 80,
+    city: "Bangalore",
+    discount: 8,
+    year: 2023,
+    month: 1
+  },
+  {
+    _id: 3,
+    customer: "A",
+    amount: 200,
+    city: "Hyderabad",
+    discount: 20,
+    year: 2023,
+    month: 2
+  },
+  {
+    _id: 4,
+    customer: "C",
+    amount: 300,
+    city: "Chennai",
+    discount: 30,
+    year: 2023,
+    month: 2
+  }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+# What $project does?
+
+* Selects fields
+* Removes fields
+* Creates new calculated fields
+
+# Example:
+
+js
+discount: { $multiply: ["$amount", 0.1] }
+
+
+Means:
+
+
+discount = amount × 10%
+
+
+---
+
+# 4️⃣ $unwind — ARRAY EXPLOSION
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $unwind: "$items"
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  { _id: 1, customer: "A", amount: 120, items: "pen" },
+  { _id: 1, customer: "A", amount: 120, items: "book" },
+  { _id: 2, customer: "B", amount: 80, items: "pencil" },
+  { _id: 3, customer: "A", amount: 200, items: "book" },
+  { _id: 3, customer: "A", amount: 200, items: "eraser" },
+  { _id: 4, customer: "C", amount: 300, items: "bag" }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+# What $unwind does?
+
+* Converts array into multiple documents.
+
+# Example:
+
+Before unwind:
+
+js
+items: ["pen", "book"]
+
+
+After unwind:
+
+js
+items: "pen"
+items: "book"
+
+
+---
+
+# 5️⃣ $sort — SORTING
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $sort: { amount: -1 }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  { _id: 4, amount: 300 },
+  { _id: 3, amount: 200 },
+  { _id: 1, amount: 120 },
+  { _id: 2, amount: 80 }
+]
+
+
+---
+
+ ✅ Explanation
+
+* -1 = descending order
+* 1 = ascending order
+
+---
+
+# 6️⃣ $limit — LIMIT RESULTS
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  { $sort: { amount: -1 } },
+  { $limit: 2 }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  { _id: 4, amount: 300 },
+  { _id: 3, amount: 200 }
+]
+
+
+---
+
+# 7️⃣ $lookup — JOIN (VERY IMPORTANT)
+
+---
+
+ ✅ Insert Customers Collection
+
+js
+db.customers.insertMany([
+  { _id: "A", name: "Alice", age: 25 },
+  { _id: "B", name: "Bob", age: 28 },
+  { _id: "C", name: "Charlie", age: 30 }
+])
+
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "customers",
+      localField: "customer",
+      foreignField: "_id",
+      as: "customerInfo"
+    }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  {
+    _id: 1,
+    customer: "A",
+    amount: 120,
+    customerInfo: [
+      { _id: "A", name: "Alice", age: 25 }
+    ]
+  }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+# What $lookup does?
+
+* Performs JOIN between two collections.
+
+# Mapping:
+
+
+orders.customer  ↔ customers._id
+
+
+---
+
+# 8️⃣ $facet — MULTIPLE PIPELINES
+
+---
+
+ ✅ Code
+
+js
+db.orders.aggregate([
+  {
+    $facet: {
+      totalSales: [
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ],
+      byCity: [
+        { $group: { _id: "$city", total: { $sum: "$amount" } } }
+      ]
+    }
+  }
+])
+
+
+---
+
+ ✅ Output
+
+js
+[
+  {
+    totalSales: [
+      { _id: null, total: 700 }
+    ],
+    byCity: [
+      { _id: "Hyderabad", total: 320 },
+      { _id: "Bangalore", total: 80 },
+      { _id: "Chennai", total: 300 }
+    ]
+  }
+]
+
+
+---
+
+ ✅ Deep Explanation
+
+* Runs multiple aggregations in one query.
+

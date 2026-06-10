@@ -7,6 +7,7 @@ import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } f
 import { handleChat } from '../controllers/chatController.js';
 import { createQuiz, toggleQuizActive, getTrainerQuizzes, getQuizResultsForTrainer, getActiveQuizzes, submitQuiz, getStudentQuizResults } from '../controllers/quizController.js';
 import { getAssessments, submitAssessment, getLeaderboard, getStudentAnalytics } from '../controllers/assessmentController.js';
+import { getMernResources, getNoteContent, downloadFile, verifyMernAnswer, getMernQuestions } from '../controllers/mernController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { upload, uploadRoster } from '../middleware/upload.js';
 
@@ -53,5 +54,12 @@ router.get('/assessments', authenticateToken, requireRole('student'), getAssessm
 router.post('/assessments/:id/submit', authenticateToken, requireRole('student'), submitAssessment);
 router.get('/assessments/leaderboard', authenticateToken, getLeaderboard);
 router.get('/admin/student-analytics/:id', authenticateToken, requireRole('trainer'), getStudentAnalytics);
+
+// MERN Prep & Project Hub Resources
+router.get('/mern/resources', authenticateToken, requireRole('student'), getMernResources);
+router.get('/mern/questions', authenticateToken, requireRole('student'), getMernQuestions);
+router.get('/mern/notes/content', authenticateToken, requireRole('student'), getNoteContent);
+router.get('/mern/download', authenticateToken, requireRole('student'), downloadFile);
+router.post('/mern/verify-answer', authenticateToken, requireRole('student'), verifyMernAnswer);
 
 export default router;

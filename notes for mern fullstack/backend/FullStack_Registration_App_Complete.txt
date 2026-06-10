@@ -1,0 +1,474 @@
+
+Full Stack Registration Form Project (React + Express + Multer + MongoDB Atlas)
+================================================================================
+
+📁 Folder Structure:
+--------------------
+registration-app/
+├── client/                    # Frontend React app
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── RegistrationForm.jsx
+|    |  |__ UserList.jsx
+│   │   └── main.jsx
+│   └── package.json
+├── server/                    # Backend Express server
+│   ├── server.js
+│   ├── models/
+│   │   └── User.js
+│   ├── uploads/               # Folder where uploaded files will be stored
+│   └── package.json
+|   |__ .env
+└── README.txt (this file)
+
+====================================================================
+🔧 Step-by-Step Setup:
+====================================================================
+
+1. 📦 Initialize Backend (server):
+----------------------------------
+Create the folder `server`, and run:
+
+    npm init -y
+    npm install express multer mongoose cors nodemon
+
+Then create the following files:
+
+▶ server/server.js
+------------------
+const express = require('express');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const dotenv = require('dotenv');
+dotenv.config()
+const cors = require('cors');
+const path = require('path');
+const User = require('./models/User');
+
+const app = express();
+const PORT = 5000;
+
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+mongo_url=process.env.MONGO_URL
+// MongoDB Atlas connection
+try{
+    mongoose.connect(mongo_url);
+    console.log("mongodb connected")
+}catch{
+    console.log("error occured in connection")
+}
+
+// Multer config
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+const upload = multer({ storage });
+
+// Routes
+app.post('/register', upload.single('file'), async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      dob,
+      residentialAddress,
+      permanentAddress,
+    } = req.body;
+
+    const filePath = req.file ? req.file.path : null;
+
+    const user = new User({
+      name,
+      email,
+      dob,
+      residentialAddress,
+      permanentAddress,
+      filePath,
+    });
+
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET all users
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.find(); 
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+▶ server/models/User.js
+-------------------------
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  dob: String,
+  residentialAddress: String,
+  permanentAddress: String,
+  filePath: String,
+});
+
+module.exports = mongoose.model('User', userSchema);
+
+====================================================================
+
+2. 🎨 Setup Frontend (client):
+------------------------------
+
+Run in terminal:
+
+    npm create vite@latest .
+    npm install axios
+
+Then create the following files:
+
+▶ client/src/main.jsx
+-----------------------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+▶ client/src/App.jsx
+----------------------
+import React, { useState } from 'react';
+import RegistrationForm from './components/RegistrationForm';
+import UsersList from './components/UserList';
+
+const App = () => {
+  const [showUsers, setShowUsers] = useState(false);   // controls visibility
+  const [hasData, setHasData] = useState(false);       // tracks submission
+
+  // handle form submit: receive trigger from form
+  const handleFormSubmit = () => {
+    setHasData(true);
+    setShowUsers(false); // hide users until button is clicked
+  };
+
+  return (
+    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+      <RegistrationForm onSubmitSuccess={handleFormSubmit} />
+
+      <button
+        onClick={() => setShowUsers(true)}
+        disabled={!hasData}
+        style={{
+          marginTop: '20px',
+          padding: '10px 20px',
+          fontSize: '16px',
+          cursor: hasData ? 'pointer' : 'not-allowed',
+          backgroundColor: hasData ? '#007bff' : '#ccc',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px'
+        }}
+      >
+        Submitted Data
+      </button>
+
+      {showUsers && <UsersList />}
+    </div>
+  );
+};
+
+export default App;
+
+▶ client/src/RegistrationForm.jsx
+-----------------------------------
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const RegistrationForm = ({ onSubmitSuccess }) => {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    dob: '',
+    residentialAddress: '',
+    permanentAddress: '',
+  });
+
+  const [sameAddress, setSameAddress] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckbox = () => {
+    const newSame = !sameAddress;
+    setSameAddress(newSame);
+
+    if (newSame) {
+      setForm(prev => ({
+        ...prev,
+        permanentAddress: prev.residentialAddress
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('email', form.email);
+    formData.append('dob', form.dob);
+    formData.append('residentialAddress', form.residentialAddress);
+    formData.append('permanentAddress', form.permanentAddress);
+    if (file) formData.append('file', file);
+
+    try {
+      await axios.post('http://localhost:5000/register', formData);
+      alert('Registered successfully');
+      if (onSubmitSuccess) onSubmitSuccess(); // trigger parent callback if provided
+
+      // Reset form
+      setForm({
+        name: '',
+        email: '',
+        dob: '',
+        residentialAddress: '',
+        permanentAddress: '',
+      });
+      setSameAddress(false);
+      setFile(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error submitting form');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ width: '400px', margin: 'auto' }}>
+      <h2>Registration Form</h2>
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        value={form.name}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="date"
+        name="dob"
+        value={form.dob}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <textarea
+        name="residentialAddress"
+        placeholder="Residential Address"
+        value={form.residentialAddress}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <label>
+        <input
+          type="checkbox"
+          checked={sameAddress}
+          onChange={handleCheckbox}
+        />
+        Same as Residential Address
+      </label><br />
+
+      <textarea
+        name="permanentAddress"
+        placeholder="Permanent Address"
+        value={form.permanentAddress}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+        required
+      /><br /><br />
+
+      <button type="submit">Register</button>
+    </form>
+  );
+};
+
+export default RegistrationForm;
+
+▶ client/src/UserList.jsx
+-----------------------------------
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const RegistrationForm = ({ onSubmitSuccess }) => {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    dob: '',
+    residentialAddress: '',
+    permanentAddress: '',
+  });
+
+  const [sameAddress, setSameAddress] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckbox = () => {
+    const newSame = !sameAddress;
+    setSameAddress(newSame);
+
+    if (newSame) {
+      setForm(prev => ({
+        ...prev,
+        permanentAddress: prev.residentialAddress
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('email', form.email);
+    formData.append('dob', form.dob);
+    formData.append('residentialAddress', form.residentialAddress);
+    formData.append('permanentAddress', form.permanentAddress);
+    if (file) formData.append('file', file);
+
+    try {
+      await axios.post('http://localhost:5000/register', formData);
+      alert('Registered successfully');
+      if (onSubmitSuccess) onSubmitSuccess(); // trigger parent callback if provided
+
+      // Reset form
+      setForm({
+        name: '',
+        email: '',
+        dob: '',
+        residentialAddress: '',
+        permanentAddress: '',
+      });
+      setSameAddress(false);
+      setFile(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error submitting form');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ width: '400px', margin: 'auto' }}>
+      <h2>Registration Form</h2>
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        value={form.name}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="date"
+        name="dob"
+        value={form.dob}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <textarea
+        name="residentialAddress"
+        placeholder="Residential Address"
+        value={form.residentialAddress}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <label>
+        <input
+          type="checkbox"
+          checked={sameAddress}
+          onChange={handleCheckbox}
+        />
+        Same as Residential Address
+      </label><br />
+
+      <textarea
+        name="permanentAddress"
+        placeholder="Permanent Address"
+        value={form.permanentAddress}
+        onChange={handleChange}
+        required
+      /><br />
+
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+        required
+      /><br /><br />
+
+      <button type="submit">Register</button>
+    </form>
+  );
+};
+
+export default RegistrationForm;
+
+====================================================================
+✅ RUNNING THE APP:
+--------------------
+1. Start Backend:
+   cd server
+   npm run dev 
+
+2. Start Frontend:
+   cd client
+   npm run dev
+
