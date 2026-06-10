@@ -4173,10 +4173,9 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              {/* Main Content Split: Resources on Left, Project Hub on Right */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }} className="dashboard-grid">
+              {/* Main Content Pane (Full Width) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 
-                {/* Left Column: MERN Tabs Content */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   
                   {/* SUB-TAB 1: INTERACTIVE INTERVIEW QUESTIONS */}
@@ -4491,14 +4490,21 @@ export default function StudentDashboard() {
                             </p>
                           </div>
 
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+                          {/* Folder Grid */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
                             {[
-                              { key: 'frontend', title: 'Frontend Development', icon: '💻', desc: 'HTML foundations, CSS styling layouts, JavaScript ES6 engines, React Hooks, and Redux.' },
-                              { key: 'backend', title: 'Backend Engineering', icon: '⚙️', desc: 'Node.js runtime, Express web controllers, server middleware patterns, routing, validation.' },
-                              { key: 'mongodb', title: 'MongoDB Databases', icon: '🍃', desc: 'NoSQL architecture, Mongoose schemas, document CRUD validations, index aggregation.' },
-                              { key: 'bonus', title: 'Case Studies & Bonus', icon: '🎁', desc: 'Dynamic project templates, production checklists, full-stack application blueprints.' }
+                              { key: 'frontend', title: 'Frontend Development', icon: '💻', desc: 'HTML foundations, CSS styling layouts, JavaScript ES6 engines, React Hooks, and Redux.', type: 'folder' },
+                              { key: 'backend', title: 'Backend Engineering', icon: '⚙️', desc: 'Node.js runtime, Express web controllers, server middleware patterns, routing, validation.', type: 'folder' },
+                              { key: 'mongodb', title: 'MongoDB Databases', icon: '🍃', desc: 'NoSQL architecture, Mongoose schemas, document CRUD validations, index aggregation.', type: 'folder' },
+                              { key: 'interview', title: 'Interview Prep Documents', icon: '📂', desc: 'Core Q&A PDF documents for HTML, CSS, JS, Bootstrap, React, and Backend.', type: 'interview' },
+                              { key: 'bonus', title: 'Project Zips (Bonus)', icon: '🎁', desc: 'Curated starter projects and assignment boilerplates in ZIP format.', type: 'folder' }
                             ].map((folder) => {
-                              const filesCount = mernResources ? flattenResources(mernResources.notes).filter(file => file.path.split('/')[0]?.toLowerCase() === folder.key).length : 0;
+                              let filesCount = 0;
+                              if (folder.type === 'interview') {
+                                filesCount = mernResources?.interviewFiles?.length || 0;
+                              } else {
+                                filesCount = mernResources ? flattenResources(mernResources.notes).filter(file => file.path.split('/')[0]?.toLowerCase() === folder.key).length : 0;
+                              }
                               return (
                                 <div 
                                   key={folder.key} 
@@ -4538,6 +4544,80 @@ export default function StudentDashboard() {
                               );
                             })}
                           </div>
+
+                          {/* Featured Materials Section */}
+                          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border-glass)', paddingTop: '2rem' }}>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', marginBottom: '1.25rem' }}>★ Core Full-Stack Materials</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                              {(() => {
+                                const flatNotes = mernResources ? flattenResources(mernResources.notes) : [];
+                                const currFile = flatNotes.find(f => f.name.toLowerCase().includes('curriculum'));
+                                const notesFile = flatNotes.find(f => f.name.toLowerCase().includes('complete notes'));
+                                
+                                return [
+                                  {
+                                    file: currFile,
+                                    defaultName: 'Full-Stack Devlopment Curriculum.pdf',
+                                    title: 'Full-Stack Development Curriculum',
+                                    desc: 'Full course syllabus map, technologies checklist, and weekly deliverables.',
+                                    icon: '📋'
+                                  },
+                                  {
+                                    file: notesFile,
+                                    defaultName: 'MERN STACK COMPLETE NOTES.pdf',
+                                    title: 'MERN Stack Complete Notes',
+                                    desc: 'Comprehensive study notes spanning HTML, CSS, JS, Bootstrap, React, and Backend.',
+                                    icon: '📖'
+                                  }
+                                ].map((item, idx) => {
+                                  const sizeText = item.file ? `${(item.file.size / 1024).toFixed(1)} KB` : 'PDF Document';
+                                  const path = item.file?.path || `bonus/${item.defaultName}`;
+                                  const downloadObj = item.file || { path, name: item.defaultName, type: 'pdf' };
+                                  
+                                  return (
+                                    <div 
+                                      key={idx}
+                                      className="glass-panel tilt-card"
+                                      style={{ 
+                                        padding: '1.5rem', 
+                                        display: 'flex', 
+                                        flexDirection: 'column', 
+                                        justifyContent: 'space-between',
+                                        gap: '1rem',
+                                        border: '1.5px solid rgba(16,185,129,0.3)',
+                                        background: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                        transition: 'all 0.3s ease'
+                                      }}
+                                    >
+                                      <div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                          <span style={{ fontSize: '2rem' }}>{item.icon}</span>
+                                          <span style={{ fontSize: '0.65rem', background: 'rgba(16,185,129,0.1)', color: 'var(--neon-secondary)', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                            FEATURED PDF
+                                          </span>
+                                        </div>
+                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '8px 0 4px 0' }}>{item.title}</h4>
+                                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{item.desc}</p>
+                                      </div>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed rgba(16,185,129,0.1)', paddingTop: '10px' }}>
+                                        <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
+                                          {sizeText}
+                                        </span>
+                                        <button
+                                          onClick={() => handleDownloadMernFile(downloadObj, 'notes')}
+                                          className="btn-neon"
+                                          style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                        >
+                                          Download
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          </div>
+
                         </div>
                       ) : (
                         /* Selected Note Folder workspace view */
@@ -4558,7 +4638,7 @@ export default function StudentDashboard() {
                               </button>
                               <div>
                                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
-                                  {selectedNoteFolder === 'frontend' ? 'Frontend Development' : selectedNoteFolder === 'backend' ? 'Backend Engineering' : selectedNoteFolder === 'mongodb' ? 'MongoDB Database' : 'Case Studies & Bonus'} Resources
+                                  {selectedNoteFolder === 'frontend' ? 'Frontend Development' : selectedNoteFolder === 'backend' ? 'Backend Engineering' : selectedNoteFolder === 'mongodb' ? 'MongoDB Database' : selectedNoteFolder === 'interview' ? 'Interview Prep Documents' : 'Project Zips (Bonus)'} Resources
                                 </h3>
                                 <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: '2px 0 0 0' }}>Explore and study the materials inside this folder.</p>
                               </div>
@@ -4590,10 +4670,12 @@ export default function StudentDashboard() {
                           {/* Notes Cards Grid */}
                           {mernResources ? (
                             (() => {
-                              const flatNotes = flattenResources(mernResources.notes);
-                              const filtered = flatNotes.filter(file => {
-                                const parentFolder = file.path.split('/')[0]?.toLowerCase();
-                                if (parentFolder !== selectedNoteFolder) return false;
+                              const filesSource = selectedNoteFolder === 'interview' ? (mernResources.interviewFiles || []) : flattenResources(mernResources.notes);
+                              const filtered = filesSource.filter(file => {
+                                if (selectedNoteFolder !== 'interview') {
+                                  const parentFolder = file.path.split('/')[0]?.toLowerCase();
+                                  if (parentFolder !== selectedNoteFolder) return false;
+                                }
                                 
                                 const meta = getFileMeta(file);
                                 const matchesSearch = file.name.toLowerCase().includes(noteSearchQuery.toLowerCase()) || meta.displayName.toLowerCase().includes(noteSearchQuery.toLowerCase());
@@ -4686,7 +4768,7 @@ export default function StudentDashboard() {
                                                 Study Note
                                               </button>
                                               <button
-                                                onClick={() => handleDownloadMernFile(file, 'notes')}
+                                                onClick={() => handleDownloadMernFile(file, selectedNoteFolder === 'interview' ? 'interview' : 'notes')}
                                                 className="btn-glass"
                                                 style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '6px' }}
                                                 title="Download TXT file"
@@ -4696,7 +4778,7 @@ export default function StudentDashboard() {
                                             </>
                                           ) : (
                                             <button
-                                              onClick={() => handleDownloadMernFile(file, 'notes')}
+                                              onClick={() => handleDownloadMernFile(file, selectedNoteFolder === 'interview' ? 'interview' : 'notes')}
                                               className="btn-neon"
                                               style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
                                             >
@@ -4719,74 +4801,6 @@ export default function StudentDashboard() {
                       )}
                     </div>
                   )}
-
-
-                </div>
-
-                {/* Right Column: Platform Core Links & Curriculum Guide */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  
-                  {/* Card 1: Core Portal Repository */}
-                  <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(245,158,11,0.25)', background: 'linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(255,107,53,0.01) 100%)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '1.2rem', color: 'var(--neon-primary)' }}>✦</span>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>Active SRU Project Repository</h4>
-                    </div>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
-                      This project repository is active and deployed. Students can review and clone the main academic codebase directly.
-                    </p>
-                    <a
-                      href="https://github.com/vamsi123-paidi/SRU"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-neon"
-                      style={{ textDecoration: 'none', display: 'block', textAlign: 'center', padding: '10px', fontSize: '0.8rem', borderRadius: '8px' }}
-                    >
-                      View SRU on GitHub
-                    </a>
-                  </div>
-
-                  {/* Card 2: Interview PDFs quick links */}
-                  <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.5rem', margin: 0 }}>
-                      Interview Material Downloads
-                    </h4>
-                    
-                    {mernResources && mernResources.interviewFiles ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {mernResources.interviewFiles.map((file, idx) => (
-                          <div 
-                            key={idx}
-                            onClick={() => handleDownloadMernFile(file, 'interview')}
-                            style={{ 
-                              display: 'flex', 
-                              justifyContent: 'space-between', 
-                              alignItems: 'center',
-                              fontSize: '0.75rem',
-                              padding: '6px 8px',
-                              borderRadius: '4px',
-                              background: 'rgba(255,255,255,0.02)',
-                              cursor: 'pointer',
-                              border: '1px solid var(--border-glass)'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-glass-hover)'}
-                            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-glass)'}
-                          >
-                            <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '180px' }}>
-                              📥 {file.name.replace(/^\d+-/, '')}
-                            </span>
-                            <span style={{ fontSize: '0.65rem', color: 'var(--neon-primary)', fontFamily: 'monospace' }}>
-                              {file.type.toUpperCase()}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        Loading PDF list...
-                      </div>
-                    )}
-                  </div>
 
                 </div>
 
