@@ -4553,6 +4553,7 @@ export default function StudentDashboard() {
                                 const flatNotes = mernResources ? flattenResources(mernResources.notes) : [];
                                 const currFile = flatNotes.find(f => f.name.toLowerCase().includes('curriculum'));
                                 const notesFile = flatNotes.find(f => f.name.toLowerCase().includes('complete notes'));
+                                const interviewZip = flatNotes.find(f => f.name.toLowerCase().includes('interview questions'));
                                 
                                 return [
                                   {
@@ -4560,19 +4561,72 @@ export default function StudentDashboard() {
                                     defaultName: 'Full-Stack Devlopment Curriculum.pdf',
                                     title: 'Full-Stack Development Curriculum',
                                     desc: 'Full course syllabus map, technologies checklist, and weekly deliverables.',
-                                    icon: '📋'
+                                    icon: '📋',
+                                    badgeText: 'FEATURED PDF',
+                                    badgeColor: 'var(--neon-secondary)',
+                                    badgeBg: 'rgba(16,185,129,0.1)',
+                                    borderColor: 'rgba(16,185,129,0.3)',
+                                    bgGradient: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                    actionType: 'download',
+                                    folder: 'notes'
                                   },
                                   {
                                     file: notesFile,
                                     defaultName: 'MERN STACK COMPLETE NOTES.pdf',
                                     title: 'MERN Stack Complete Notes',
                                     desc: 'Comprehensive study notes spanning HTML, CSS, JS, Bootstrap, React, and Backend.',
-                                    icon: '📖'
+                                    icon: '📖',
+                                    badgeText: 'FEATURED PDF',
+                                    badgeColor: 'var(--neon-secondary)',
+                                    badgeBg: 'rgba(16,185,129,0.1)',
+                                    borderColor: 'rgba(16,185,129,0.3)',
+                                    bgGradient: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                    actionType: 'download',
+                                    folder: 'notes'
+                                  },
+                                  {
+                                    file: interviewZip,
+                                    defaultName: 'Interview Questions.zip',
+                                    title: 'Interview Q&A Bundle',
+                                    desc: 'Comprehensive zipped questions and answers covering HTML, CSS, JS, React, and Backend.',
+                                    icon: '🎁',
+                                    badgeText: 'ZIP ARCHIVE',
+                                    badgeColor: 'var(--neon-primary)',
+                                    badgeBg: 'rgba(245,158,11,0.1)',
+                                    borderColor: 'rgba(245,158,11,0.3)',
+                                    bgGradient: 'linear-gradient(135deg, rgba(245,158,11,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                    actionType: 'download',
+                                    folder: 'notes'
+                                  },
+                                  {
+                                    file: null,
+                                    url: 'https://github.com/vamsi123-paidi/SRU',
+                                    title: 'Active SRU Codebase',
+                                    desc: 'Live Git repository tracking codebase templates, assignments, and resource systems.',
+                                    icon: '💻',
+                                    badgeText: 'GITHUB REPO',
+                                    badgeColor: '#3b82f6',
+                                    badgeBg: 'rgba(59,130,246,0.1)',
+                                    borderColor: 'rgba(59,130,246,0.3)',
+                                    bgGradient: 'linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                    actionType: 'link',
+                                    btnText: 'View Repo'
                                   }
                                 ].map((item, idx) => {
-                                  const sizeText = item.file ? `${(item.file.size / 1024).toFixed(1)} KB` : 'PDF Document';
-                                  const path = item.file?.path || `bonus/${item.defaultName}`;
-                                  const downloadObj = item.file || { path, name: item.defaultName, type: 'pdf' };
+                                  let sizeText = 'External Link';
+                                  let downloadObj: any = null;
+                                  
+                                  if (item.actionType === 'download') {
+                                    const defName = item.defaultName || '';
+                                    sizeText = item.file ? `${(item.file.size / 1024).toFixed(1)} KB` : 'ZIP Archive';
+                                    if (item.file && item.file.size > 1024 * 1024) {
+                                      sizeText = `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`;
+                                    }
+                                    const path = item.file?.path || `bonus/${defName}`;
+                                    downloadObj = item.file || { path, name: defName, type: defName.endsWith('.zip') ? 'zip' : 'pdf' };
+                                  } else {
+                                    sizeText = 'GitHub Repository';
+                                  }
                                   
                                   return (
                                     <div 
@@ -4584,32 +4638,44 @@ export default function StudentDashboard() {
                                         flexDirection: 'column', 
                                         justifyContent: 'space-between',
                                         gap: '1rem',
-                                        border: '1.5px solid rgba(16,185,129,0.3)',
-                                        background: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0.2) 100%)',
+                                        border: `1.5px solid ${item.borderColor}`,
+                                        background: item.bgGradient,
                                         transition: 'all 0.3s ease'
                                       }}
                                     >
                                       <div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                           <span style={{ fontSize: '2rem' }}>{item.icon}</span>
-                                          <span style={{ fontSize: '0.65rem', background: 'rgba(16,185,129,0.1)', color: 'var(--neon-secondary)', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
-                                            FEATURED PDF
+                                          <span style={{ fontSize: '0.65rem', background: item.badgeBg, color: item.badgeColor, padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                            {item.badgeText}
                                           </span>
                                         </div>
                                         <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '8px 0 4px 0' }}>{item.title}</h4>
                                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{item.desc}</p>
                                       </div>
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed rgba(16,185,129,0.1)', paddingTop: '10px' }}>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: `1px dashed ${item.borderColor}`, paddingTop: '10px' }}>
                                         <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
                                           {sizeText}
                                         </span>
-                                        <button
-                                          onClick={() => handleDownloadMernFile(downloadObj, 'notes')}
-                                          className="btn-neon"
-                                          style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '6px' }}
-                                        >
-                                          Download
-                                        </button>
+                                        {item.actionType === 'download' ? (
+                                          <button
+                                            onClick={() => handleDownloadMernFile(downloadObj, item.folder as any)}
+                                            className="btn-neon"
+                                            style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                          >
+                                            Download
+                                          </button>
+                                        ) : (
+                                          <a
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn-neon"
+                                            style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '6px', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}
+                                          >
+                                            {item.btnText || 'Open'}
+                                          </a>
+                                        )}
                                       </div>
                                     </div>
                                   );
