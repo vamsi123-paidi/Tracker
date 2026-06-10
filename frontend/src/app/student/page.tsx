@@ -738,6 +738,69 @@ const getFileMeta = (file: any) => {
   return { category, displayName };
 };
 
+const getInterviewFileMeta = (file: any) => {
+  const name = file.name.toLowerCase();
+  let category = 'MERN Stack';
+  let icon = '📄';
+  let color = '#a0aec0';
+  let badgeColor = 'var(--text-muted)';
+  let badgeBg = 'rgba(255,255,255,0.05)';
+  
+  if (name.includes('html')) {
+    category = 'HTML Essentials';
+    icon = '🌐';
+    color = '#ef6c00';
+    badgeColor = '#ef6c00';
+    badgeBg = 'rgba(239, 108, 0, 0.1)';
+  } else if (name.includes('css')) {
+    category = 'CSS Grid & Flexbox';
+    icon = '🎨';
+    color = '#0288d1';
+    badgeColor = '#0288d1';
+    badgeBg = 'rgba(2, 136, 209, 0.1)';
+  } else if (name.includes('bootstrap')) {
+    category = 'Bootstrap Framework';
+    icon = '🥾';
+    color = '#7b1fa2';
+    badgeColor = '#7b1fa2';
+    badgeBg = 'rgba(123, 31, 162, 0.1)';
+  } else if (name.includes('js') || name.includes('javascript')) {
+    category = 'JavaScript Core';
+    icon = '⚡';
+    color = '#fbc02d';
+    badgeColor = '#fbc02d';
+    badgeBg = 'rgba(251, 192, 45, 0.1)';
+  } else if (name.includes('react')) {
+    category = 'React.js Library';
+    icon = '⚛️';
+    color = '#00bcd4';
+    badgeColor = '#00bcd4';
+    badgeBg = 'rgba(0, 188, 212, 0.1)';
+  } else if (name.includes('backend') || name.includes('node') || name.includes('express')) {
+    category = 'Backend & API';
+    icon = '⚙️';
+    color = '#43a047';
+    badgeColor = '#43a047';
+    badgeBg = 'rgba(67, 160, 71, 0.1)';
+  }
+  
+  const cleanBase = file.name
+    .replace(/^\d+-/, '')
+    .replace(/\.pdf$|\.rar$|\.docx$|\.zip$/gi, '');
+  
+  let displayName = cleanBase.replace(/[_-]/g, ' ').replace(/\s+/g, ' ').trim();
+  displayName = displayName
+    .replace(/InterviewQuestions/gi, 'Interview Questions')
+    .replace(/CSSInterviewQuestions/gi, 'CSS Interview Questions')
+    .replace(/ReactInterviewQA/gi, 'React Interview Q&A')
+    .replace(/backendInterviewQA/gi, 'Backend Interview Q&A')
+    .replace(/JS_InterviewQuestions/gi, 'JavaScript Interview Questions')
+    .replace(/Javascript/gi, 'JavaScript')
+    .replace(/CheatSheet/gi, 'Cheat Sheet');
+    
+  return { category, icon, displayName, color, badgeColor, badgeBg };
+};
+
 export default function StudentDashboard() {
   const router = useRouter();
   
@@ -749,7 +812,7 @@ export default function StudentDashboard() {
   
   // Sidebar tab control
   const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'assessments' | 'tools' | 'achievements' | 'mern'>('milestones');
-  const [mernTab, setMernTab] = useState<'questions' | 'notes'>('questions');
+  const [mernTab, setMernTab] = useState<'questions' | 'notes' | 'interviewDocs'>('questions');
   const [selectedNoteFolder, setSelectedNoteFolder] = useState<string | null>(null);
   const [selectedInterviewTopic, setSelectedInterviewTopic] = useState<string | null>(null);
   const [mernSearchQuery, setMernSearchQuery] = useState('');
@@ -4170,6 +4233,13 @@ export default function StudentDashboard() {
                   >
                     📝 Full-Stack Notes
                   </button>
+                  <button 
+                    onClick={() => setMernTab('interviewDocs')} 
+                    className={`sidebar-btn ${mernTab === 'interviewDocs' ? 'active' : ''}`}
+                    style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
+                  >
+                    📂 Interview Questions
+                  </button>
                 </div>
               </div>
 
@@ -4553,7 +4623,6 @@ export default function StudentDashboard() {
                                 const flatNotes = mernResources ? flattenResources(mernResources.notes) : [];
                                 const currFile = flatNotes.find(f => f.name.toLowerCase().includes('curriculum'));
                                 const notesFile = flatNotes.find(f => f.name.toLowerCase().includes('complete notes'));
-                                const interviewZip = flatNotes.find(f => f.name.toLowerCase().includes('interview questions'));
                                 
                                 return [
                                   {
@@ -4581,20 +4650,6 @@ export default function StudentDashboard() {
                                     badgeBg: 'rgba(16,185,129,0.1)',
                                     borderColor: 'rgba(16,185,129,0.3)',
                                     bgGradient: 'linear-gradient(135deg, rgba(16,185,129,0.03) 0%, rgba(0,0,0,0.2) 100%)',
-                                    actionType: 'download',
-                                    folder: 'notes'
-                                  },
-                                  {
-                                    file: interviewZip,
-                                    defaultName: 'Interview Questions.zip',
-                                    title: 'Interview Q&A Bundle',
-                                    desc: 'Comprehensive zipped questions and answers covering HTML, CSS, JS, React, and Backend.',
-                                    icon: '🎁',
-                                    badgeText: 'ZIP ARCHIVE',
-                                    badgeColor: 'var(--neon-primary)',
-                                    badgeBg: 'rgba(245,158,11,0.1)',
-                                    borderColor: 'rgba(245,158,11,0.3)',
-                                    bgGradient: 'linear-gradient(135deg, rgba(245,158,11,0.03) 0%, rgba(0,0,0,0.2) 100%)',
                                     actionType: 'download',
                                     folder: 'notes'
                                   },
@@ -4865,6 +4920,97 @@ export default function StudentDashboard() {
                           )}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* SUB-TAB 3: INTERVIEW PDF DOCUMENTS GRID */}
+                  {mernTab === 'interviewDocs' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>RESOURCES_TELEMETRY</span>
+                          <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>Interview Question Documents</h3>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                            Download the official PDF and Word interview question guides with curated answers. All files have been rebranded with SPARK.io watermarks and headers.
+                          </p>
+                        </div>
+                        
+                        {/* Grid */}
+                        {mernResources ? (
+                          (() => {
+                            const files = (mernResources.interviewFiles || []).filter(
+                              (f: any) => f.name !== '3080473-2360478-HTML_Interview_Questions_and_Answers.pdf'
+                            );
+                            
+                            if (files.length === 0) {
+                              return (
+                                <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                  <span style={{ fontSize: '2rem' }}>🔍</span>
+                                  <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No documents found</h4>
+                                  <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>The interview questions directory is empty.</p>
+                                </div>
+                              );
+                            }
+                            
+                            return (
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                                {files.map((file: any, idx: number) => {
+                                  const meta = getInterviewFileMeta(file);
+                                  
+                                  return (
+                                    <div
+                                      key={idx}
+                                      className="glass-panel tilt-card"
+                                      style={{
+                                        padding: '1.5rem',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                        gap: '1rem',
+                                        border: `1.5px solid ${meta.badgeBg}`,
+                                        background: `linear-gradient(135deg, ${meta.badgeBg} 0%, rgba(0,0,0,0.2) 100%)`,
+                                        transition: 'all 0.3s ease'
+                                      }}
+                                    >
+                                      <div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                          <span style={{ fontSize: '2.5rem' }}>{meta.icon}</span>
+                                          <span style={{ fontSize: '0.65rem', background: meta.badgeBg, color: meta.badgeColor, padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                            {file.type.toUpperCase()}
+                                          </span>
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                                          {meta.category}
+                                        </div>
+                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '6px 0 4px 0', lineHeight: '1.4' }}>
+                                          {meta.displayName}
+                                        </h4>
+                                      </div>
+                                      
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed var(--border-glass)', paddingTop: '10px' }}>
+                                        <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
+                                          {(file.size / 1024).toFixed(1)} KB
+                                        </span>
+                                        <button
+                                          onClick={() => handleDownloadMernFile(file, 'interview')}
+                                          className="btn-neon"
+                                          style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '6px', border: `1px solid ${meta.badgeColor}`, boxShadow: `0 0 10px ${meta.badgeBg}` }}
+                                        >
+                                          Download
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 0' }}>
+                            Loading interview documents...
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
