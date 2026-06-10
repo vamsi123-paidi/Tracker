@@ -747,7 +747,9 @@ export default function StudentDashboard() {
   
   // Sidebar tab control
   const [activeTab, setActiveTab] = useState<'milestones' | 'quizzes' | 'playground' | 'compiler' | 'assessments' | 'tools' | 'achievements' | 'mern'>('milestones');
-  const [mernTab, setMernTab] = useState<'questions' | 'notes' | 'projects'>('questions');
+  const [mernTab, setMernTab] = useState<'questions' | 'notes'>('questions');
+  const [selectedNoteFolder, setSelectedNoteFolder] = useState<string | null>(null);
+  const [selectedInterviewTopic, setSelectedInterviewTopic] = useState<string | null>(null);
   const [mernSearchQuery, setMernSearchQuery] = useState('');
   const [mernCategoryFilter, setMernCategoryFilter] = useState('All');
   const [expandedMernQ, setExpandedMernQ] = useState<string | null>(null);
@@ -4166,13 +4168,6 @@ export default function StudentDashboard() {
                   >
                     📝 Full-Stack Notes
                   </button>
-                  <button 
-                    onClick={() => setMernTab('projects')} 
-                    className={`sidebar-btn ${mernTab === 'projects' ? 'active' : ''}`}
-                    style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
-                  >
-                    💻 Clone Starter Kits
-                  </button>
                 </div>
               </div>
 
@@ -4184,175 +4179,251 @@ export default function StudentDashboard() {
                   
                   {/* SUB-TAB 1: INTERACTIVE INTERVIEW QUESTIONS */}
                   {mernTab === 'questions' && (
-                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem' }}>
-                        <div>
-                          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Interactive Interview Practice</h3>
-                          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>First guess the answer, verify via Gemini AI review, then reveal standard answers.</p>
-                        </div>
-                        {/* Filters */}
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                          <select 
-                            value={mernCategoryFilter} 
-                            onChange={(e) => setMernCategoryFilter(e.target.value)}
-                            className="glass-input" 
-                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
-                          >
-                            <option value="All">All Topics</option>
-                            <option value="HTML">HTML</option>
-                            <option value="CSS">CSS</option>
-                            <option value="Bootstrap">Bootstrap</option>
-                            <option value="JavaScript">JavaScript</option>
-                            <option value="React">React</option>
-                            <option value="Backend">Node & Express & Mongo</option>
-                          </select>
-                          <input 
-                            type="text" 
-                            placeholder="Search questions..." 
-                            value={mernSearchQuery} 
-                            onChange={(e) => setMernSearchQuery(e.target.value)}
-                            className="glass-input" 
-                            style={{ padding: '6px 12px', fontSize: '0.85rem', maxWidth: '200px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
-                          />
-                        </div>
-                      </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {selectedInterviewTopic === null ? (
+                        /* Topic Selection Screen */
+                        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>KNOWLEDGE_TELEMETRY</span>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>MERN Full-Stack Interview Practice Topics</h3>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                              Select a core technology stack module below to practice interactive questions, run AI verification tests, and reveal standard answers.
+                            </p>
+                          </div>
 
-                      {/* Accordion List */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {mernQuestions.filter(q => {
-                          const matchesCat = mernCategoryFilter === 'All' || q.category === mernCategoryFilter;
-                          const matchesSearch = q.question.toLowerCase().includes(mernSearchQuery.toLowerCase()) || q.answer.toLowerCase().includes(mernSearchQuery.toLowerCase());
-                          return matchesCat && matchesSearch;
-                        }).map((q) => {
-                          const isOpen = expandedMernQ === q.id;
-                          return (
-                            <div 
-                              key={q.id} 
-                              className="glass-panel" 
-                              style={{ 
-                                padding: '1.25rem', 
-                                borderLeft: isOpen ? '4px solid var(--neon-primary)' : '1px solid var(--border-glass)',
-                                background: isOpen ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)'
-                              }}
-                            >
-                              {/* Header Trigger */}
-                              <div 
-                                onClick={() => setExpandedMernQ(isOpen ? null : q.id)}
-                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                  <span style={{ 
-                                    fontSize: '0.7rem', 
-                                    fontWeight: 'bold', 
-                                    background: q.category === 'React' ? 'rgba(16,185,129,0.1)' : q.category === 'JavaScript' ? 'rgba(245,158,11,0.1)' : 'rgba(255,107,53,0.1)', 
-                                    color: q.category === 'React' ? 'var(--neon-secondary)' : q.category === 'JavaScript' ? 'var(--neon-primary)' : '#ff6b35', 
-                                    padding: '3px 8px', 
-                                    borderRadius: '4px',
-                                    fontFamily: 'monospace'
-                                  }}>
-                                    {q.category}
-                                  </span>
-                                  <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>{q.question}</h4>
-                                </div>
-                                <span>{isOpen ? '▲' : '▼'}</span>
-                              </div>
-
-                              {/* Accordion Content */}
-                              {isOpen && (
-                                <div style={{ marginTop: '1.25rem', borderTop: '1px dashed var(--border-glass)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                  
-                                  {/* Guess Input */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+                            {[
+                              { key: 'HTML', title: 'HTML Essentials', icon: '🌐', desc: 'Semantic tag hierarchies, HTML5 attributes, form handling, and document structures.' },
+                              { key: 'CSS', title: 'CSS Styling & Grid', icon: '🎨', desc: 'Flexbox, Grid, selector inheritance, responsive design, animations, and variables.' },
+                              { key: 'Bootstrap', title: 'Bootstrap UI Framework', icon: '⚡', desc: 'Mobile-first layout systems, predefined custom component styling, and helper classes.' },
+                              { key: 'JavaScript', title: 'JavaScript Engine & Core', icon: '🚀', desc: 'Closure properties, async-await Promises, array map/filter, dynamic DOM APIs.' },
+                              { key: 'React', title: 'React component library', icon: '⚛️', desc: 'Hooks, virtual DOM optimizations, component lifecycles, and context stores.' },
+                              { key: 'Backend', title: 'Backend (Node, Express, MongoDB)', icon: '💾', desc: 'REST APIs, server routing middleware, Mongoose models, and queries.' }
+                            ].map((topic) => {
+                              const qCount = mernQuestions.filter(q => q.category === topic.key).length;
+                              return (
+                                <div 
+                                  key={topic.key} 
+                                  className="glass-panel tilt-card" 
+                                  style={{ 
+                                    padding: '1.5rem', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'space-between', 
+                                    gap: '1rem',
+                                    transition: 'all 0.3s ease',
+                                    border: '1px solid var(--border-glass)'
+                                  }}
+                                >
                                   <div>
-                                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
-                                      GUESS_YOUR_ANSWER
-                                    </label>
-                                    <textarea
-                                      rows={4}
-                                      value={userGuesses[q.id] || ''}
-                                      onChange={(e) => setUserGuesses({ ...userGuesses, [q.id]: e.target.value })}
-                                      className="glass-input"
-                                      placeholder="Type your explanation or core logic here to verify..."
-                                      style={{ resize: 'vertical', minHeight: '100px', fontSize: '0.9rem' }}
-                                    />
+                                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{topic.icon}</div>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', margin: 0 }}>{topic.title}</h4>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{topic.desc}</p>
                                   </div>
-
-                                  {/* Actions Row */}
-                                  <div style={{ display: 'flex', gap: '1rem' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed var(--border-glass)', paddingTop: '10px' }}>
+                                    <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--neon-secondary)', fontWeight: 'bold' }}>
+                                      {qCount} {qCount === 1 ? 'Question' : 'Questions'}
+                                    </span>
                                     <button
-                                      onClick={() => handleVerifyMernAnswerWithAi(q.id, q.question, q.answer)}
-                                      disabled={isVerifyingIndex[q.id]}
-                                      className="btn-neon btn-run"
-                                      style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
+                                      onClick={() => {
+                                        setSelectedInterviewTopic(topic.key);
+                                        setMernSearchQuery('');
+                                      }}
+                                      className="btn-neon"
+                                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
                                     >
-                                      {isVerifyingIndex[q.id] ? 'ANALYZING...' : 'Verify with AI'}
-                                    </button>
-
-                                    <button
-                                      onClick={() => setRevealAnswers({ ...revealAnswers, [q.id]: !revealAnswers[q.id] })}
-                                      className="btn-glass"
-                                      style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
-                                    >
-                                      {revealAnswers[q.id] ? 'Hide Standard Answer' : 'Reveal Standard Answer'}
+                                      Practice →
                                     </button>
                                   </div>
-
-                                  {/* AI Verification Report */}
-                                  {aiVerifications[q.id] && (
-                                    <div 
-                                      className="glass-panel" 
-                                      style={{ 
-                                        background: 'rgba(0,0,0,0.3)', 
-                                        borderColor: 'var(--border-glass-hover)', 
-                                        padding: '1rem', 
-                                        borderRadius: '10px',
-                                        fontFamily: 'monospace',
-                                        fontSize: '0.85rem',
-                                        lineHeight: '1.6'
-                                      }}
-                                    >
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)' }}>
-                                        <span>🛰️ TELEMETRY_VERIFIER_AI</span>
-                                        <span>STATUS: RUN_COMPLETE</span>
-                                      </div>
-                                      <div dangerouslySetInnerHTML={renderMarkdown(aiVerifications[q.id])} />
-                                    </div>
-                                  )}
-
-                                  {/* Standard Reference Answer */}
-                                  {revealAnswers[q.id] && (
-                                    <div 
-                                      className="glass-panel" 
-                                      style={{ 
-                                        background: 'rgba(16,185,129,0.02)', 
-                                        borderColor: 'rgba(16,185,129,0.2)', 
-                                        padding: '1.25rem', 
-                                        borderRadius: '10px'
-                                      }}
-                                    >
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.1)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
-                                        <span>📂 STANDARD_REFERENCE_ANSWER</span>
-                                        <button 
-                                          onClick={() => handleCopyTextToClipboard(`Question: ${q.question}\nAnswer: ${q.answer}`, q.id)} 
-                                          style={{ background: 'none', border: 'none', color: 'var(--neon-primary)', cursor: 'pointer', fontSize: '0.75rem' }}
-                                        >
-                                          {copiedIndex === q.id ? '✓ Copied' : '📋 Copy QA'}
-                                        </button>
-                                      </div>
-                                      <p style={{ fontSize: '0.92rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>{q.answer}</p>
-                                    </div>
-                                  )}
-
                                 </div>
-                              )}
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        /* Selected Practice Topic Workspace */
+                        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <button 
+                                onClick={() => setSelectedInterviewTopic(null)}
+                                className="btn-glass"
+                                style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                ← Back
+                              </button>
+                              <div>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>INTERACTIVE_PRACTICE_MODULE</span>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginTop: '2px' }}>
+                                  {selectedInterviewTopic} Questions ({mernQuestions.filter(q => q.category === selectedInterviewTopic).length})
+                                </h3>
+                              </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                            
+                            {/* Search bar */}
+                            <div>
+                              <input 
+                                type="text" 
+                                placeholder="Search questions..." 
+                                value={mernSearchQuery} 
+                                onChange={(e) => setMernSearchQuery(e.target.value)}
+                                className="glass-input" 
+                                style={{ padding: '6px 12px', fontSize: '0.85rem', minWidth: '220px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Accordion List */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {(() => {
+                              const filteredQ = mernQuestions.filter(q => {
+                                const matchesCat = q.category === selectedInterviewTopic;
+                                const matchesSearch = q.question.toLowerCase().includes(mernSearchQuery.toLowerCase()) || q.answer.toLowerCase().includes(mernSearchQuery.toLowerCase());
+                                return matchesCat && matchesSearch;
+                              });
+
+                              if (filteredQ.length === 0) {
+                                return (
+                                  <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                    No questions found matching your search.
+                                  </div>
+                                );
+                              }
+
+                              return filteredQ.map((q) => {
+                                const isOpen = expandedMernQ === q.id;
+                                return (
+                                  <div 
+                                    key={q.id} 
+                                    className="glass-panel" 
+                                    style={{ 
+                                      padding: '1.25rem', 
+                                      borderLeft: isOpen ? '4px solid var(--neon-primary)' : '1px solid var(--border-glass)',
+                                      background: isOpen ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)'
+                                    }}
+                                  >
+                                    {/* Header Trigger */}
+                                    <div 
+                                      onClick={() => setExpandedMernQ(isOpen ? null : q.id)}
+                                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <span style={{ 
+                                          fontSize: '0.7rem', 
+                                          fontWeight: 'bold', 
+                                          background: q.category === 'React' ? 'rgba(16,185,129,0.1)' : q.category === 'JavaScript' ? 'rgba(245,158,11,0.1)' : 'rgba(255,107,53,0.1)', 
+                                          color: q.category === 'React' ? 'var(--neon-secondary)' : q.category === 'JavaScript' ? 'var(--neon-primary)' : '#ff6b35', 
+                                          padding: '3px 8px', 
+                                          borderRadius: '4px',
+                                          fontFamily: 'monospace'
+                                        }}>
+                                          {q.category}
+                                        </span>
+                                        <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>{q.question}</h4>
+                                      </div>
+                                      <span>{isOpen ? '▲' : '▼'}</span>
+                                    </div>
+
+                                    {/* Accordion Content */}
+                                    {isOpen && (
+                                      <div style={{ marginTop: '1.25rem', borderTop: '1px dashed var(--border-glass)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        
+                                        {/* Guess Input */}
+                                        <div>
+                                          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', fontFamily: 'monospace' }}>
+                                            GUESS_YOUR_ANSWER
+                                          </label>
+                                          <textarea
+                                            rows={4}
+                                            value={userGuesses[q.id] || ''}
+                                            onChange={(e) => setUserGuesses({ ...userGuesses, [q.id]: e.target.value })}
+                                            className="glass-input"
+                                            placeholder="Type your explanation or core logic here to verify..."
+                                            style={{ resize: 'vertical', minHeight: '100px', fontSize: '0.9rem' }}
+                                          />
+                                        </div>
+
+                                        {/* Actions Row */}
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                          <button
+                                            onClick={() => handleVerifyMernAnswerWithAi(q.id, q.question, q.answer)}
+                                            disabled={isVerifyingIndex[q.id]}
+                                            className="btn-neon btn-run"
+                                            style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
+                                          >
+                                            {isVerifyingIndex[q.id] ? 'ANALYZING...' : 'Verify with AI'}
+                                          </button>
+
+                                          <button
+                                            onClick={() => setRevealAnswers({ ...revealAnswers, [q.id]: !revealAnswers[q.id] })}
+                                            className="btn-glass"
+                                            style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: '8px' }}
+                                          >
+                                            {revealAnswers[q.id] ? 'Hide Standard Answer' : 'Reveal Standard Answer'}
+                                          </button>
+                                        </div>
+
+                                        {/* AI Verification Report */}
+                                        {aiVerifications[q.id] && (
+                                          <div 
+                                            className="glass-panel" 
+                                            style={{ 
+                                              background: 'rgba(0,0,0,0.3)', 
+                                              borderColor: 'var(--border-glass-hover)', 
+                                              padding: '1rem', 
+                                              borderRadius: '10px',
+                                              fontFamily: 'monospace',
+                                              fontSize: '0.85rem',
+                                              lineHeight: '1.6'
+                                            }}
+                                          >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)' }}>
+                                              <span>🛰️ TELEMETRY_VERIFIER_AI</span>
+                                              <span>STATUS: RUN_COMPLETE</span>
+                                            </div>
+                                            <div dangerouslySetInnerHTML={renderMarkdown(aiVerifications[q.id])} />
+                                          </div>
+                                        )}
+
+                                        {/* Standard Reference Answer */}
+                                        {revealAnswers[q.id] && (
+                                          <div 
+                                            className="glass-panel" 
+                                            style={{ 
+                                              background: 'rgba(16,185,129,0.02)', 
+                                              borderColor: 'rgba(16,185,129,0.2)', 
+                                              padding: '1.25rem', 
+                                              borderRadius: '10px'
+                                            }}
+                                          >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(16,185,129,0.1)', paddingBottom: '6px', marginBottom: '8px', color: 'var(--neon-secondary)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                                              <span>📂 STANDARD_REFERENCE_ANSWER</span>
+                                              <button 
+                                                onClick={() => handleCopyTextToClipboard(`Question: ${q.question}\nAnswer: ${q.answer}`, q.id)} 
+                                                style={{ background: 'none', border: 'none', color: 'var(--neon-primary)', cursor: 'pointer', fontSize: '0.75rem' }}
+                                              >
+                                                {copiedIndex === q.id ? '✓ Copied' : '📋 Copy QA'}
+                                              </button>
+                                            </div>
+                                            <p style={{ fontSize: '0.92rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>{q.answer}</p>
+                                          </div>
+                                        )}
+
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
-                          {/* SUB-TAB 2: FULL-STACK STUDY NOTES */}
+
+                  {/* SUB-TAB 2: FULL-STACK STUDY NOTES */}
                   {mernTab === 'notes' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                       
                       {/* Active Preview Panel for TXT notes */}
                       {selectedMernNote && selectedMernNote.type === 'txt' && (
@@ -4407,224 +4478,245 @@ export default function StudentDashboard() {
                         </div>
                       )}
 
-                      {/* Header controls: Search & Filters */}
-                      <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.25rem' }}>
-                        <div>
-                          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Full-Stack Study Library</h3>
-                          <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: '2px 0 0 0' }}>Access, study, and download all materials in a premium card interface.</p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                          <select 
-                            value={noteCategoryFilter} 
-                            onChange={(e) => setNoteCategoryFilter(e.target.value)}
-                            className="glass-input" 
-                            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
-                          >
-                            <option value="All">All Categories</option>
-                            <option value="MongoDB Database">MongoDB Database</option>
-                            <option value="Express & Node.js">Express & Node.js</option>
-                            <option value="HTML & CSS Design">HTML & CSS Design</option>
-                            <option value="JavaScript & React">JavaScript & React</option>
-                            <option value="MERN Case Studies">Case Studies & Bonus</option>
-                            <option value="pdf">PDF Documents</option>
-                            <option value="rar">Archives (RAR)</option>
-                            <option value="txt">Lecture Notes (TXT)</option>
-                          </select>
-                          <input 
-                            type="text" 
-                            placeholder="Search notes..." 
-                            value={noteSearchQuery} 
-                            onChange={(e) => setNoteSearchQuery(e.target.value)}
-                            className="glass-input" 
-                            style={{ padding: '6px 12px', fontSize: '0.85rem', maxWidth: '200px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
-                          />
-                        </div>
-                      </div>
+                      {selectedNoteFolder === null ? (
+                        /* Note Folder Category Cards */
+                        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                          <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>NOTES_TELEMETRY</span>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>Full-Stack Study Library Categories</h3>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                              Select a module to view, read, and download curated lecture notes, cheat sheets, and course materials.
+                            </p>
+                          </div>
 
-                      {/* Notes Cards Grid */}
-                      {mernResources ? (
-                        (() => {
-                          const flatNotes = flattenResources(mernResources.notes);
-                          const filtered = flatNotes.filter(file => {
-                            const meta = getFileMeta(file);
-                            const matchesSearch = file.name.toLowerCase().includes(noteSearchQuery.toLowerCase()) || meta.category.toLowerCase().includes(noteSearchQuery.toLowerCase());
-                            let matchesFilter = true;
-                            if (noteCategoryFilter !== 'All') {
-                              if (noteCategoryFilter === 'pdf' || noteCategoryFilter === 'rar' || noteCategoryFilter === 'txt') {
-                                matchesFilter = file.type === noteCategoryFilter;
-                              } else {
-                                matchesFilter = meta.category === noteCategoryFilter;
-                              }
-                            }
-                            return matchesSearch && matchesFilter;
-                          });
-
-                          if (filtered.length === 0) {
-                            return (
-                              <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                <span style={{ fontSize: '2rem' }}>🔍</span>
-                                <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No notes found</h4>
-                                <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>Try refining your search query or category filter selection.</p>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+                            {[
+                              { key: 'frontend', title: 'Frontend Development', icon: '💻', desc: 'HTML foundations, CSS styling layouts, JavaScript ES6 engines, React Hooks, and Redux.' },
+                              { key: 'backend', title: 'Backend Engineering', icon: '⚙️', desc: 'Node.js runtime, Express web controllers, server middleware patterns, routing, validation.' },
+                              { key: 'mongodb', title: 'MongoDB Databases', icon: '🍃', desc: 'NoSQL architecture, Mongoose schemas, document CRUD validations, index aggregation.' },
+                              { key: 'bonus', title: 'Case Studies & Bonus', icon: '🎁', desc: 'Dynamic project templates, production checklists, full-stack application blueprints.' }
+                            ].map((folder) => {
+                              const filesCount = mernResources ? flattenResources(mernResources.notes).filter(file => file.path.split('/')[0]?.toLowerCase() === folder.key).length : 0;
+                              return (
+                                <div 
+                                  key={folder.key} 
+                                  className="glass-panel tilt-card" 
+                                  style={{ 
+                                    padding: '1.5rem', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'space-between', 
+                                    gap: '1rem',
+                                    transition: 'all 0.3s ease',
+                                    border: '1px solid var(--border-glass)'
+                                  }}
+                                >
+                                  <div>
+                                    <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{folder.icon}</div>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', margin: 0 }}>{folder.title}</h4>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{folder.desc}</p>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed var(--border-glass)', paddingTop: '10px' }}>
+                                    <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--neon-secondary)', fontWeight: 'bold' }}>
+                                      {filesCount} {filesCount === 1 ? 'Resource' : 'Resources'}
+                                    </span>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedNoteFolder(folder.key);
+                                        setNoteSearchQuery('');
+                                        setNoteCategoryFilter('All');
+                                      }}
+                                      className="btn-neon"
+                                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                    >
+                                      Open Folder →
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        /* Selected Note Folder workspace view */
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                          
+                          {/* Folder controls */}
+                          <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <button 
+                                onClick={() => {
+                                  setSelectedNoteFolder(null);
+                                  setSelectedMernNote(null);
+                                }}
+                                className="btn-glass"
+                                style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                ← Back
+                              </button>
+                              <div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                                  {selectedNoteFolder === 'frontend' ? 'Frontend Development' : selectedNoteFolder === 'backend' ? 'Backend Engineering' : selectedNoteFolder === 'mongodb' ? 'MongoDB Database' : 'Case Studies & Bonus'} Resources
+                                </h3>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: '2px 0 0 0' }}>Explore and study the materials inside this folder.</p>
                               </div>
-                            );
-                          }
+                            </div>
+                            
+                            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                              <select 
+                                value={noteCategoryFilter} 
+                                onChange={(e) => setNoteCategoryFilter(e.target.value)}
+                                className="glass-input" 
+                                style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
+                              >
+                                <option value="All">All Formats</option>
+                                <option value="pdf">PDF Documents</option>
+                                <option value="rar">Archives (RAR)</option>
+                                <option value="txt">Lecture Notes (TXT)</option>
+                              </select>
+                              <input 
+                                type="text" 
+                                placeholder="Search files..." 
+                                value={noteSearchQuery} 
+                                onChange={(e) => setNoteSearchQuery(e.target.value)}
+                                className="glass-input" 
+                                style={{ padding: '6px 12px', fontSize: '0.85rem', maxWidth: '200px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-glass)' }}
+                              />
+                            </div>
+                          </div>
 
-                          return (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                              {filtered.map((file, idx) => {
+                          {/* Notes Cards Grid */}
+                          {mernResources ? (
+                            (() => {
+                              const flatNotes = flattenResources(mernResources.notes);
+                              const filtered = flatNotes.filter(file => {
+                                const parentFolder = file.path.split('/')[0]?.toLowerCase();
+                                if (parentFolder !== selectedNoteFolder) return false;
+                                
                                 const meta = getFileMeta(file);
-                                const isSelected = selectedMernNote?.path === file.path;
-                                const isPdf = file.type === 'pdf';
-                                const isRar = file.type === 'rar';
-                                const isDocx = file.type === 'docx';
-                                const isTxt = file.type === 'txt';
-
-                                let tagBg = 'rgba(255,107,53,0.1)';
-                                let tagColor = '#ff6b35';
-                                if (isPdf) {
-                                  tagBg = 'rgba(16,185,129,0.1)';
-                                  tagColor = 'var(--neon-secondary)';
-                                } else if (isRar) {
-                                  tagBg = 'rgba(245,158,11,0.1)';
-                                  tagColor = 'var(--neon-primary)';
-                                } else if (isDocx) {
-                                  tagBg = 'rgba(59,130,246,0.1)';
-                                  tagColor = '#3b82f6';
+                                const matchesSearch = file.name.toLowerCase().includes(noteSearchQuery.toLowerCase()) || meta.displayName.toLowerCase().includes(noteSearchQuery.toLowerCase());
+                                let matchesFilter = true;
+                                if (noteCategoryFilter !== 'All') {
+                                  matchesFilter = file.type === noteCategoryFilter;
                                 }
+                                return matchesSearch && matchesFilter;
+                              });
 
+                              if (filtered.length === 0) {
                                 return (
-                                  <div 
-                                    key={idx}
-                                    className="glass-panel tilt-card"
-                                    style={{ 
-                                      padding: '1.25rem', 
-                                      display: 'flex', 
-                                      flexDirection: 'column', 
-                                      justifyContent: 'space-between',
-                                      gap: '1rem',
-                                      border: isSelected ? '1.5px solid var(--neon-primary)' : '1px solid var(--border-glass)',
-                                      background: isSelected ? 'rgba(245,158,11,0.02)' : 'rgba(255,255,255,0.01)',
-                                      transition: 'all 0.3s ease'
-                                    }}
-                                  >
-                                    <div>
-                                      {/* Tags row */}
-                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                        <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                                          {meta.category}
-                                        </span>
-                                        <span style={{ fontSize: '0.65rem', background: tagBg, color: tagColor, padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
-                                          {file.type.toUpperCase()}
-                                        </span>
-                                      </div>
-
-                                      {/* Title */}
-                                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 4px 0', color: '#fff', lineHeight: '1.4' }}>
-                                        {meta.displayName}
-                                      </h4>
-                                      
-                                      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0, fontFamily: 'monospace' }}>
-                                        Size: {(file.size / 1024).toFixed(1)} KB
-                                      </p>
-                                    </div>
-
-                                    {/* Action Row */}
-                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
-                                      {isTxt ? (
-                                        <>
-                                          <button
-                                            onClick={() => handleSelectMernNote(file)}
-                                            className="btn-neon"
-                                            style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', textAlign: 'center' }}
-                                          >
-                                            Study Note
-                                          </button>
-                                          <button
-                                            onClick={() => handleDownloadMernFile(file, 'notes')}
-                                            className="btn-glass"
-                                            style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '6px' }}
-                                            title="Download TXT file"
-                                          >
-                                            📥
-                                          </button>
-                                        </>
-                                      ) : (
-                                        <button
-                                          onClick={() => handleDownloadMernFile(file, 'notes')}
-                                          className="btn-neon"
-                                          style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
-                                        >
-                                          <span>📥 Download</span>
-                                        </button>
-                                      )}
-                                    </div>
+                                  <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                    <span style={{ fontSize: '2rem' }}>🔍</span>
+                                    <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No resources found</h4>
+                                    <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>Try refining your search query or format filter selection.</p>
                                   </div>
                                 );
-                              })}
+                              }
+
+                              return (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                                  {filtered.map((file, idx) => {
+                                    const meta = getFileMeta(file);
+                                    const isSelected = selectedMernNote?.path === file.path;
+                                    const isPdf = file.type === 'pdf';
+                                    const isRar = file.type === 'rar';
+                                    const isDocx = file.type === 'docx';
+                                    const isTxt = file.type === 'txt';
+
+                                    let tagBg = 'rgba(255,107,53,0.1)';
+                                    let tagColor = '#ff6b35';
+                                    if (isPdf) {
+                                      tagBg = 'rgba(16,185,129,0.1)';
+                                      tagColor = 'var(--neon-secondary)';
+                                    } else if (isRar) {
+                                      tagBg = 'rgba(245,158,11,0.1)';
+                                      tagColor = 'var(--neon-primary)';
+                                    } else if (isDocx) {
+                                      tagBg = 'rgba(59,130,246,0.1)';
+                                      tagColor = '#3b82f6';
+                                    }
+
+                                    return (
+                                      <div 
+                                        key={idx}
+                                        className="glass-panel tilt-card"
+                                        style={{ 
+                                          padding: '1.25rem', 
+                                          display: 'flex', 
+                                          flexDirection: 'column', 
+                                          justifyContent: 'space-between',
+                                          gap: '1rem',
+                                          border: isSelected ? '1.5px solid var(--neon-primary)' : '1px solid var(--border-glass)',
+                                          background: isSelected ? 'rgba(245,158,11,0.02)' : 'rgba(255,255,255,0.01)',
+                                          transition: 'all 0.3s ease'
+                                        }}
+                                      >
+                                        <div>
+                                          {/* Tags row */}
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            <span style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                                              {meta.category}
+                                            </span>
+                                            <span style={{ fontSize: '0.65rem', background: tagBg, color: tagColor, padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                              {file.type.toUpperCase()}
+                                            </span>
+                                          </div>
+
+                                          {/* Title */}
+                                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 4px 0', color: '#fff', lineHeight: '1.4' }}>
+                                            {meta.displayName}
+                                          </h4>
+                                          
+                                          <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0, fontFamily: 'monospace' }}>
+                                            Size: {(file.size / 1024).toFixed(1)} KB
+                                          </p>
+                                        </div>
+
+                                        {/* Action Row */}
+                                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                                          {isTxt ? (
+                                            <>
+                                              <button
+                                                onClick={() => handleSelectMernNote(file)}
+                                                className="btn-neon"
+                                                style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', textAlign: 'center' }}
+                                              >
+                                                Study Note
+                                              </button>
+                                              <button
+                                                onClick={() => handleDownloadMernFile(file, 'notes')}
+                                                className="btn-glass"
+                                                style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '6px' }}
+                                                title="Download TXT file"
+                                              >
+                                                📥
+                                              </button>
+                                            </>
+                                          ) : (
+                                            <button
+                                              onClick={() => handleDownloadMernFile(file, 'notes')}
+                                              className="btn-neon"
+                                              style={{ flex: 1, padding: '8px', fontSize: '0.75rem', borderRadius: '6px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
+                                            >
+                                              <span>📥 Download</span>
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()
+                          ) : (
+                            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 0', fontSize: '0.85rem' }}>
+                              Loading full-stack library resources...
                             </div>
-                          );
-                        })()
-                      ) : (
-                        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 0', fontSize: '0.85rem' }}>
-                          Loading full-stack library resources...
+                          )}
                         </div>
                       )}
                     </div>
                   )}
 
-                  {/* SUB-TAB 3: PROJECT TEMPLATES & CLONING STARTER KITS */}
-                  {mernTab === 'projects' && (
-                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                      <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Project Cloning & Starter Boilerplates</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>Use these pre-configured code structures to quickly boot and start your assignments.</p>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                        {mernProjects.map((proj) => (
-                          <div key={proj.id} className="glass-panel tilt-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
-                                {proj.tags.map((t, idx) => (
-                                  <span key={idx} style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', color: 'var(--neon-primary)', fontFamily: 'monospace' }}>
-                                    {t}
-                                  </span>
-                                ))}
-                              </div>
-                              <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{proj.title}</h4>
-                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4', minHeight: '65px' }}>
-                                {proj.description}
-                              </p>
-                            </div>
-
-                            {/* Git Clone Command Block */}
-                            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <code style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--neon-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
-                                git clone {proj.cloneUrl}
-                              </code>
-                              <button 
-                                onClick={() => handleCopyTextToClipboard(`git clone ${proj.cloneUrl}`, proj.id)} 
-                                style={{ background: 'none', border: 'none', color: 'var(--neon-primary)', cursor: 'pointer', fontSize: '0.8rem', paddingLeft: '4px' }}
-                              >
-                                {copiedIndex === proj.id ? '✓' : '📋'}
-                              </button>
-                            </div>
-
-                            {/* View Repo link button */}
-                            <a 
-                              href={proj.githubUrl} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="btn-glass" 
-                              style={{ textDecoration: 'none', fontSize: '0.8rem', padding: '8px', borderRadius: '6px', textAlign: 'center', width: '100%' }}
-                            >
-                              View GitHub Repository
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                 </div>
 
