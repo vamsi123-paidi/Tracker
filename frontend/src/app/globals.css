@@ -1,68 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* Default Dark Theme variables - Carbon & Liquid Platinum */
+/* Default Dark Theme variables - Pure Black & White */
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #09090f;
-  --bg-glass: rgba(15, 15, 22, 0.65);
-  --bg-glass-hover: rgba(22, 22, 32, 0.78);
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-glass-hover: rgba(255, 255, 255, 0.25);
+  --bg-dark: #000000;
+  --bg-glass: rgba(12, 12, 12, 0.65);
+  --bg-glass-hover: rgba(20, 20, 20, 0.78);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-hover: rgba(255, 255, 255, 0.3);
 
-  --neon-primary: #f8fafc;       /* Liquid White */
-  --neon-secondary: #94a3b8;     /* Cyber Silver */
-  --neon-blue: #cbd5e1;          /* Cool Slate Light */
-  --neon-green: #ffffff;         /* Pure Platinum */
-  --neon-red: #e2e8f0;           /* Soft Platinum */
-  --neon-yellow: #cbd5e1;        /* Muted Platinum */
+  --neon-primary: #ffffff;       /* Pure White */
+  --neon-secondary: #a3a3a3;     /* Medium Slate Gray */
+  --neon-blue: #e5e5e5;          /* Cool Gray */
+  --neon-green: #22c55e;         /* Success Status Green */
+  --neon-red: #ef4444;           /* Revision Status Red */
+  --neon-yellow: #f59e0b;        /* Pending Status Yellow */
 
   --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;     /* Soft slate */
-  --text-muted: #64748b;         /* Muted slate */
+  --text-secondary: #d4d4d4;     /* Light Gray */
+  --text-muted: #737373;         /* Neutral Slate Gray */
 
-  --glow-primary: 0 0 16px rgba(255, 255, 255, 0.25), 0 0 4px rgba(255, 255, 255, 0.1);
-  --glow-secondary: 0 0 16px rgba(148, 163, 184, 0.2), 0 0 4px rgba(148, 163, 184, 0.08);
-  --glow-green: 0 0 16px rgba(255, 255, 255, 0.2), 0 0 4px rgba(255, 255, 255, 0.08);
-  --glow-red: 0 0 16px rgba(226, 232, 240, 0.2), 0 0 4px rgba(226, 232, 240, 0.08);
-  --glow-yellow: 0 0 16px rgba(203, 213, 225, 0.2), 0 0 4px rgba(203, 213, 225, 0.08);
+  --glow-primary: 0 0 12px rgba(255, 255, 255, 0.2), 0 0 4px rgba(255, 255, 255, 0.08);
+  --glow-secondary: 0 0 12px rgba(163, 163, 163, 0.15), 0 0 4px rgba(163, 163, 163, 0.06);
+  --glow-green: 0 0 12px rgba(34, 197, 94, 0.2), 0 0 4px rgba(34, 197, 94, 0.08);
+  --glow-red: 0 0 12px rgba(239, 68, 68, 0.2), 0 0 4px rgba(239, 68, 68, 0.08);
+  --glow-yellow: 0 0 12px rgba(245, 158, 11, 0.2), 0 0 4px rgba(245, 158, 11, 0.08);
 
-  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(255, 255, 255, 0.01);
+  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.01);
   --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(255, 255, 255, 0.02);
-  --modal-overlay: rgba(3, 3, 5, 0.9);
+  --grid-line: rgba(255, 255, 255, 0.025);
+  --modal-overlay: rgba(0, 0, 0, 0.92);
+
+  --shadow-hover-panel: 0 20px 45px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-hover-tilt: 0 25px 50px rgba(255, 255, 255, 0.06);
 }
 
-/* Light Theme overrides - Premium Light Slate & Dark Contrast Panels */
+/* Light Theme overrides - Pure White & Dark Contrast Panels */
 :root.light {
-  --bg-dark: #f1f5f9;
+  --bg-dark: #ffffff;
   --bg-glass: #ffffff;
-  --bg-glass-hover: #f8fafc;
-  --border-glass: rgba(15, 23, 42, 0.08);
-  --border-glass-hover: rgba(15, 23, 42, 0.16);
+  --bg-glass-hover: #f5f5f5;
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --border-glass-hover: rgba(0, 0, 0, 0.25);
 
-  --neon-primary: #0f172a;       /* Deep Charcoal */
-  --neon-secondary: #475569;     /* Medium Slate */
-  --neon-blue: #334155;          /* Cool Charcoal */
-  --neon-green: #1e293b;         /* Dark Slate */
-  --neon-red: #334155;
-  --neon-yellow: #475569;
+  --neon-primary: #000000;       /* Pure Black */
+  --neon-secondary: #525252;     /* Medium Gray */
+  --neon-blue: #171717;          /* Cool Gray */
+  --neon-green: #16a34a;         /* Success Green */
+  --neon-red: #dc2626;           /* Revision Red */
+  --neon-yellow: #d97706;        /* Pending Yellow */
 
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #627289;
+  --text-primary: #000000;
+  --text-secondary: #262626;
+  --text-muted: #737373;
 
-  --glow-primary: 0 2px 8px rgba(15, 23, 42, 0.08);
-  --glow-secondary: 0 2px 8px rgba(71, 85, 105, 0.08);
-  --glow-green: 0 2px 8px rgba(30, 41, 59, 0.08);
-  --glow-red: 0 2px 8px rgba(51, 65, 85, 0.08);
-  --glow-yellow: 0 2px 8px rgba(71, 85, 105, 0.08);
+  --glow-primary: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --glow-secondary: 0 2px 8px rgba(82, 82, 82, 0.06);
+  --glow-green: 0 2px 8px rgba(22, 163, 74, 0.06);
+  --glow-red: 0 2px 8px rgba(220, 38, 38, 0.06);
+  --glow-yellow: 0 2px 8px rgba(217, 119, 6, 0.06);
 
-  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(15, 23, 42, 0.015);
-  --modal-overlay: rgba(15, 23, 42, 0.4);
+  --grid-line: rgba(0, 0, 0, 0.015);
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+
+  --shadow-hover-panel: 0 20px 45px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-hover-tilt: 0 25px 50px rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -76,10 +82,10 @@
 body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(240, 6%, 6%, 1) 0, transparent 55%),
-    radial-gradient(at 50% 0%, hsla(220, 6%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(240, 4%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 100%, hsla(220, 4%, 4%, 1) 0, transparent 55%);
+    radial-gradient(at 0% 0%, hsla(0, 0%, 5%, 1) 0, transparent 55%),
+    radial-gradient(at 50% 0%, hsla(0, 0%, 3%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(0, 0%, 2%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(0, 0%, 2%, 1) 0, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -91,9 +97,9 @@ body {
 :root.light body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(148, 163, 184, 0.05) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(71, 85, 105, 0.04) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(148, 163, 184, 0.03) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(0, 0, 0, 0.02) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 0, 0, 0.02) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(0, 0, 0, 0.01) 0, transparent 50%);
 }
 
 /* Aurora Background container */
@@ -244,7 +250,7 @@ body {
 
 .glass-panel:hover {
   border-color: var(--border-glass-hover);
-  box-shadow: 0 20px 45px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-hover-panel);
 }
 
 /* Interactive Card - 3D Tilt Hover */
@@ -255,12 +261,11 @@ body {
 .tilt-card:hover {
   transform: translateY(-8px) scale(1.02);
   border-color: var(--border-glass-hover);
-  box-shadow: 0 25px 50px rgba(6, 182, 212, 0.12);
+  box-shadow: var(--shadow-hover-tilt);
 }
 
 /* Theme Toggle Button */
 .theme-toggle {
-  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-glass);
   color: var(--text-primary);
   border-radius: 50%;
