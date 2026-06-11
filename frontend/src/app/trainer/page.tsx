@@ -73,6 +73,20 @@ interface Submission {
 }
 
 export default function TrainerDashboard() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  useEffect(() => {
+    const isLight = document.documentElement.classList.contains('light');
+    setTheme(isLight ? 'light' : 'dark');
+    const observer = new MutationObserver(() => {
+      const isLight = document.documentElement.classList.contains('light');
+      setTheme(isLight ? 'light' : 'dark');
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    return () => observer.disconnect();
+  }, []);
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -283,7 +297,7 @@ export default function TrainerDashboard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw horizontal grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.strokeStyle = theme === 'light' ? 'rgba(7, 17, 16, 0.08)' : 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const y = margin.top + (chartHeight / 4) * i;
@@ -352,19 +366,19 @@ export default function TrainerDashboard() {
         }
 
         // Labels
-        ctx.fillStyle = '#a0aec0';
+        ctx.fillStyle = theme === 'light' ? '#2a3b37' : '#a0aec0';
         ctx.font = '10px Space Grotesk';
         ctx.textAlign = 'center';
         const truncatedTitle = task.title.length > 8 ? task.title.substring(0, 8) + '..' : task.title;
         ctx.fillText(truncatedTitle, x + barWidth / 2, margin.top + chartHeight + 20);
 
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = theme === 'light' ? '#0b1a18' : '#ffffff';
         ctx.font = '11px Outfit';
         ctx.fillText(String(total), x + barWidth / 2, y - 10);
       });
 
       // Axis labels
-      ctx.fillStyle = '#a0aec0';
+      ctx.fillStyle = theme === 'light' ? '#2a3b37' : '#a0aec0';
       ctx.font = '10px Space Grotesk';
       ctx.textAlign = 'right';
       for (let i = 0; i <= 4; i++) {
@@ -444,18 +458,18 @@ export default function TrainerDashboard() {
         }
 
         // Labels
-        ctx.fillStyle = '#a0aec0';
+        ctx.fillStyle = theme === 'light' ? '#2a3b37' : '#a0aec0';
         ctx.font = '10px Space Grotesk';
         ctx.textAlign = 'center';
         ctx.fillText(metric.code, x + barWidth / 2, margin.top + chartHeight + 20);
 
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = theme === 'light' ? '#0b1a18' : '#ffffff';
         ctx.font = '11px Outfit';
         ctx.fillText(String(total), x + barWidth / 2, y - 10);
       });
 
       // Axis labels
-      ctx.fillStyle = '#a0aec0';
+      ctx.fillStyle = theme === 'light' ? '#2a3b37' : '#a0aec0';
       ctx.font = '10px Space Grotesk';
       ctx.textAlign = 'right';
       for (let i = 0; i <= 4; i++) {
@@ -464,7 +478,7 @@ export default function TrainerDashboard() {
         ctx.fillText(String(val), margin.left - 10, y + 4);
       }
     }
-  }, [tasks, colleges, submissions, chartViewMode]);
+  }, [tasks, colleges, submissions, chartViewMode, theme]);
 
   const handleLogout = () => {
     removeAuthToken();
@@ -977,12 +991,12 @@ export default function TrainerDashboard() {
             border: '1px solid var(--border-glass)',
             borderRadius: '4px',
             background: 'rgba(255,255,255,0.05)',
-            color: '#fff'
+            color: 'var(--text-primary)'
           }}
         >
           Previous
         </button>
-        <span style={{ fontSize: '0.85rem', color: '#a0aec0', fontFamily: 'monospace' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
           PAGE {currentPage} OF {totalPages}
         </span>
         <button
@@ -998,7 +1012,7 @@ export default function TrainerDashboard() {
             border: '1px solid var(--border-glass)',
             borderRadius: '4px',
             background: 'rgba(255,255,255,0.05)',
-            color: '#fff'
+            color: 'var(--text-primary)'
           }}
         >
           Next
@@ -1069,19 +1083,19 @@ export default function TrainerDashboard() {
       {/* Metrics Row */}
       <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
         <div className="glass-panel animated-entry delay-1">
-          <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>ACTIVE_TASKS</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>ACTIVE_TASKS</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{tasks.length}</h3>
         </div>
         <div className="glass-panel animated-entry delay-2">
-          <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>PENDING_VERIFICATION</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>PENDING_VERIFICATION</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ffd000' }}>{pendingSubCount}</h3>
         </div>
         <div className="glass-panel animated-entry delay-3">
-          <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>TOTAL_SUBMISSIONS</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>TOTAL_SUBMISSIONS</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#10b981' }}>{totalSubCount}</h3>
         </div>
         <div className="glass-panel animated-entry delay-4">
-          <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>APPROVAL_RATE</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>APPROVAL_RATE</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#00ff87' }}>{approvalRate}%</h3>
         </div>
       </div>
@@ -1112,7 +1126,7 @@ export default function TrainerDashboard() {
         <div style={{ width: '100%', overflow: 'hidden' }}>
           <canvas ref={canvasRef} style={{ display: 'block', width: '100%' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1rem', fontSize: '0.85rem', color: '#a0aec0' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '12px', height: '12px', background: chartViewMode === 'tasks' ? 'var(--neon-primary)' : 'var(--neon-blue)', borderRadius: '2px' }} />
             Total Submissions
@@ -1206,7 +1220,7 @@ export default function TrainerDashboard() {
           {paginatedSubmissions.length === 0 ? (
             <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📭</span>
-              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Submissions Found</h4>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Submissions Found</h4>
               <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>All caught up! No student task submissions are waiting for your review.</p>
             </div>
           ) : (
@@ -1228,7 +1242,7 @@ export default function TrainerDashboard() {
                       <tr key={sub._id}>
                         <td>
                           <strong>{sub.student.name}</strong>
-                          <div style={{ fontSize: '0.8rem', color: '#718096' }}>{sub.student.email}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sub.student.email}</div>
                         </td>
                         <td>
                           <span className="badge badge-not-submitted">{sub.student.college?.code || 'GLBL'}</span>
@@ -1275,7 +1289,7 @@ export default function TrainerDashboard() {
           }}>
             <div>
               <h3 style={{ fontSize: '1.1rem' }}>Student Performance Directory</h3>
-              <p style={{ color: '#a0aec0', fontSize: '0.85rem', marginTop: '2px' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '2px' }}>
                 Track student progress, check task details, and download grades reports.
               </p>
             </div>
@@ -1319,7 +1333,7 @@ export default function TrainerDashboard() {
           {paginatedStudents.length === 0 ? (
             <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
               <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>👥</span>
-              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Students Found</h4>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Students Found</h4>
               <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No registered student profiles match your selected search or college filters.</p>
             </div>
           ) : (
@@ -1345,7 +1359,7 @@ export default function TrainerDashboard() {
                       return (
                         <tr key={stud._id}>
                           <td><strong>{stud.name}</strong></td>
-                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#a0aec0' }}>{stud.email}</td>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{stud.email}</td>
                           <td>
                             <span className="badge badge-not-submitted">{stud.college?.code || 'GLBL'}</span>
                           </td>
@@ -1372,7 +1386,7 @@ export default function TrainerDashboard() {
                           </td>
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
+                              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                 ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
                               </span>
                               <span style={{ fontSize: '0.75rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1425,7 +1439,7 @@ export default function TrainerDashboard() {
             </h3>
             <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Task Title</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Task Title</label>
                 <input
                   type="text"
                   required
@@ -1436,7 +1450,7 @@ export default function TrainerDashboard() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Description</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Description</label>
                 <textarea
                   required
                   className="glass-input"
@@ -1447,7 +1461,7 @@ export default function TrainerDashboard() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Target College Code</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Target College Code</label>
                 <select
                   className="glass-input"
                   value={selectedCollegeId}
@@ -1462,7 +1476,7 @@ export default function TrainerDashboard() {
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Due Date</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Due Date</label>
                 <input
                   type="date"
                   required
@@ -1519,7 +1533,7 @@ export default function TrainerDashboard() {
                 {filteredTasks.length === 0 ? (
                   <div className="glass-panel animated-entry delay-2" style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%' }}>
                     <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📂</span>
-                    <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#fff', marginBottom: '0.4rem' }}>No Active Tasks</h4>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>No Active Tasks</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Use the "Deploy Milestone Task" console above to assign tasks.</p>
                   </div>
                 ) : (
@@ -1534,8 +1548,8 @@ export default function TrainerDashboard() {
                         <strong>{t.title}</strong>
                         <span className="badge badge-not-submitted" style={{ fontSize: '0.7rem' }}>{t.college?.code || 'Global'}</span>
                       </div>
-                      <p style={{ fontSize: '0.85rem', color: '#a0aec0', lineHeight: '1.4', marginBottom: '8px' }}>{t.description}</p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#718096', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '8px' }}>{t.description}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
                         <div>
                           <span style={{ display: 'block' }}>Due: {new Date(t.dueDate).toLocaleDateString()}</span>
                           <span style={{ color: 'var(--neon-secondary)', display: 'block', marginTop: '2px' }}>Submissions: {t.stats.totalSubmissions} ({t.stats.approved} approved)</span>
@@ -1586,7 +1600,7 @@ export default function TrainerDashboard() {
               <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>Create College Portal</h3>
               <form onSubmit={handleCreateCollege} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>College Name</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>College Name</label>
                   <input
                     type="text"
                     required
@@ -1597,7 +1611,7 @@ export default function TrainerDashboard() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>College Code (Unique)</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>College Code (Unique)</label>
                   <input
                     type="text"
                     required
@@ -1622,7 +1636,7 @@ export default function TrainerDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div className="glass-panel">
               <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Bulk Roster Import</h3>
-              <p style={{ color: '#a0aec0', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
                 Upload a comma-separated sheet, JSON file, or Excel spreadsheet (.xlsx/.xls) to batch register students.
                 <br />
                 The fields/headers should match:
@@ -1660,7 +1674,7 @@ export default function TrainerDashboard() {
                   <p style={{ color: 'var(--neon-secondary)', fontWeight: 600, fontSize: '0.95rem' }}>
                     {importFile ? importFile.name : 'Select student CSV, JSON, or Excel file'}
                   </p>
-                  <p style={{ color: '#718096', fontSize: '0.8rem', marginTop: '4px' }}>Accepts .csv, .json, .xlsx, .xls</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '4px' }}>Accepts .csv, .json, .xlsx, .xls</p>
                 </div>
 
                 <button type="submit" disabled={isImporting || !importFile} className="btn-neon">
@@ -1673,7 +1687,7 @@ export default function TrainerDashboard() {
             <div className="glass-panel">
               <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>Bulk Execution Logs</h3>
               {!importResult ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#718096', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '8px' }}>
                   Console idle. Awaiting file execution...
                 </div>
               ) : (
@@ -1700,7 +1714,7 @@ export default function TrainerDashboard() {
                         borderRadius: '6px',
                         fontSize: '0.8rem',
                         fontFamily: 'monospace',
-                        color: '#a0aec0',
+                        color: 'var(--text-muted)',
                         border: '1px solid var(--border-glass)'
                       }}>
                         {importResult.errors.map((err, i) => (
@@ -1721,7 +1735,7 @@ export default function TrainerDashboard() {
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>Manual Student Registration</h3>
             <form onSubmit={handleManualStudentRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Student Full Name</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Student Full Name</label>
                 <input
                   type="text"
                   required
@@ -1733,7 +1747,7 @@ export default function TrainerDashboard() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Student Email Address</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Student Email Address</label>
                 <input
                   type="email"
                   required
@@ -1745,7 +1759,7 @@ export default function TrainerDashboard() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Access Password</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Access Password</label>
                 <input
                   type="password"
                   required
@@ -1757,7 +1771,7 @@ export default function TrainerDashboard() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Assign College Portal</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Assign College Portal</label>
                 <select
                   required
                   className="glass-input"
@@ -2120,7 +2134,7 @@ export default function TrainerDashboard() {
             {filteredQuizzes.length === 0 ? (
               <div className="glass-panel animated-entry delay-2" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                 <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🛡️</span>
-                <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Quizzes Found</h4>
+                <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Quizzes Found</h4>
                 <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No examination models exist for the selected filters. Upload a spreadsheet or write questions to deploy one.</p>
               </div>
             ) : (
@@ -2223,7 +2237,7 @@ export default function TrainerDashboard() {
                         setViewingQuizId(null);
                         setSelectedQuizResults([]);
                       }}
-                      style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.25rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '1.25rem' }}
                     >
                       &times;
                     </button>
@@ -2233,23 +2247,23 @@ export default function TrainerDashboard() {
                 {totalQuizAttempts > 0 && (
                   <div className="dashboard-grid" style={{ marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
                     <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>TOTAL_ATTEMPTS</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>TOTAL_ATTEMPTS</p>
                       <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-primary)', margin: '4px 0 0' }}>{totalQuizAttempts}</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_SCORE</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_SCORE</p>
                       <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-secondary)', margin: '4px 0 0' }}>{quizAvgScore}%</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>PASS_RATE</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>PASS_RATE</p>
                       <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: '#00ff87', margin: '4px 0 0' }}>{quizPassRate}%</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>ANTI_CHEAT_FLAGS</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>ANTI_CHEAT_FLAGS</p>
                       <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: '#ff0055', margin: '4px 0 0' }}>{quizCheatedCount} Flagged</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_TIME_SPENT</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_TIME_SPENT</p>
                       <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-secondary)', margin: '4px 0 0' }}>
                         {Math.floor(quizAvgTime / 60)}m {quizAvgTime % 60}s
                       </h4>
@@ -2260,7 +2274,7 @@ export default function TrainerDashboard() {
                 {paginatedQuizResults.length === 0 ? (
                   <div className="glass-panel animated-entry delay-3" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📊</span>
-                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Submissions Yet</h4>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Submissions Yet</h4>
                     <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No students have submitted completed grading responses for this quiz environment yet.</p>
                   </div>
                 ) : (
@@ -2350,11 +2364,11 @@ export default function TrainerDashboard() {
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--neon-secondary)', fontFamily: 'monospace' }}>VERIFY_SUBMISSION</span>
                 <h3 style={{ fontSize: '1.25rem' }}>{selectedSubmission.task?.title || 'Task Milestone'}</h3>
-                <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Submitted by: {selectedSubmission.student.name}</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Submitted by: {selectedSubmission.student.name}</p>
               </div>
               <button
                 onClick={() => setSelectedSubmission(null)}
-                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}
               >
                 &times;
               </button>
@@ -2384,7 +2398,7 @@ export default function TrainerDashboard() {
 
             {selectedSubmission.notes && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.9rem', color: '#a0aec0', marginBottom: '0.25rem' }}>Student Notes / Links:</h4>
+                <h4 style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Student Notes / Links:</h4>
                 <p style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: '6px', fontSize: '0.95rem', wordBreak: 'break-all' }}>
                   {selectedSubmission.notes.startsWith('http') ? (
                     <a href={selectedSubmission.notes} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--neon-primary)', textDecoration: 'underline' }}>
@@ -2398,7 +2412,7 @@ export default function TrainerDashboard() {
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Trainer Feedback</label>
+              <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Trainer Feedback</label>
               <textarea
                 className="glass-input"
                 rows={3}
@@ -2472,13 +2486,13 @@ export default function TrainerDashboard() {
               <div>
                 <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'monospace' }}>STUDENT_PERFORMANCE_METRICS</span>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>{selectedStudent.name}</h3>
-                <p style={{ color: '#a0aec0', fontSize: '0.9rem', marginTop: '2px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '2px' }}>
                   {selectedStudent.email} • {selectedStudent.college?.name || 'Global Portal'}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedStudent(null)}
-                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}
               >
                 &times;
               </button>
@@ -2544,13 +2558,13 @@ export default function TrainerDashboard() {
                         transform: 'translate(-50%, -50%)',
                         textAlign: 'center'
                       }}>
-                        <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                           {selectedStudent.stats.totalTasksCount > 0 ? Math.round((selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100) : 0}%
                         </span>
-                        <p style={{ fontSize: '0.65rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Approved</p>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Approved</p>
                       </div>
                     </div>
-                    <span style={{ marginTop: '10px', fontSize: '0.85rem', color: '#a0aec0', fontWeight: 600 }}>Completion Progress Ring</span>
+                    <span style={{ marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Completion Progress Ring</span>
                   </div>
 
                   {/* Progress Counters Panel */}
@@ -2568,7 +2582,7 @@ export default function TrainerDashboard() {
                       <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.rejectedCount}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Total Assigned Tasks</span>
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Total Assigned Tasks</span>
                       <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.totalTasksCount}</span>
                     </div>
                   </div>
@@ -2578,7 +2592,7 @@ export default function TrainerDashboard() {
                 <h4 style={{ fontSize: '1rem', color: 'var(--neon-secondary)', marginBottom: '1rem', fontFamily: 'monospace' }}>TASK_PROGRESSION_BREAKDOWN</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '250px', overflowY: 'auto' }}>
                   {tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).length === 0 ? (
-                    <div style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>No tasks assigned to this student's college.</div>
+                    <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem' }}>No tasks assigned to this student's college.</div>
                   ) : (
                     tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).map((task) => {
                       const sub = submissions.find(s => s.task?._id === task._id && s.student._id === selectedStudent._id);
@@ -2603,7 +2617,7 @@ export default function TrainerDashboard() {
                         }}>
                           <div>
                             <strong style={{ fontSize: '0.95rem', display: 'block' }}>{task.title}</strong>
-                            <span style={{ fontSize: '0.8rem', color: '#718096' }}>Due Date: {new Date(task.dueDate).toLocaleDateString()}</span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Due Date: {new Date(task.dueDate).toLocaleDateString()}</span>
                           </div>
                           
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -2632,11 +2646,11 @@ export default function TrainerDashboard() {
               <>
                 {/* Coding Assessments Tab View */}
                 {isLoadingAnalytics ? (
-                  <div style={{ textAlign: 'center', padding: '3rem', color: '#a0aec0' }}>
+                  <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                     Fetching coding telemetry records...
                   </div>
                 ) : !studentAnalytics ? (
-                  <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
+                  <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                     Failed to fetch assessment records.
                   </div>
                 ) : (
@@ -2645,19 +2659,19 @@ export default function TrainerDashboard() {
                     {/* Summary Metrics */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
                       <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>TOTAL_SCORE</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-secondary)' }}>{studentAnalytics.totalPoints} pts</h4>
                       </div>
                       <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 255, 135, 0.2)' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CHALLENGES_SOLVED</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>CHALLENGES_SOLVED</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#00ff87' }}>{studentAnalytics.solvedCount} / 100</h4>
                       </div>
                       <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>CLASS_CODING_RANK</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>CLASS_CODING_RANK</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#10b981' }}>#{studentAnalytics.rank}</h4>
                       </div>
                       <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(255, 208, 0, 0.2)' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>COMPLETION_RATE</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>COMPLETION_RATE</span>
                         <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#ffd000' }}>{studentAnalytics.solvedCount}%</h4>
                       </div>
                     </div>
@@ -2666,7 +2680,7 @@ export default function TrainerDashboard() {
                     <h4 style={{ fontSize: '1rem', color: 'var(--neon-secondary)', margin: '0.5rem 0 0', fontFamily: 'monospace' }}>SOLVED_CHALLENGES_DIRECTORY</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
                       {studentAnalytics.submissions.length === 0 ? (
-                        <div style={{ textAlign: 'center', color: '#718096', padding: '2rem' }}>
+                        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
                           No solved coding challenges recorded yet.
                         </div>
                       ) : (
@@ -2681,12 +2695,12 @@ export default function TrainerDashboard() {
                             alignItems: 'center'
                           }}>
                             <div>
-                              <strong style={{ fontSize: '0.9rem', color: '#fff' }}>{s.assessmentTitle}</strong>
+                              <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{s.assessmentTitle}</strong>
                               <div style={{ display: 'flex', gap: '6px', marginTop: '4px', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.65rem', padding: '1px 5px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', color: '#a0aec0', fontFamily: 'monospace' }}>
+                                <span style={{ fontSize: '0.65rem', padding: '1px 5px', borderRadius: '3px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                                   {s.assessmentType.toUpperCase()}
                                 </span>
-                                <span style={{ fontSize: '0.65rem', color: '#718096' }}>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
                                   Solved: {new Date(s.completedAt).toLocaleDateString()}
                                 </span>
                               </div>
@@ -2709,23 +2723,23 @@ export default function TrainerDashboard() {
                   {/* Stats Grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
                     <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(16, 185, 129, 0.2)', background: 'rgba(16, 185, 129, 0.01)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_XP_POINTS</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>TOTAL_XP_POINTS</span>
                       <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-secondary)' }}>{selectedStudent.points || 0} pts</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 180, 255, 0.2)', background: 'rgba(0, 180, 255, 0.01)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>NOTES_CREATED</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>NOTES_CREATED</span>
                       <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-blue)' }}>{selectedStudent.studyNotesCount || 0}</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(255, 0, 127, 0.2)', background: 'rgba(255, 0, 127, 0.01)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>PLAYGROUND_RUNS</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>PLAYGROUND_RUNS</span>
                       <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#ff007f' }}>{selectedStudent.playgroundRuns || 0}</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(245, 158, 11, 0.2)', background: 'rgba(245, 158, 11, 0.01)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>COMPILER_RUNS</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>COMPILER_RUNS</span>
                       <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-primary)' }}>{selectedStudent.compilerRuns || 0}</h4>
                     </div>
                     <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(177, 0, 232, 0.2)', background: 'rgba(177, 0, 232, 0.01)' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>MERN_NOTES_READ</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>MERN_NOTES_READ</span>
                       <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#b100e8' }}>{selectedStudent.notesReadCount || 0}</h4>
                     </div>
                   </div>
@@ -2769,7 +2783,7 @@ export default function TrainerDashboard() {
                             </div>
                             <div>
                               <strong style={{ fontSize: '0.85rem', color: isUnlocked ? '#fff' : '#718096' }}>{badge.title}</strong>
-                              <p style={{ fontSize: '0.75rem', color: '#718096', marginTop: '2px' }}>{badge.desc}</p>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{badge.desc}</p>
                               <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: isUnlocked ? '#00ff87' : '#ef4444', display: 'block', marginTop: '4px' }}>
                                 {isUnlocked ? '● UNLOCKED' : '○ LOCKED'}
                               </span>

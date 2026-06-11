@@ -408,7 +408,7 @@ const CompilerTabPanel = memo(({ lang, isFullscreen, onLangChange, onFullscreenT
         <div>
           <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'monospace' }}>ONLINE_CODE_COMPILER</span>
           <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Code Compiler</h3>
-          <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>Write and run code in 9 languages instantly using the embedded terminal runner.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Write and run code in 9 languages instantly using the embedded terminal runner.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '520px' }}>
@@ -1925,13 +1925,13 @@ export default function StudentDashboard() {
             cursor: tasksPage === 1 ? 'not-allowed' : 'pointer',
             border: '1px solid var(--border-glass)',
             background: 'rgba(255,255,255,0.05)',
-            color: '#fff',
+            color: 'var(--text-primary)',
             borderRadius: '4px'
           }}
         >
           Previous
         </button>
-        <span style={{ fontSize: '0.85rem', color: '#a0aec0', fontFamily: 'monospace' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
           PAGE {tasksPage} OF {totalTasksPages}
         </span>
         <button
@@ -1946,7 +1946,7 @@ export default function StudentDashboard() {
             cursor: tasksPage === totalTasksPages ? 'not-allowed' : 'pointer',
             border: '1px solid var(--border-glass)',
             background: 'rgba(255,255,255,0.05)',
-            color: '#fff',
+            color: 'var(--text-primary)',
             borderRadius: '4px'
           }}
         >
@@ -2021,7 +2021,7 @@ export default function StudentDashboard() {
                 height: '28px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -2219,19 +2219,19 @@ export default function StudentDashboard() {
               {/* Stats Counters */}
               <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
                 <div className="glass-panel">
-                  <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>ASSIGNED_TASKS</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>ASSIGNED_TASKS</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{totalTasks}</h3>
                 </div>
                 <div className="glass-panel">
-                  <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>COMPLETED_APPROVED</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>COMPLETED_APPROVED</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#00ff87' }}>{approvedCount}</h3>
                 </div>
                 <div className="glass-panel">
-                  <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>AWAITING_REVIEW</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>AWAITING_REVIEW</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ffd000' }}>{pendingCount}</h3>
                 </div>
                 <div className="glass-panel">
-                  <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>REQUESTS_REVISION</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>REQUESTS_REVISION</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ef4444' }}>{rejectedCount}</h3>
                 </div>
               </div>
@@ -2239,23 +2239,23 @@ export default function StudentDashboard() {
               {/* Telemetry & Gamification Counters */}
               <div className="dashboard-grid" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
                 <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-secondary)', background: 'rgba(16, 185, 129, 0.02)' }}>
-                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>⭐ EXPERIENCE_POINTS</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', fontFamily: 'monospace' }}>⭐ EXPERIENCE_POINTS</p>
                   <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-secondary)' }}>{points} XP</h3>
                 </div>
                 <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-blue)', background: 'rgba(0, 180, 255, 0.02)' }}>
-                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>📝 WORKSPACE_NOTES</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', fontFamily: 'monospace' }}>📝 WORKSPACE_NOTES</p>
                   <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-blue)' }}>{studyNotesCount}</h3>
                 </div>
                 <div className="glass-panel" style={{ borderLeft: '3px solid #ff007f', background: 'rgba(255, 0, 127, 0.02)' }}>
-                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>🎮 PLAYGROUND_RUNS</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', fontFamily: 'monospace' }}>🎮 PLAYGROUND_RUNS</p>
                   <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: '#ff007f' }}>{playgroundRuns}</h3>
                 </div>
                 <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-primary)', background: 'rgba(245, 158, 11, 0.02)' }}>
-                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>⚙️ COMPILER_RUNS</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', fontFamily: 'monospace' }}>⚙️ COMPILER_RUNS</p>
                   <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{compilerRuns}</h3>
                 </div>
                 <div className="glass-panel" style={{ borderLeft: '3px solid #b100e8', background: 'rgba(177, 0, 232, 0.02)' }}>
-                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>📚 MERN_NOTES_READ</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', fontFamily: 'monospace' }}>📚 MERN_NOTES_READ</p>
                   <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: '#b100e8' }}>{notesReadCount}</h3>
                 </div>
               </div>
@@ -2268,7 +2268,7 @@ export default function StudentDashboard() {
               {paginatedTasks.length === 0 ? (
                 <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                   <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📂</span>
-                  <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Active Tasks</h4>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Active Tasks</h4>
                   <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No milestones or deliverables have been deployed to your college workspace code. Relax or check with your instructor!</p>
                 </div>
               ) : (
@@ -2304,7 +2304,7 @@ export default function StudentDashboard() {
                         >
                           <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                              <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'monospace' }}>
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                                 DUE: {new Date(task.dueDate).toLocaleDateString()}
                               </span>
                               <span className={`badge badge-${task.status.replace('_', '-')}`}>
@@ -2313,7 +2313,7 @@ export default function StudentDashboard() {
                             </div>
 
                             <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>{task.title}</h4>
-                            <p style={{ color: '#a0aec0', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
                               {task.description}
                             </p>
                           </div>
@@ -2326,7 +2326,7 @@ export default function StudentDashboard() {
                               background: isRejected ? 'rgba(255,0,85,0.04)' : 'rgba(0,255,135,0.04)',
                               border: `1px solid ${isRejected ? 'rgba(255,0,85,0.1)' : 'rgba(0,255,135,0.1)'}`,
                               fontSize: '0.8rem',
-                              color: '#a0aec0'
+                              color: 'var(--text-muted)'
                             }}>
                               <strong style={{ color: isRejected ? '#ef4444' : '#00ff87', display: 'block', marginBottom: '2px' }}>
                                 Trainer feedback:
@@ -2442,7 +2442,7 @@ export default function StudentDashboard() {
                 ) : quizzes.length === 0 ? (
                   <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🛡️</span>
-                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Active Quizzes</h4>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Active Quizzes</h4>
                     <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No proctored examination environments are scheduled for your college at this time. Check back later.</p>
                   </div>
                 ) : (
@@ -2463,14 +2463,14 @@ export default function StudentDashboard() {
                       >
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                            <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'var(--font-mono)' }}>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                               LIMIT: {quiz.durationMinutes} MINS
                             </span>
                             <span className={`badge ${quiz.isCompleted ? 'badge-approved' : 'badge-pending'}`}>
                               {quiz.isCompleted ? 'COMPLETED' : 'PENDING'}
                             </span>
                           </div>
-                          <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>{quiz.title}</h4>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{quiz.title}</h4>
                           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
                             {quiz.description}
                           </p>
@@ -2508,7 +2508,7 @@ export default function StudentDashboard() {
                 ) : myQuizResults.length === 0 ? (
                   <div className="glass-panel animated-entry delay-2" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                     <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📊</span>
-                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Attempt Records</h4>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Attempt Records</h4>
                     <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>You have not submitted any exam or quiz deliverables yet.</p>
                   </div>
                 ) : (
@@ -2534,7 +2534,7 @@ export default function StudentDashboard() {
                           return (
                             <tr key={resultItem._id} className="leaderboard-row">
                               <td>
-                                <strong style={{ color: '#fff' }}>{quizData.title}</strong>
+                                <strong style={{ color: 'var(--text-primary)' }}>{quizData.title}</strong>
                                 <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                                   Submitted: {new Date(resultItem.submittedAt).toLocaleString()}
                                 </span>
@@ -2609,7 +2609,7 @@ export default function StudentDashboard() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-glass)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
                       <div>
                         <span style={{ fontSize: '0.75rem', color: '#10b981', fontFamily: 'var(--font-mono)', letterSpacing: '1px', textTransform: 'uppercase' }}>EXAM_SUBMISSION_DETAILS</span>
-                        <h4 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '4px 0 0', color: '#fff' }}>
+                        <h4 style={{ fontSize: '1.35rem', fontWeight: 700, margin: '4px 0 0', color: 'var(--text-primary)' }}>
                           {selectedQuizResult.quiz?.title || 'Quiz Review'}
                         </h4>
                         <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
@@ -2634,7 +2634,7 @@ export default function StudentDashboard() {
                       <button
                         onClick={() => setSelectedQuizResult(null)}
                         className="theme-toggle"
-                        style={{ border: 'none', background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: '1rem', width: '32px', height: '32px' }}
+                        style={{ border: 'none', background: 'rgba(255,255,255,0.03)', color: 'var(--text-primary)', fontSize: '1rem', width: '32px', height: '32px' }}
                       >
                         ✕
                       </button>
@@ -2657,7 +2657,7 @@ export default function StudentDashboard() {
                               flexDirection: 'column',
                               gap: '10px'
                             }}>
-                              <h5 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff', lineHeight: '1.5' }}>
+                              <h5 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: '1.5' }}>
                                 {qIdx + 1}. {q.questionText}
                                 <span style={{ 
                                   marginLeft: '10px',
@@ -2967,20 +2967,20 @@ export default function StudentDashboard() {
               }}>
                 <div>
                   <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CODE_CHALLENGE_WORKSPACE</span>
-                  <h3 style={{ fontSize: '1.65rem', fontWeight: 700, margin: 0, color: '#fff' }}>Coding Assessments</h3>
-                  <p style={{ color: '#a0aec0', fontSize: '0.9rem', margin: '6px 0 0', lineHeight: '1.5' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
+                  <h3 style={{ fontSize: '1.65rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>Coding Assessments</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: '6px 0 0', lineHeight: '1.5' }}>Complete sandboxed coding tasks, earn points, and climb the leaderboard.</p>
                 </div>
                 
                 {/* Stats */}
                 <div style={{ display: 'flex', gap: '1.5rem' }}>
                   <div className="assessment-stats-card total-score">
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>TOTAL_SCORE</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>TOTAL_SCORE</span>
                     <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: 'var(--neon-secondary)', textShadow: 'var(--glow-secondary)' }}>
                       {assessmentTotalPoints} <span style={{ fontSize: '0.9rem', fontWeight: 400, color: 'var(--text-muted)' }}>pts</span>
                     </h4>
                   </div>
                   <div className="assessment-stats-card completed">
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>COMPLETED</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>COMPLETED</span>
                     <h4 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '6px 0 0', color: '#00ff87', textShadow: '0 0 12px rgba(0, 255, 135, 0.5)' }}>
                       {assessmentCompletedCount} <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-muted)' }}>/ {assessmentsList.length}</span>
                     </h4>
@@ -3051,7 +3051,7 @@ export default function StudentDashboard() {
               </div>
 
               {isAssessmentsLoading && assessmentsList.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#a0aec0' }}>
+                <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
                   Loading assessments database...
                 </div>
               ) : assessmentTab === 'challenges' ? (
@@ -3087,7 +3087,7 @@ export default function StudentDashboard() {
                           background: 'rgba(10, 10, 15, 0.4)',
                           borderColor: 'var(--border-glass)',
                           borderRadius: '12px',
-                          color: '#fff',
+                          color: 'var(--text-primary)',
                           outline: 'none',
                           transition: 'all 0.3s ease'
                         }}
@@ -3202,7 +3202,7 @@ export default function StudentDashboard() {
                           );
                         })}
                       {assessmentsList.filter(a => a.title.toLowerCase().includes(assessmentSearchQuery.toLowerCase())).length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#718096', fontSize: '0.85rem' }}>
+                        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                           No matching challenges.
                         </div>
                       )}
@@ -3234,7 +3234,7 @@ export default function StudentDashboard() {
                     borderColor: 'var(--border-glass-hover)'
                   }}>
                     {!selectedAssessment ? (
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#718096', gap: '15px', textAlign: 'center' }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: '15px', textAlign: 'center' }}>
                         <div style={{
                           width: '70px',
                           height: '70px',
@@ -3254,7 +3254,7 @@ export default function StudentDashboard() {
                           </svg>
                         </div>
                         <div>
-                          <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 600, marginBottom: '4px' }}>Workspace Empty</h4>
+                          <h4 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 600, marginBottom: '4px' }}>Workspace Empty</h4>
                           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Select a challenge from the left to load the code environment.</span>
                         </div>
                       </div>
@@ -3270,7 +3270,7 @@ export default function StudentDashboard() {
                           boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                            <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', margin: 0 }}>{selectedAssessment.title}</h4>
+                            <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{selectedAssessment.title}</h4>
                             <span style={{ 
                               fontSize: '0.75rem', 
                               color: 'var(--neon-secondary)', 
@@ -3555,7 +3555,7 @@ export default function StudentDashboard() {
                           
                           {/* Test Checklist status pills */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: '240px' }}>
-                            <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>VERIFICATION_CHECKLIST:</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.5px' }}>VERIFICATION_CHECKLIST:</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               {assessmentTestResults.map((tc, idx) => {
                                 let pillBg = 'rgba(10, 10, 15, 0.4)';
@@ -3673,17 +3673,17 @@ export default function StudentDashboard() {
                 }}>
                   <div style={{ marginBottom: '2rem' }}>
                     <span style={{ fontSize: '0.75rem', color: '#f59e0b', fontFamily: 'var(--font-mono)', letterSpacing: '1px' }}>GLOBAL_SCOREBOARD</span>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: '4px 0 0' }}>Performance Leaderboard</h4>
+                    <h4 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0 0' }}>Performance Leaderboard</h4>
                   </div>
                   
                   {isLeaderboardLoading && leaderboardList.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#a0aec0' }}>
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                       Accessing server analytics...
                     </div>
                   ) : leaderboardList.length === 0 ? (
                     <div className="glass-panel animated-entry delay-3" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                       <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🏆</span>
-                      <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>Empty Leaderboard</h4>
+                      <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Empty Leaderboard</h4>
                       <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>Be the first to solve a coding challenge and claim the top rank!</p>
                     </div>
                   ) : (
@@ -3743,7 +3743,7 @@ export default function StudentDashboard() {
                                       height: '34px',
                                       borderRadius: '50%',
                                       background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
-                                      color: '#fff',
+                                      color: 'var(--text-primary)',
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
@@ -3755,7 +3755,7 @@ export default function StudentDashboard() {
                                       {row.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
                                     </div>
                                     <div>
-                                      <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{row.name}</strong>
+                                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{row.name}</strong>
                                       <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{row.email}</span>
                                     </div>
                                   </div>
@@ -3842,7 +3842,7 @@ export default function StudentDashboard() {
                       style={{
                         width: '100%',
                         background: 'rgba(0,0,0,0.2)',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         border: '1px solid var(--border-glass)',
                         borderRadius: '6px',
                         padding: '6px 10px',
@@ -3954,7 +3954,7 @@ export default function StudentDashboard() {
                               style={{
                                 flex: 1,
                                 background: 'rgba(255,255,255,0.02)',
-                                color: '#fff',
+                                color: 'var(--text-primary)',
                                 border: '1px solid var(--border-glass)',
                                 borderRadius: '6px',
                                 padding: '8px 12px',
@@ -4078,7 +4078,7 @@ export default function StudentDashboard() {
                                   flex: 1,
                                   width: '100%',
                                   background: '#030305',
-                                  color: '#a0aec0',
+                                  color: 'var(--text-muted)',
                                   fontFamily: 'monospace',
                                   fontSize: '0.85rem',
                                   padding: '12px',
@@ -4210,7 +4210,7 @@ export default function StudentDashboard() {
               <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.5rem' }}>
                 <div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>SPARK_STUDY_CENTER</span>
-                  <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>MERN Full-Stack Hub</h2>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>MERN Full-Stack Hub</h2>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
                     S - Student Progress | A - Assessment | R - Resources | K - Knowledge
                   </p>
@@ -4254,7 +4254,7 @@ export default function StudentDashboard() {
                         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                           <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>KNOWLEDGE_TELEMETRY</span>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>MERN Full-Stack Interview Practice Topics</h3>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>MERN Full-Stack Interview Practice Topics</h3>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
                               Select a core technology stack module below to practice interactive questions, run AI verification tests, and reveal standard answers.
                             </p>
@@ -4286,7 +4286,7 @@ export default function StudentDashboard() {
                                 >
                                   <div>
                                     <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{topic.icon}</div>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', margin: 0 }}>{topic.title}</h4>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: 'var(--text-primary)', margin: 0 }}>{topic.title}</h4>
                                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{topic.desc}</p>
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed var(--border-glass)', paddingTop: '10px' }}>
@@ -4323,7 +4323,7 @@ export default function StudentDashboard() {
                               </button>
                               <div>
                                 <span style={{ fontSize: '0.7rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>INTERACTIVE_PRACTICE_MODULE</span>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginTop: '2px' }}>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
                                   {selectedInterviewTopic} Questions ({mernQuestions.filter(q => q.category === selectedInterviewTopic).length})
                                 </h3>
                               </div>
@@ -4501,7 +4501,7 @@ export default function StudentDashboard() {
                         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                           <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>NOTES_TELEMETRY</span>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>Full-Stack Study Library Categories</h3>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>Full-Stack Study Library Categories</h3>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
                               Select a module to view, read, and download curated lecture notes, cheat sheets, and course materials.
                             </p>
@@ -4538,7 +4538,7 @@ export default function StudentDashboard() {
                                 >
                                   <div>
                                     <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{folder.icon}</div>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', margin: 0 }}>{folder.title}</h4>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: 'var(--text-primary)', margin: 0 }}>{folder.title}</h4>
                                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{folder.desc}</p>
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px dashed var(--border-glass)', paddingTop: '10px' }}>
@@ -4564,7 +4564,7 @@ export default function StudentDashboard() {
 
                           {/* Featured Materials Section */}
                           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border-glass)', paddingTop: '2rem' }}>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: '#fff', marginBottom: '1.25rem' }}>★ Core Full-Stack Materials</h4>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 750, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>★ Core Full-Stack Materials</h4>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                               {(() => {
                                 const flatNotes = mernResources ? flattenResources(mernResources.notes) : [];
@@ -4652,7 +4652,7 @@ export default function StudentDashboard() {
                                             {item.badgeText}
                                           </span>
                                         </div>
-                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '8px 0 4px 0' }}>{item.title}</h4>
+                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: '8px 0 4px 0' }}>{item.title}</h4>
                                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '6px', lineHeight: '1.4' }}>{item.desc}</p>
                                       </div>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: `1px dashed ${item.borderColor}`, paddingTop: '10px' }}>
@@ -4717,7 +4717,7 @@ export default function StudentDashboard() {
                                 value={noteCategoryFilter} 
                                 onChange={(e) => setNoteCategoryFilter(e.target.value)}
                                 className="glass-input" 
-                                style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-glass)' }}
+                                style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto', background: 'rgba(0,0,0,0.3)', color: 'var(--text-primary)', border: '1px solid var(--border-glass)' }}
                               >
                                 <option value="All">All Formats</option>
                                 <option value="pdf">PDF Documents</option>
@@ -4758,7 +4758,7 @@ export default function StudentDashboard() {
                                 return (
                                   <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                                     <span style={{ fontSize: '2rem' }}>🔍</span>
-                                    <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No resources found</h4>
+                                    <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: 'var(--text-primary)' }}>No resources found</h4>
                                     <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>Try refining your search query or format filter selection.</p>
                                   </div>
                                 );
@@ -4815,7 +4815,7 @@ export default function StudentDashboard() {
                                           </div>
 
                                           {/* Title */}
-                                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 4px 0', color: '#fff', lineHeight: '1.4' }}>
+                                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '6px 0 4px 0', color: 'var(--text-primary)', lineHeight: '1.4' }}>
                                             {meta.displayName}
                                           </h4>
                                           
@@ -4876,7 +4876,7 @@ export default function StudentDashboard() {
                       <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '1.25rem' }}>
                           <span style={{ fontSize: '0.75rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>RESOURCES_TELEMETRY</span>
-                          <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginTop: '4px' }}>Interview Question Documents</h3>
+                          <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>Interview Question Documents</h3>
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
                             Download the official PDF and Word interview question guides with curated answers. All files have been rebranded with SPARK.io watermarks and headers.
                           </p>
@@ -4893,7 +4893,7 @@ export default function StudentDashboard() {
                               return (
                                 <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                                   <span style={{ fontSize: '2rem' }}>🔍</span>
-                                  <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: '#fff' }}>No documents found</h4>
+                                  <h4 style={{ fontSize: '1rem', marginTop: '0.75rem', color: 'var(--text-primary)' }}>No documents found</h4>
                                   <p style={{ fontSize: '0.8rem', margin: '4px 0 0 0' }}>The interview questions directory is empty.</p>
                                 </div>
                               );
@@ -4929,7 +4929,7 @@ export default function StudentDashboard() {
                                         <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                                           {meta.category}
                                         </div>
-                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '6px 0 4px 0', lineHeight: '1.4' }}>
+                                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: '6px 0 4px 0', lineHeight: '1.4' }}>
                                           {meta.displayName}
                                         </h4>
                                       </div>
@@ -5320,7 +5320,7 @@ export default function StudentDashboard() {
                   type="submit"
                   disabled={isSubmitting || !screenshotFile}
                   className="btn-neon btn-transmit"
-                  style={{ color: '#fff', gap: '8px' }}
+                  style={{ color: 'var(--text-primary)', gap: '8px' }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
                     <line x1="22" y1="2" x2="11" y2="13" />
@@ -5392,7 +5392,7 @@ export default function StudentDashboard() {
                       height: '90px',
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
-                      color: '#fff',
+                      color: 'var(--text-primary)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -5505,7 +5505,7 @@ export default function StudentDashboard() {
                   type="submit"
                   disabled={isUpdatingProfile}
                   className="btn-neon btn-save"
-                  style={{ color: '#fff', gap: '8px' }}
+                  style={{ color: 'var(--text-primary)', gap: '8px' }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease' }}>
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />

@@ -1,74 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* Default Dark Theme variables - Midnight Navy & Champagne Gold */
+/* Default Dark Theme variables - Nordic Pine & Terracotta */
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #0a0b10;
-  --bg-glass: rgba(13, 17, 26, 0.65);
-  --bg-glass-hover: rgba(20, 26, 38, 0.78);
+  --bg-dark: #071110;
+  --bg-glass: rgba(13, 26, 24, 0.65);
+  --bg-glass-hover: rgba(20, 38, 35, 0.78);
   --border-glass: rgba(255, 255, 255, 0.05);
-  --border-glass-hover: rgba(212, 175, 55, 0.4);
+  --border-glass-hover: rgba(226, 114, 91, 0.4);
 
-  --neon-primary: #d4af37;       /* Champagne Gold */
-  --neon-secondary: #64dfdf;     /* Ice Cyan */
-  --neon-blue: #3a86c8;          /* Classic Steel Blue */
-  --neon-green: #10b981;         /* success state */
-  --neon-red: #f43f5e;           /* error state */
-  --neon-yellow: #f59e0b;        /* warning state */
+  --neon-primary: #e2725b;       /* Terracotta */
+  --neon-secondary: #8db596;     /* Eucalyptus/Sage */
+  --neon-blue: #8db596;
+  --neon-green: #a3c1ad;
+  --neon-red: #ef4444;
+  --neon-yellow: #f59e0b;
 
   --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;     /* Light Slate */
-  --text-muted: #64748b;
+  --text-secondary: #d1e0db;
+  --text-muted: #809c91;
 
-  --glow-primary: 0 0 16px rgba(212, 175, 55, 0.45), 0 0 4px rgba(212, 175, 55, 0.15);
-  --glow-secondary: 0 0 16px rgba(100, 223, 223, 0.45), 0 0 4px rgba(100, 223, 223, 0.15);
-  --glow-green: 0 0 16px rgba(16, 185, 129, 0.4);
-  --glow-red: 0 0 16px rgba(244, 63, 94, 0.4);
+  --glow-primary: 0 0 16px rgba(226, 114, 91, 0.45), 0 0 4px rgba(226, 114, 91, 0.15);
+  --glow-secondary: 0 0 16px rgba(141, 181, 150, 0.45), 0 0 4px rgba(141, 181, 150, 0.15);
+  --glow-green: 0 0 16px rgba(163, 193, 173, 0.4);
+  --glow-red: 0 0 16px rgba(239, 68, 68, 0.4);
   --glow-yellow: 0 0 16px rgba(245, 158, 11, 0.4);
 
   --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(255, 255, 255, 0.01);
   --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(212, 175, 55, 0.03);
-  --modal-overlay: rgba(3, 4, 8, 0.85);
+  --grid-line: rgba(226, 114, 91, 0.03);
+  --modal-overlay: rgba(3, 8, 7, 0.85);
 
-  --shadow-hover-panel: 0 20px 45px rgba(212, 175, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --shadow-hover-tilt: 0 25px 50px rgba(100, 223, 223, 0.08);
+  --shadow-hover-panel: 0 20px 45px rgba(226, 114, 91, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-hover-tilt: 0 25px 50px rgba(141, 181, 150, 0.08);
 }
 
 /* Light Theme overrides - Premium Light Slate & Dark Contrast Panels */
 :root.light {
-  --bg-dark: #f4f6f9;
-  --bg-glass: rgba(255, 255, 255, 0.75);
-  --bg-glass-hover: rgba(255, 255, 255, 0.9);
-  --border-glass: rgba(13, 17, 26, 0.06);
-  --border-glass-hover: rgba(180, 140, 40, 0.4);
+  --bg-dark: #ffffff;
+  --bg-glass: #fcfdfd;
+  --bg-glass-hover: #f2f6f5;
+  --border-glass: rgba(7, 17, 16, 0.08);
+  --border-glass-hover: rgba(226, 114, 91, 0.4);
 
-  --neon-primary: #b8860b;       /* Dark Gold */
-  --neon-secondary: #008b8b;     /* Dark Cyan */
-  --neon-blue: #1a5b8c;          /* Steel Blue */
-  --neon-green: #059669;
+  --neon-primary: #c8553d;       /* Dark Terracotta */
+  --neon-secondary: #4f7156;     /* Dark Sage */
+  --neon-blue: #4f7156;
+  --neon-green: #16a34a;
   --neon-red: #dc2626;
   --neon-yellow: #d97706;
 
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-primary: #0b1a18;
+  --text-secondary: #2a3b37;
+  --text-muted: #52635f;
 
-  --glow-primary: 0 2px 8px rgba(184, 134, 11, 0.08);
-  --glow-secondary: 0 2px 8px rgba(0, 139, 139, 0.08);
-  --glow-green: 0 2px 8px rgba(5, 150, 105, 0.08);
+  --glow-primary: 0 2px 8px rgba(200, 85, 61, 0.08);
+  --glow-secondary: 0 2px 8px rgba(79, 113, 86, 0.08);
+  --glow-green: 0 2px 8px rgba(22, 163, 74, 0.08);
   --glow-red: 0 2px 8px rgba(220, 38, 38, 0.08);
   --glow-yellow: 0 2px 8px rgba(217, 119, 6, 0.08);
 
-  --card-shadow: 0 10px 30px rgba(13, 17, 26, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --card-shadow: 0 10px 30px rgba(7, 17, 16, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(13, 17, 26, 0.015);
-  --modal-overlay: rgba(13, 17, 26, 0.45);
+  --grid-line: rgba(7, 17, 16, 0.015);
+  --modal-overlay: rgba(7, 17, 16, 0.45);
 
-  --shadow-hover-panel: 0 20px 45px rgba(180, 140, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  --shadow-hover-tilt: 0 25px 50px rgba(0, 139, 139, 0.08);
+  --shadow-hover-panel: 0 20px 45px rgba(226, 114, 91, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-hover-tilt: 0 25px 50px rgba(79, 113, 86, 0.08);
 }
 
 * {
@@ -82,10 +82,10 @@
 body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(220, 50%, 8%, 1) 0, transparent 55%),
-    radial-gradient(at 50% 0%, hsla(43, 45%, 6%, 1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(220, 40%, 6%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 100%, hsla(43, 40%, 5%, 1) 0, transparent 55%);
+    radial-gradient(at 0% 0%, hsla(172, 45%, 5%, 1) 0, transparent 55%),
+    radial-gradient(at 50% 0%, hsla(11, 40%, 6%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(172, 40%, 5%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(11, 35%, 5%, 1) 0, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -97,9 +97,9 @@ body {
 :root.light body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.06) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(100, 223, 223, 0.06) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(212, 175, 55, 0.04) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(226, 114, 91, 0.05) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(141, 181, 150, 0.05) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(226, 114, 91, 0.03) 0, transparent 50%);
 }
 
 /* Aurora Background container */
@@ -855,13 +855,13 @@ body {
 
 /* Dark Header navbar in light mode for strong contrast */
 :root.light .glass-panel-header {
-  background: #0d111a !important;
-  border-color: rgba(212, 175, 55, 0.15) !important;
-  box-shadow: 0 10px 30px rgba(13, 17, 26, 0.15) !important;
+  background: #0b1a18 !important;
+  border-color: rgba(226, 114, 91, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(7, 17, 16, 0.15) !important;
 }
 
 :root.light .glass-panel-header * {
-  color: #f8fafc !important;
+  color: #fcfdfd !important;
 }
 
 :root.light .glass-panel-header button.theme-toggle {
@@ -872,13 +872,13 @@ body {
 
 :root.light .glass-panel-header button.theme-toggle:hover {
   background: rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.25) !important;
+  box-shadow: 0 0 10px rgba(226, 114, 91, 0.25) !important;
 }
 
 /* Sidebar navigation panels for strong contrast in light mode */
 :root.light .glass-panel-sidebar {
-  background: #0d111a !important;
-  border-color: rgba(212, 175, 55, 0.15) !important;
+  background: #0b1a18 !important;
+  border-color: rgba(226, 114, 91, 0.15) !important;
 }
 
 :root.light .glass-panel-sidebar * {
@@ -899,6 +899,6 @@ body {
 
 :root.light .glass-panel-sidebar .sidebar-btn.active {
   background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(212, 175, 55, 0.3) !important;
+  border-color: rgba(226, 114, 91, 0.3) !important;
   color: #ffffff !important;
 }
