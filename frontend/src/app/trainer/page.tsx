@@ -616,6 +616,22 @@ export default function TrainerDashboard() {
     }
   };
 
+  const handleDeleteTask = async (taskId: string, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete the task "${title}"? This will permanently erase all student submissions associated with this task.`)) {
+      return;
+    }
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      await api.delete(`/tasks/${taskId}`);
+      setTasks(prev => prev.filter(t => t._id !== taskId));
+      setSuccessMsg(`Task "${title}" and all related student submissions deleted successfully.`);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to delete task');
+    }
+  };
+
   const handleFileUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!importFile) return;
@@ -1316,10 +1332,27 @@ export default function TrainerDashboard() {
                         <strong>{t.title}</strong>
                         <span className="badge badge-not-submitted" style={{ fontSize: '0.7rem' }}>{t.college?.code}</span>
                       </div>
-                      <p style={{ fontSize: '0.85rem', color: '#a0aec0', lineHeight: '1.4' }}>{t.description}</p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#718096', marginTop: '6px' }}>
-                        <span>Due: {new Date(t.dueDate).toLocaleDateString()}</span>
-                        <span style={{ color: 'var(--neon-secondary)' }}>Submissions: {t.stats.totalSubmissions} ({t.stats.approved} approved)</span>
+                      <p style={{ fontSize: '0.85rem', color: '#a0aec0', lineHeight: '1.4', marginBottom: '8px' }}>{t.description}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#718096', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
+                        <div>
+                          <span style={{ display: 'block' }}>Due: {new Date(t.dueDate).toLocaleDateString()}</span>
+                          <span style={{ color: 'var(--neon-secondary)', display: 'block', marginTop: '2px' }}>Submissions: {t.stats.totalSubmissions} ({t.stats.approved} approved)</span>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteTask(t._id, t.title)}
+                          className="btn-glass"
+                          style={{
+                            padding: '4px 10px',
+                            fontSize: '0.75rem',
+                            background: 'rgba(255, 0, 85, 0.05)',
+                            border: '1px solid rgba(255, 0, 85, 0.2)',
+                            color: 'var(--neon-red)',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Delete Task
+                        </button>
                       </div>
                     </div>
                   ))

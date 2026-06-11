@@ -89,9 +89,37 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
         })
       );
 
-      res.status(200).json(tasksWithStats);
+    res.status(200).json(tasksWithStats);
     }
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to retrieve tasks', error: error.message });
+  }
+};
+
+// Delete a Task and all its associated submissions (Trainer only)
+export const deleteTask = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { taskId } = req.params;
+
+    if (!taskId) {
+      res.status(400).json({ message: 'Task ID is required' });
+      return;
+    }
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      res.status(404).json({ message: 'Task not found' });
+      return;
+    }
+
+    // Delete all submissions for this task
+    await Submission.deleteMany({ task: taskId });
+
+    // Delete the task record itself
+    await Task.findByIdAndDelete(taskId);
+
+    res.status(200).json({ message: 'Task and all related submissions deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Failed to delete task', error: error.message });
   }
 };
