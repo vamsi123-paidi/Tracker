@@ -37,6 +37,12 @@ interface StudentWithStats {
   name: string;
   email: string;
   college?: College;
+  studyNotesCount?: number;
+  playgroundRuns?: number;
+  compilerRuns?: number;
+  notesReadCount?: number;
+  badgesUnlocked?: string[];
+  points?: number;
   stats: {
     totalTasksCount: number;
     approvedCount: number;
@@ -120,7 +126,7 @@ export default function TrainerDashboard() {
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
   const [studentAnalytics, setStudentAnalytics] = useState<any>(null);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
-  const [modalTab, setModalTab] = useState<'tasks' | 'assessments'>('tasks');
+  const [modalTab, setModalTab] = useState<'tasks' | 'assessments' | 'telemetry'>('tasks');
 
   // Filtering states for verification queue
   const [filterCollegeId, setFilterCollegeId] = useState('');
@@ -1170,10 +1176,17 @@ export default function TrainerDashboard() {
                             <span style={{ fontSize: '0.85rem', fontWeight: 600, width: '35px' }}>{rate}%</span>
                           </div>
                         </td>
-                        <td>
-                          <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
-                            ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
-                          </span>
+                         <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
+                              ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
+                            </span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span>⭐ {stud.points || 0} XP</span>
+                              <span style={{ color: 'rgba(255,255,255,0.1)' }}>•</span>
+                              <span>🏅 {(stud.badgesUnlocked || []).length} Badges</span>
+                            </span>
+                          </div>
                         </td>
                         <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <button
@@ -2138,6 +2151,13 @@ export default function TrainerDashboard() {
               >
                 Coding Assessments
               </button>
+              <button
+                onClick={() => setModalTab('telemetry')}
+                className={`btn-glass ${modalTab === 'telemetry' ? 'btn-neon' : ''}`}
+                style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}
+              >
+                Telemetry & Badges
+              </button>
             </div>
 
             {modalTab === 'tasks' ? (
@@ -2259,7 +2279,7 @@ export default function TrainerDashboard() {
                   )}
                 </div>
               </>
-            ) : (
+            ) : modalTab === 'assessments' ? (
               <>
                 {/* Coding Assessments Tab View */}
                 {isLoadingAnalytics ? (
@@ -2332,6 +2352,85 @@ export default function TrainerDashboard() {
 
                   </div>
                 )}
+              </>
+            ) : (
+              <>
+                {/* Telemetry & Badges Tab View */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  {/* Stats Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+                    <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(16, 185, 129, 0.2)', background: 'rgba(16, 185, 129, 0.01)' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>TOTAL_XP_POINTS</span>
+                      <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-secondary)' }}>{selectedStudent.points || 0} pts</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(0, 180, 255, 0.2)', background: 'rgba(0, 180, 255, 0.01)' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>NOTES_CREATED</span>
+                      <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-blue)' }}>{selectedStudent.studyNotesCount || 0}</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(255, 0, 127, 0.2)', background: 'rgba(255, 0, 127, 0.01)' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>PLAYGROUND_RUNS</span>
+                      <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#ff007f' }}>{selectedStudent.playgroundRuns || 0}</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(245, 158, 11, 0.2)', background: 'rgba(245, 158, 11, 0.01)' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>COMPILER_RUNS</span>
+                      <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: 'var(--neon-primary)' }}>{selectedStudent.compilerRuns || 0}</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', borderColor: 'rgba(177, 0, 232, 0.2)', background: 'rgba(177, 0, 232, 0.01)' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#a0aec0', fontFamily: 'monospace' }}>MERN_NOTES_READ</span>
+                      <h4 style={{ fontSize: '1.4rem', margin: '4px 0 0', color: '#b100e8' }}>{selectedStudent.notesReadCount || 0}</h4>
+                    </div>
+                  </div>
+
+                  {/* Badges Unlocked Section */}
+                  <div>
+                    <h4 style={{ fontSize: '1.05rem', color: 'var(--neon-secondary)', marginBottom: '1rem', fontFamily: 'monospace' }}>UNLOCKED_BADGES_SHELF</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {[
+                        { id: 'transmitter', title: 'Milestone Transmitter', desc: 'Submitted at least one milestone deliverable', color: '#f59e0b', icon: '📤' },
+                        { id: 'master', title: 'Task Master', desc: 'Obtained trainer validation for 3+ tasks', color: '#00ff87', icon: '🏆' },
+                        { id: 'gladiator', title: 'Quiz Gladiator', desc: 'Securely submitted an online quiz', color: '#ffd000', icon: '⚔️' },
+                        { id: 'code_warrior', title: 'Code Warrior', desc: 'Executed playground code successfully', color: '#10b981', icon: '💻' },
+                        { id: 'pomodoro', title: 'Focused Mind', desc: 'Completed a focus interval session', color: '#ef4444', icon: '⏱️' },
+                        { id: 'scholar', title: 'Scholar Creator', desc: 'Compiled a personal revision card', color: '#ec4899', icon: '📖' }
+                      ].map((badge) => {
+                        const isUnlocked = (selectedStudent.badgesUnlocked || []).includes(badge.id);
+                        return (
+                          <div key={badge.id} className="glass-panel" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            opacity: isUnlocked ? 1 : 0.45,
+                            border: isUnlocked ? `1px solid ${badge.color}` : '1px solid var(--border-glass)',
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: isUnlocked ? `${badge.color}05` : 'rgba(255,255,255,0.01)',
+                            boxShadow: isUnlocked ? `0 4px 15px ${badge.color}10` : 'none',
+                          }}>
+                            <div style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: isUnlocked ? `${badge.color}15` : 'rgba(255,255,255,0.02)',
+                              fontSize: '1.25rem'
+                            }}>
+                              {badge.icon}
+                            </div>
+                            <div>
+                              <strong style={{ fontSize: '0.85rem', color: isUnlocked ? '#fff' : '#718096' }}>{badge.title}</strong>
+                              <p style={{ fontSize: '0.75rem', color: '#718096', marginTop: '2px' }}>{badge.desc}</p>
+                              <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: isUnlocked ? '#00ff87' : '#ef4444', display: 'block', marginTop: '4px' }}>
+                                {isUnlocked ? '● UNLOCKED' : '○ LOCKED'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </>
             )}
             

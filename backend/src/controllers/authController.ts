@@ -8,6 +8,9 @@ import path from 'path';
 import { User } from '../models/User.js';
 import { College } from '../models/College.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { Submission } from '../models/Submission.js';
+import { QuizResult } from '../models/QuizResult.js';
+import { AssessmentSubmission } from '../models/AssessmentSubmission.js';
 
 // Setup Cloudinary if credentials are provided
 const useCloudinary = !!(
@@ -184,6 +187,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     // Process profile image upload
     if (file) {
       let profileImageUrl = '';
+      let uploadSuccess = false;
       const hasCloudinaryEnv = !!(
         process.env.CLOUDINARY_CLOUD_NAME &&
         process.env.CLOUDINARY_API_KEY &&
@@ -203,14 +207,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
             );
             Readable.from(file.buffer).pipe(stream);
           });
+          uploadSuccess = true;
         } catch (uploadError: any) {
-          console.error('Cloudinary upload failed for profile image:', uploadError);
-          res.status(500).json({ 
-            message: `Cloudinary upload failed: ${uploadError.message || uploadError}. Please verify your CLOUDINARY credentials in your environment/.env file.` 
-          });
-          return;
+          console.warn('Cloudinary profile upload failed, falling back to local storage:', uploadError);
         }
-      } else {
+      }
+
+      if (!uploadSuccess) {
         // Save file locally to process.cwd()/uploads/ and return relative static URL path
         try {
           const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
@@ -238,5 +241,75 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     });
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to update profile', error: error.message });
+  }
+};
+
+// Update User Progress Telemetry
+export const updateUserProgress = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const studentId = req.user.id;
+    const {
+      studyNotesCount,
+      playgroundRuns,
+      compilerRuns,
+      notesReadCount,
+      badgesUnlocked
+    } = req.body;
+
+    const user = await User.findById(studentId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Merge/update activity fields if they are sent in request body
+    if (typeof studyNotesCount === 'number') user.studyNotesCount = studyNotesCount;
+    if (typeof playgroundRuns === 'number') user.playgroundRuns = playgroundRuns;
+    if (typeof compilerRuns === 'number') user.compilerRuns = compilerRuns;
+    if (typeof notesReadCount === 'number') user.notesReadCount = notesReadCount;
+    if (Array.isArray(badgesUnlocked)) {
+      user.badgesUnlocked = Array.from(new Set([...(user.badgesUnlocked || []), ...badgesUnlocked]));
+    }
+
+    // Calculate dynamic experience points (XP)
+    const approvedMilestones = await Submission.countDocuments({ student: studentId, status: 'approved' });
+    const quizAttempts = await QuizResult.countDocuments({ student: studentId });
+    const assessmentSolves = await AssessmentSubmission.countDocuments({ student: studentId, passedAll: true });
+
+    // Points calculation:
+    // Approved milestones = 50 pts each
+    // Attempted quizzes = 20 pts each
+    // Passed assessments = 30 pts each
+    // Study notes created = 10 pts each
+    // Playground runs = 5 pts each
+    // Compiler runs = 5 pts each
+    // Notes read count = 2 pts each
+    // Badges unlocked = 50 pts each
+    const milestonePoints = approvedMilestones * 50;
+    const quizPoints = quizAttempts * 20;
+    const assessmentPoints = assessmentSolves * 30;
+    const notesCreatedPoints = (user.studyNotesCount || 0) * 10;
+    const playgroundPoints = (user.playgroundRuns || 0) * 5;
+    const compilerPoints = (user.compilerRuns || 0) * 5;
+    const notesReadPoints = (user.notesReadCount || 0) * 2;
+    const badgePoints = (user.badgesUnlocked?.length || 0) * 50;
+
+    user.points = milestonePoints + quizPoints + assessmentPoints + notesCreatedPoints + playgroundPoints + compilerPoints + notesReadPoints + badgePoints;
+
+    await user.save();
+
+    const updatedUser = await User.findById(studentId).select('-passwordHash').populate('college');
+
+    res.status(200).json({
+      message: 'Telemetry progress synced successfully',
+      user: updatedUser
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Failed to sync telemetry progress', error: error.message });
   }
 };

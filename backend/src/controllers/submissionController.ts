@@ -89,6 +89,7 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     let screenshotUrl = '';
+    let uploadSuccess = false;
 
     const hasCloudinaryEnv = !!(
       process.env.CLOUDINARY_CLOUD_NAME &&
@@ -99,14 +100,13 @@ export const submitTask = async (req: AuthRequest, res: Response): Promise<void>
     if (hasCloudinaryEnv) {
       try {
         screenshotUrl = await uploadToCloudinary(file.buffer);
+        uploadSuccess = true;
       } catch (uploadError: any) {
-        console.error('Cloudinary upload failed:', uploadError);
-        res.status(500).json({ 
-          message: `Cloudinary upload failed: ${uploadError.message || uploadError}. Please verify your CLOUDINARY credentials in your environment/.env file.` 
-        });
-        return;
+        console.warn('Cloudinary upload failed, falling back to local storage:', uploadError);
       }
-    } else {
+    }
+
+    if (!uploadSuccess) {
       // Save file locally to process.cwd()/uploads/ and return relative static URL path
       try {
         const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;

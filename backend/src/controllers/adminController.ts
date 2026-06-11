@@ -231,6 +231,12 @@ export const getStudentsList = async (req: AuthRequest, res: Response): Promise<
         name: student.name,
         email: student.email,
         college: student.college,
+        studyNotesCount: student.studyNotesCount || 0,
+        playgroundRuns: student.playgroundRuns || 0,
+        compilerRuns: student.compilerRuns || 0,
+        notesReadCount: student.notesReadCount || 0,
+        badgesUnlocked: student.badgesUnlocked || [],
+        points: student.points || 0,
         stats: {
           totalTasksCount: totalTasks.length,
           approvedCount: approved,

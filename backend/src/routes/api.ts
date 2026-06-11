@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, registerTrainer, getCurrentUser, updateProfile } from '../controllers/authController.js';
+import { login, registerTrainer, getCurrentUser, updateProfile, updateUserProgress } from '../controllers/authController.js';
 import { getColleges, createCollege } from '../controllers/collegeController.js';
 import { getTasks, createTask } from '../controllers/taskController.js';
 import { getSubmissions, submitTask, reviewSubmission, autoReviewSubmission } from '../controllers/submissionController.js';
@@ -18,6 +18,7 @@ router.post('/auth/login', login);
 router.post('/auth/register-trainer', registerTrainer);
 router.get('/auth/me', authenticateToken, getCurrentUser);
 router.put('/auth/profile', authenticateToken, upload.single('profileImage'), updateProfile);
+router.put('/auth/progress', authenticateToken, requireRole('student'), updateUserProgress);
 router.post('/chat', authenticateToken, requireRole('student'), handleChat);
 
 // Colleges

@@ -936,6 +936,78 @@ export default function StudentDashboard() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'vs-light'>('vs-dark');
 
+  // Student Telemetry State Hooks
+  const [studyNotesCount, setStudyNotesCount] = useState(0);
+  const [playgroundRuns, setPlaygroundRuns] = useState(0);
+  const [compilerRuns, setCompilerRuns] = useState(0);
+  const [notesReadCount, setNotesReadCount] = useState(0);
+  const [badgesUnlocked, setBadgesUnlocked] = useState<string[]>([]);
+  const [points, setPoints] = useState(0);
+
+  // Helper to sync telemetry to the backend database
+  const syncTelemetry = async (updates: {
+    studyNotesCount?: number;
+    playgroundRuns?: number;
+    compilerRuns?: number;
+    notesReadCount?: number;
+    badgesUnlocked?: string[];
+  }) => {
+    try {
+      const data = await api.put('/auth/progress', updates);
+      if (data && data.user) {
+        setStudyNotesCount(data.user.studyNotesCount || 0);
+        setPlaygroundRuns(data.user.playgroundRuns || 0);
+        setCompilerRuns(data.user.compilerRuns || 0);
+        setNotesReadCount(data.user.notesReadCount || 0);
+        setBadgesUnlocked(data.user.badgesUnlocked || []);
+        setPoints(data.user.points || 0);
+      }
+    } catch (err) {
+      console.error('Failed to sync telemetry stats:', err);
+    }
+  };
+
+  // Automatic badge monitoring effect
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const localUnlocks: string[] = [];
+
+    // 1. Milestone Transmitter
+    if (tasks.some(t => t.status === 'pending' || t.status === 'approved' || t.status === 'rejected')) {
+      localUnlocks.push('transmitter');
+    }
+    // 2. Task Master
+    const approvedCount = tasks.filter(t => t.status === 'approved').length;
+    if (approvedCount >= 3) {
+      localUnlocks.push('master');
+    }
+    // 3. Quiz Gladiator
+    const attemptedQuizzes = quizzes.filter(q => q.isCompleted).length;
+    if (attemptedQuizzes > 0) {
+      localUnlocks.push('gladiator');
+    }
+    // 4. Code Warrior
+    if (localStorage.getItem('holotrack_achievement_code_warrior') === 'true') {
+      localUnlocks.push('code_warrior');
+    }
+    // 5. Focused Mind
+    if (localStorage.getItem('holotrack_achievement_pomodoro') === 'true') {
+      localUnlocks.push('pomodoro');
+    }
+    // 6. Scholar Creator
+    if (localStorage.getItem('holotrack_achievement_scholar') === 'true') {
+      localUnlocks.push('scholar');
+    }
+
+    const newUnlocks = localUnlocks.filter(b => !badgesUnlocked.includes(b));
+    if (newUnlocks.length > 0) {
+      const updatedBadges = Array.from(new Set([...badgesUnlocked, ...localUnlocks]));
+      setBadgesUnlocked(updatedBadges);
+      syncTelemetry({ badgesUnlocked: updatedBadges });
+    }
+  }, [tasks, quizzes, badgesUnlocked]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const isLight = document.documentElement.classList.contains('light');
@@ -986,6 +1058,14 @@ export default function StudentDashboard() {
           setStudentEmail(user.email);
           setStudentProfileImage(user.profileImage || '');
           setStudentCollege(user.college || null);
+          
+          // Populate telemetry stats from backend User object
+          setStudyNotesCount(user.studyNotesCount || 0);
+          setPlaygroundRuns(user.playgroundRuns || 0);
+          setCompilerRuns(user.compilerRuns || 0);
+          setNotesReadCount(user.notesReadCount || 0);
+          setBadgesUnlocked(user.badgesUnlocked || []);
+          setPoints(user.points || 0);
           
           fetchStudentTasks();
           fetchActiveQuizzes();
@@ -1153,6 +1233,7 @@ export default function StudentDashboard() {
     setStudyNotes(updated);
     setActiveNoteId(newNote.id);
     localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
+    syncTelemetry({ studyNotesCount: updated.length });
   };
 
   const handleUpdateNoteContent = (content: string) => {
@@ -1187,6 +1268,7 @@ export default function StudentDashboard() {
     if (activeNoteId === id) {
       setActiveNoteId(updated.length > 0 ? updated[0].id : null);
     }
+    syncTelemetry({ studyNotesCount: updated.length });
   };
 
   const handleDownloadNote = (format: 'md' | 'txt' | 'doc' | 'html' = 'md') => {
@@ -1636,6 +1718,10 @@ export default function StudentDashboard() {
     // Open in a new tab or trigger direct download
     window.open(downloadUrl, '_blank');
     setSuccessMsg(`Initiating download for "${noteItem.name}"...`);
+
+    const nextReadCount = notesReadCount + 1;
+    setNotesReadCount(nextReadCount);
+    syncTelemetry({ notesReadCount: nextReadCount });
   };
 
   const handleImportMernNoteToNotepad = (title: string, content: string) => {
@@ -1651,6 +1737,13 @@ export default function StudentDashboard() {
     localStorage.setItem('tasktrack_study_notes', JSON.stringify(updated));
     setActiveTab('tools'); // Switch to Notepad tab
     setSuccessMsg(`"${newNote.title}" imported successfully to your local Make a Note workspace!`);
+
+    const nextReadCount = notesReadCount + 1;
+    setNotesReadCount(nextReadCount);
+    syncTelemetry({
+      studyNotesCount: updated.length,
+      notesReadCount: nextReadCount
+    });
   };
 
   const handleVerifyMernAnswerWithAi = async (qId: string, question: string, standard: string) => {
@@ -1802,6 +1895,17 @@ export default function StudentDashboard() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('holotrack_achievement_code_warrior', 'true');
     }
+
+    const nextRuns = playgroundRuns + 1;
+    setPlaygroundRuns(nextRuns);
+    const updatedBadges = [...badgesUnlocked];
+    if (!updatedBadges.includes('code_warrior')) {
+      updatedBadges.push('code_warrior');
+    }
+    syncTelemetry({
+      playgroundRuns: nextRuns,
+      badgesUnlocked: updatedBadges
+    });
   };
 
   // Notepad autosave function
@@ -1868,7 +1972,7 @@ export default function StudentDashboard() {
       id: 'transmitter',
       title: 'Milestone Transmitter',
       description: 'Submitted at least one milestone deliverable',
-      unlocked: tasks.some(t => t.status === 'pending' || t.status === 'approved' || t.status === 'rejected'),
+      unlocked: badgesUnlocked.includes('transmitter') || tasks.some(t => t.status === 'pending' || t.status === 'approved' || t.status === 'rejected'),
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
@@ -1880,7 +1984,7 @@ export default function StudentDashboard() {
       id: 'master',
       title: 'Task Master',
       description: 'Obtained trainer validation for 3+ tasks',
-      unlocked: approvedCount >= 3,
+      unlocked: badgesUnlocked.includes('master') || approvedCount >= 3,
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -1893,7 +1997,7 @@ export default function StudentDashboard() {
       id: 'gladiator',
       title: 'Quiz Gladiator',
       description: 'Securely submitted an online quiz',
-      unlocked: attemptedQuizzes > 0,
+      unlocked: badgesUnlocked.includes('gladiator') || attemptedQuizzes > 0,
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -1905,7 +2009,7 @@ export default function StudentDashboard() {
       id: 'code_warrior',
       title: 'Code Warrior',
       description: 'Executed playground code successfully',
-      unlocked: typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_code_warrior') === 'true',
+      unlocked: badgesUnlocked.includes('code_warrior') || (typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_code_warrior') === 'true'),
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <polyline points="16 18 22 12 16 6" />
@@ -1918,7 +2022,7 @@ export default function StudentDashboard() {
       id: 'pomodoro',
       title: 'Focused Mind',
       description: 'Completed a focus interval session',
-      unlocked: typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_pomodoro') === 'true',
+      unlocked: badgesUnlocked.includes('pomodoro') || (typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_pomodoro') === 'true'),
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" />
@@ -1931,7 +2035,7 @@ export default function StudentDashboard() {
       id: 'scholar',
       title: 'Scholar Creator',
       description: 'Compiled a personal revision card',
-      unlocked: typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_scholar') === 'true',
+      unlocked: badgesUnlocked.includes('scholar') || (typeof window !== 'undefined' && localStorage.getItem('holotrack_achievement_scholar') === 'true'),
       icon: (
         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z" />
@@ -2124,7 +2228,12 @@ export default function StudentDashboard() {
         </button>
 
         <button
-          onClick={() => setActiveTab('compiler')}
+          onClick={() => {
+            setActiveTab('compiler');
+            const nextRuns = compilerRuns + 1;
+            setCompilerRuns(nextRuns);
+            syncTelemetry({ compilerRuns: nextRuns });
+          }}
           className={`sidebar-btn ${activeTab === 'compiler' ? 'active' : ''}`}
           style={{ width: 'auto', flex: '1', minWidth: '120px', justifyContent: 'center' }}
         >
@@ -2197,7 +2306,7 @@ export default function StudentDashboard() {
           {activeTab === 'milestones' && (
             <div>
               {/* Stats Counters */}
-              <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
+              <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
                 <div className="glass-panel">
                   <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>ASSIGNED_TASKS</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{totalTasks}</h3>
@@ -2213,6 +2322,30 @@ export default function StudentDashboard() {
                 <div className="glass-panel">
                   <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>REQUESTS_REVISION</p>
                   <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ef4444' }}>{rejectedCount}</h3>
+                </div>
+              </div>
+
+              {/* Telemetry & Gamification Counters */}
+              <div className="dashboard-grid" style={{ marginBottom: '2.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+                <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-secondary)', background: 'rgba(16, 185, 129, 0.02)' }}>
+                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>⭐ EXPERIENCE_POINTS</p>
+                  <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-secondary)' }}>{points} XP</h3>
+                </div>
+                <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-blue)', background: 'rgba(0, 180, 255, 0.02)' }}>
+                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>📝 WORKSPACE_NOTES</p>
+                  <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-blue)' }}>{studyNotesCount}</h3>
+                </div>
+                <div className="glass-panel" style={{ borderLeft: '3px solid #ff007f', background: 'rgba(255, 0, 127, 0.02)' }}>
+                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>🎮 PLAYGROUND_RUNS</p>
+                  <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: '#ff007f' }}>{playgroundRuns}</h3>
+                </div>
+                <div className="glass-panel" style={{ borderLeft: '3px solid var(--neon-primary)', background: 'rgba(245, 158, 11, 0.02)' }}>
+                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>⚙️ COMPILER_RUNS</p>
+                  <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{compilerRuns}</h3>
+                </div>
+                <div className="glass-panel" style={{ borderLeft: '3px solid #b100e8', background: 'rgba(177, 0, 232, 0.02)' }}>
+                  <p style={{ color: '#a0aec0', fontSize: '0.82rem', fontFamily: 'monospace' }}>📚 MERN_NOTES_READ</p>
+                  <h3 style={{ fontSize: '1.8rem', marginTop: '0.5rem', color: '#b100e8' }}>{notesReadCount}</h3>
                 </div>
               </div>
 
@@ -2887,7 +3020,12 @@ export default function StudentDashboard() {
             <CompilerTabPanel
               lang={compilerLang}
               isFullscreen={isCompilerFullscreen}
-              onLangChange={setCompilerLang}
+              onLangChange={(lang) => {
+                setCompilerLang(lang);
+                const nextRuns = compilerRuns + 1;
+                setCompilerRuns(nextRuns);
+                syncTelemetry({ compilerRuns: nextRuns });
+              }}
               onFullscreenToggle={() => setIsCompilerFullscreen(!isCompilerFullscreen)}
             />
           )}

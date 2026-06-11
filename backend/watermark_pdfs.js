@@ -71,24 +71,6 @@ async function watermarkPDF(filePath) {
         opacity: 0.08,             // Very light transparency
         rotate: degrees(35),
       });
-      
-      // 3. Draw a dark header bar at the top to cover other headers/brandings
-      page.drawRectangle({
-        x: 0,
-        y: height - 25,
-        width: width,
-        height: 25,
-        color: rgb(0.02, 0.02, 0.04), // Dark header bar background
-      });
-      
-      // 4. Draw clean website branding in the header bar
-      page.drawText('SPARK.io Academic Portal | Student Study Resource', {
-        x: 20,
-        y: height - 16,
-        size: 8,
-        color: rgb(0.1, 0.6, 0.3), // Emerald Green text
-        opacity: 0.9,
-      });
     }
     
     const pdfBytes = await pdfDoc.save();
