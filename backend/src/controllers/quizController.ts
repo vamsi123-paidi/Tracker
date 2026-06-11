@@ -21,15 +21,17 @@ export const createQuiz = async (req: AuthRequest, res: Response): Promise<void>
     const { title, description, collegeId, durationMinutes } = req.body;
     const file = req.file;
 
-    if (!title || !collegeId) {
-      res.status(400).json({ message: 'Title and College ID are required.' });
+    if (!title) {
+      res.status(400).json({ message: 'Title is required.' });
       return;
     }
 
-    const college = await College.findById(collegeId);
-    if (!college) {
-      res.status(404).json({ message: 'Selected College does not exist.' });
-      return;
+    if (collegeId) {
+      const college = await College.findById(collegeId);
+      if (!college) {
+        res.status(404).json({ message: 'Selected College does not exist.' });
+        return;
+      }
     }
 
     let questions: IQuizQuestion[] = [];
@@ -111,7 +113,7 @@ export const createQuiz = async (req: AuthRequest, res: Response): Promise<void>
       title: title.trim(),
       description: (description || '').trim(),
       questions,
-      college: collegeId,
+      college: collegeId || null,
       durationMinutes: parseInt(durationMinutes) || 15,
       isActive: false
     });
@@ -145,7 +147,7 @@ export const toggleQuizActive = async (req: AuthRequest, res: Response): Promise
 // Get All Quizzes for Trainer
 export const getTrainerQuizzes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const quizzes = await Quiz.find({}).populate('college');
+    const quizzes = await Quiz.find({}).populate('college').lean();
     res.status(200).json(quizzes);
   } catch (error: any) {
     res.status(500).json({ message: 'Failed to retrieve quizzes', error: error.message });
@@ -158,7 +160,8 @@ export const getQuizResultsForTrainer = async (req: AuthRequest, res: Response):
     const { quizId } = req.params;
     const results = await QuizResult.find({ quiz: quizId })
       .populate('student', 'name email')
-      .sort({ score: -1 });
+      .sort({ score: -1 })
+      .lean();
 
     res.status(200).json(results);
   } catch (error: any) {
@@ -169,27 +172,44 @@ export const getQuizResultsForTrainer = async (req: AuthRequest, res: Response):
 // Get Active Quizzes for Student (Sanitized correct answers)
 export const getActiveQuizzes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!req.user || !req.user.college) {
-      res.status(401).json({ message: 'Unauthorized or missing college profile info' });
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
-    const quizzes = await Quiz.find({ college: req.user.college, isActive: true });
+    const userCollege = req.user.college;
+    const filter: any = { isActive: true };
+
+    if (userCollege) {
+      filter.$or = [
+        { college: userCollege },
+        { college: { $exists: false } },
+        { college: null }
+      ];
+    } else {
+      filter.$or = [
+        { college: { $exists: false } },
+        { college: null }
+      ];
+    }
+
+    const quizzes = await Quiz.find(filter).lean() as any[];
     
     // Check which quizzes the student has already taken
-    const results = await QuizResult.find({ student: req.user.id });
+    const results = await QuizResult.find({ student: req.user.id }).lean() as any[];
     const completedQuizIds = results.map(r => r.quiz.toString());
 
     // Filter and sanitize (remove correct answer indices)
     const sanitizedQuizzes = quizzes.map(quiz => {
-      const qObj = quiz.toObject();
-      qObj.isCompleted = completedQuizIds.includes(quiz._id.toString());
+      const qObj = { ...quiz, isCompleted: completedQuizIds.includes(quiz._id.toString()) };
       
       // Strip correct answers
-      qObj.questions = qObj.questions.map((q: any) => {
-        const { correctOptionIndex, ...safePart } = q;
-        return safePart;
-      });
+      if (qObj.questions) {
+        qObj.questions = qObj.questions.map((q: any) => {
+          const { correctOptionIndex, ...safePart } = q;
+          return safePart;
+        });
+      }
       return qObj;
     });
 
@@ -281,7 +301,8 @@ export const getStudentQuizResults = async (req: AuthRequest, res: Response): Pr
         path: 'quiz',
         select: 'title description questions durationMinutes'
       })
-      .sort({ submittedAt: -1 });
+      .sort({ submittedAt: -1 })
+      .lean();
 
     res.status(200).json(results);
   } catch (error: any) {

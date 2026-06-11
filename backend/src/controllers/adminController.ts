@@ -214,17 +214,51 @@ export const registerStudent = async (req: AuthRequest, res: Response): Promise<
 
 export const getStudentsList = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const students = await User.find({ role: 'student' }).populate('college');
-    const studentsWithStats = await Promise.all(students.map(async (student) => {
-      // Find all tasks for student's college
-      const totalTasks = await Task.find({ college: student.college?._id });
+    const students = await User.find({ role: 'student' }).populate('college').lean();
+    
+    // Fetch all tasks and submissions in bulk
+    const allTasks = await Task.find({}).lean();
+    const allSubmissions = await Submission.find({}).lean();
+
+    // Group tasks by college ID for O(1) retrieval
+    const tasksByCollege = new Map<string, any[]>();
+    const globalTasks: any[] = [];
+    allTasks.forEach(task => {
+      if (task.college) {
+        const key = String(task.college);
+        if (!tasksByCollege.has(key)) {
+          tasksByCollege.set(key, []);
+        }
+        tasksByCollege.get(key)!.push(task);
+      } else {
+        globalTasks.push(task);
+      }
+    });
+
+    // Group submissions by student ID for O(1) retrieval
+    const submissionsByStudent = new Map<string, any[]>();
+    allSubmissions.forEach(sub => {
+      const key = String(sub.student);
+      if (!submissionsByStudent.has(key)) {
+        submissionsByStudent.set(key, []);
+      }
+      submissionsByStudent.get(key)!.push(sub);
+    });
+
+    const studentsWithStats = students.map((student) => {
+      const studentIdStr = String(student._id);
+      const collegeIdStr = student.college ? String(student.college._id) : '';
+
+      // Get tasks: college specific + global tasks
+      const collegeTasks = collegeIdStr ? (tasksByCollege.get(collegeIdStr) || []) : [];
+      const studentTasksCount = collegeTasks.length + globalTasks.length;
+
+      // Get submissions for student
+      const studentSubmissions = submissionsByStudent.get(studentIdStr) || [];
       
-      // Find all submissions by student
-      const submissions = await Submission.find({ student: student._id });
-      
-      const approved = submissions.filter((s: any) => s.status === 'approved').length;
-      const pending = submissions.filter((s: any) => s.status === 'pending').length;
-      const rejected = submissions.filter((s: any) => s.status === 'rejected').length;
+      const approved = studentSubmissions.filter((s: any) => s.status === 'approved').length;
+      const pending = studentSubmissions.filter((s: any) => s.status === 'pending').length;
+      const rejected = studentSubmissions.filter((s: any) => s.status === 'rejected').length;
 
       return {
         _id: student._id,
@@ -238,13 +272,13 @@ export const getStudentsList = async (req: AuthRequest, res: Response): Promise<
         badgesUnlocked: student.badgesUnlocked || [],
         points: student.points || 0,
         stats: {
-          totalTasksCount: totalTasks.length,
+          totalTasksCount: studentTasksCount,
           approvedCount: approved,
           pendingCount: pending,
           rejectedCount: rejected
         }
       };
-    }));
+    });
 
     res.status(200).json(studentsWithStats);
   } catch (error: any) {

@@ -184,16 +184,26 @@ async function loadAndCacheQuestions(): Promise<any[]> {
   return allQuestions;
 }
 
+// Global in-memory cache for notes and interview structure
+let cachedMernResources: { notes: FileItem[]; interviewFiles: FileItem[] } | null = null;
+let resourcesCacheTimestamp = 0;
+const RESOURCES_CACHE_TTL = 300000; // 5 minutes cache
+
 // 1. GET /api/mern/resources - Lists all files and structures in the folders
 export const getMernResources = async (req: Request, res: Response): Promise<void> => {
   try {
-    const notesTree = scanDir(NOTES_DIR, NOTES_DIR);
-    const interviewTree = scanDir(INTERVIEW_DIR, INTERVIEW_DIR);
+    const now = Date.now();
+    if (!cachedMernResources || (now - resourcesCacheTimestamp) > RESOURCES_CACHE_TTL) {
+      const notesTree = scanDir(NOTES_DIR, NOTES_DIR);
+      const interviewTree = scanDir(INTERVIEW_DIR, INTERVIEW_DIR);
+      cachedMernResources = {
+        notes: notesTree,
+        interviewFiles: interviewTree
+      };
+      resourcesCacheTimestamp = now;
+    }
 
-    res.status(200).json({
-      notes: notesTree,
-      interviewFiles: interviewTree
-    });
+    res.status(200).json(cachedMernResources);
   } catch (error: any) {
     console.error('Error scanning MERN folders:', error);
     res.status(500).json({ message: 'Failed to scan MERN folders', error: error.message });

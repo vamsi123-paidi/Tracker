@@ -840,6 +840,7 @@ export default function StudentDashboard() {
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tasksPage, setTasksPage] = useState(1);
 
   // Active Quizzes State
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -2045,6 +2046,58 @@ export default function StudentDashboard() {
     }
   ];
 
+  // Student task pagination logic
+  const STUDENT_TASKS_PAGE_SIZE = 6;
+  const totalTasksPages = Math.ceil(tasks.length / STUDENT_TASKS_PAGE_SIZE) || 1;
+  const paginatedTasks = tasks.slice((tasksPage - 1) * STUDENT_TASKS_PAGE_SIZE, tasksPage * STUDENT_TASKS_PAGE_SIZE);
+
+  const renderStudentPagination = () => {
+    if (totalTasksPages <= 1) return null;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '2rem' }}>
+        <button
+          disabled={tasksPage === 1}
+          type="button"
+          onClick={() => setTasksPage(tasksPage - 1)}
+          className="btn-glass"
+          style={{
+            padding: '6px 12px',
+            fontSize: '0.8rem',
+            opacity: tasksPage === 1 ? 0.4 : 1,
+            cursor: tasksPage === 1 ? 'not-allowed' : 'pointer',
+            border: '1px solid var(--border-glass)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#fff',
+            borderRadius: '4px'
+          }}
+        >
+          Previous
+        </button>
+        <span style={{ fontSize: '0.85rem', color: '#a0aec0', fontFamily: 'monospace' }}>
+          PAGE {tasksPage} OF {totalTasksPages}
+        </span>
+        <button
+          disabled={tasksPage === totalTasksPages}
+          type="button"
+          onClick={() => setTasksPage(tasksPage + 1)}
+          className="btn-glass"
+          style={{
+            padding: '6px 12px',
+            fontSize: '0.8rem',
+            opacity: tasksPage === totalTasksPages ? 0.4 : 1,
+            cursor: tasksPage === totalTasksPages ? 'not-allowed' : 'pointer',
+            border: '1px solid var(--border-glass)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#fff',
+            borderRadius: '4px'
+          }}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   // Stats Counters
   const totalTasks = tasks.length;
   const pendingCount = tasks.filter(t => t.status === 'pending').length;
@@ -2354,88 +2407,91 @@ export default function StudentDashboard() {
                 TASKS_LISTING_WORKSPACE
               </h3>
 
-              {tasks.length === 0 ? (
+              {paginatedTasks.length === 0 ? (
                 <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
                   No tasks found for your college. Check back later or ask your trainer.
                 </div>
               ) : (
-                <div className="dashboard-grid">
-                  {tasks.map((task) => {
-                    const isApproved = task.status === 'approved';
-                    const isPending = task.status === 'pending';
-                    const isRejected = task.status === 'rejected';
+                <>
+                  <div className="dashboard-grid">
+                    {paginatedTasks.map((task) => {
+                      const isApproved = task.status === 'approved';
+                      const isPending = task.status === 'pending';
+                      const isRejected = task.status === 'rejected';
 
-                    let glowBorder = 'var(--border-glass)';
-                    if (isApproved) glowBorder = 'rgba(0, 255, 135, 0.3)';
-                    else if (isPending) glowBorder = 'rgba(255, 208, 0, 0.3)';
-                    else if (isRejected) glowBorder = 'rgba(255, 0, 85, 0.3)';
+                      let glowBorder = 'var(--border-glass)';
+                      if (isApproved) glowBorder = 'rgba(0, 255, 135, 0.3)';
+                      else if (isPending) glowBorder = 'rgba(255, 208, 0, 0.3)';
+                      else if (isRejected) glowBorder = 'rgba(255, 0, 85, 0.3)';
 
-                    return (
-                      <div
-                        key={task._id}
-                        onClick={() => {
-                          if (!isApproved) {
-                            setSelectedTask(task);
-                          }
-                        }}
-                        className="glass-panel tilt-card"
-                        style={{
-                          borderColor: glowBorder,
-                          cursor: isApproved ? 'default' : 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          minHeight: '220px'
-                        }}
-                      >
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                            <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'monospace' }}>
-                              DUE: {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                            <span className={`badge badge-${task.status.replace('_', '-')}`}>
-                              {task.status.replace('_', ' ')}
-                            </span>
+                      return (
+                        <div
+                          key={task._id}
+                          onClick={() => {
+                            if (!isApproved) {
+                              setSelectedTask(task);
+                            }
+                          }}
+                          className="glass-panel tilt-card"
+                          style={{
+                            borderColor: glowBorder,
+                            cursor: isApproved ? 'default' : 'pointer',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            minHeight: '220px'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                              <span style={{ fontSize: '0.8rem', color: '#718096', fontFamily: 'monospace' }}>
+                                DUE: {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
+                              <span className={`badge badge-${task.status.replace('_', '-')}`}>
+                                {task.status.replace('_', ' ')}
+                              </span>
+                            </div>
+
+                            <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>{task.title}</h4>
+                            <p style={{ color: '#a0aec0', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+                              {task.description}
+                            </p>
                           </div>
 
-                          <h4 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>{task.title}</h4>
-                          <p style={{ color: '#a0aec0', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
-                            {task.description}
-                          </p>
+                          {task.submission && task.submission.feedback && (
+                            <div style={{
+                              marginTop: '1rem',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              background: isRejected ? 'rgba(255,0,85,0.04)' : 'rgba(0,255,135,0.04)',
+                              border: `1px solid ${isRejected ? 'rgba(255,0,85,0.1)' : 'rgba(0,255,135,0.1)'}`,
+                              fontSize: '0.8rem',
+                              color: '#a0aec0'
+                            }}>
+                              <strong style={{ color: isRejected ? '#ef4444' : '#00ff87', display: 'block', marginBottom: '2px' }}>
+                                Trainer feedback:
+                              </strong>
+                              {task.submission.feedback}
+                            </div>
+                          )}
+
+                          {!isApproved && (
+                            <div style={{
+                              marginTop: '1rem',
+                              fontSize: '0.85rem',
+                              color: 'var(--neon-secondary)',
+                              textAlign: 'right',
+                              fontWeight: 600
+                            }}>
+                              {isPending ? 'Re-upload proof →' : isRejected ? 'Resolve revision requirements →' : 'Upload milestone deliverables →'}
+                            </div>
+                          )}
                         </div>
-
-                        {task.submission && task.submission.feedback && (
-                          <div style={{
-                            marginTop: '1rem',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            background: isRejected ? 'rgba(255,0,85,0.04)' : 'rgba(0,255,135,0.04)',
-                            border: `1px solid ${isRejected ? 'rgba(255,0,85,0.1)' : 'rgba(0,255,135,0.1)'}`,
-                            fontSize: '0.8rem',
-                            color: '#a0aec0'
-                          }}>
-                            <strong style={{ color: isRejected ? '#ef4444' : '#00ff87', display: 'block', marginBottom: '2px' }}>
-                              Trainer feedback:
-                            </strong>
-                            {task.submission.feedback}
-                          </div>
-                        )}
-
-                        {!isApproved && (
-                          <div style={{
-                            marginTop: '1rem',
-                            fontSize: '0.85rem',
-                            color: 'var(--neon-secondary)',
-                            textAlign: 'right',
-                            fontWeight: 600
-                          }}>
-                            {isPending ? 'Re-upload proof →' : isRejected ? 'Resolve revision requirements →' : 'Upload milestone deliverables →'}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                  {renderStudentPagination()}
+                </>
               )}
             </div>
           )}

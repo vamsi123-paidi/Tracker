@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { login, registerTrainer, getCurrentUser, updateProfile, updateUserProgress } from '../controllers/authController.js';
 import { getColleges, createCollege } from '../controllers/collegeController.js';
-import { getTasks, createTask, deleteTask } from '../controllers/taskController.js';
+import { getTasks, createTask, updateTask, deleteTask } from '../controllers/taskController.js';
 import { getSubmissions, submitTask, reviewSubmission, autoReviewSubmission } from '../controllers/submissionController.js';
 import { bulkImportStudents, registerStudent, getStudentsList, deleteStudent } from '../controllers/adminController.js';
 import { handleChat } from '../controllers/chatController.js';
@@ -28,6 +28,7 @@ router.post('/colleges', authenticateToken, requireRole('trainer'), createColleg
 // Tasks
 router.get('/tasks', authenticateToken, getTasks);
 router.post('/tasks', authenticateToken, requireRole('trainer'), createTask);
+router.put('/tasks/:taskId', authenticateToken, requireRole('trainer'), updateTask);
 router.delete('/tasks/:taskId', authenticateToken, requireRole('trainer'), deleteTask);
 
 // Submissions

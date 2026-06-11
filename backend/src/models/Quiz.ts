@@ -28,10 +28,13 @@ const QuizSchema = new mongoose.Schema<IQuiz>({
   title: { type: String, required: true },
   description: { type: String, default: '' },
   questions: [QuizQuestionSchema],
-  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: true },
+  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: false },
   durationMinutes: { type: Number, default: 15 },
   isActive: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
+
+QuizSchema.index({ college: 1 });
+QuizSchema.index({ isActive: 1 });
 
 export const Quiz = mongoose.models.Quiz || mongoose.model<IQuiz>('Quiz', QuizSchema);

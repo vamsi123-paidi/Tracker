@@ -24,4 +24,7 @@ const QuizResultSchema = new mongoose.Schema<IQuizResult>({
   submittedAt: { type: Date, default: Date.now }
 });
 
+QuizResultSchema.index({ student: 1 });
+QuizResultSchema.index({ quiz: 1 });
+
 export const QuizResult = mongoose.models.QuizResult || mongoose.model<IQuizResult>('QuizResult', QuizResultSchema);

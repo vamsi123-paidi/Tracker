@@ -32,4 +32,9 @@ const UserSchema = new mongoose.Schema<IUser>({
   points: { type: Number, default: 0 }
 });
 
+UserSchema.index({ role: 1 });
+UserSchema.index({ college: 1 });
+UserSchema.index({ email: 1 });
+
 export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+

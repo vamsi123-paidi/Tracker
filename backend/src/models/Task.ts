@@ -13,9 +13,12 @@ const TaskSchema = new mongoose.Schema<ITask>({
   title: { type: String, required: true },
   description: { type: String, required: true },
   dueDate: { type: Date, required: true },
-  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: true },
+  college: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: false },
   trainer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now }
 });
+
+TaskSchema.index({ college: 1 });
+TaskSchema.index({ dueDate: 1 });
 
 export const Task = mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);

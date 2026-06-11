@@ -170,6 +170,26 @@ export default function TrainerDashboard() {
   const [manualQCorrectIndex, setManualQCorrectIndex] = useState(0);
   const [manualQPoints, setManualQPoints] = useState(1);
 
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [quizSearchQuery, setQuizSearchQuery] = useState('');
+  const [quizFilterCollegeId, setQuizFilterCollegeId] = useState('');
+  const [quizFilterStatus, setQuizFilterStatus] = useState('all');
+  const [studentsPage, setStudentsPage] = useState(1);
+  const [submissionsPage, setSubmissionsPage] = useState(1);
+  const [quizResultsPage, setQuizResultsPage] = useState(1);
+
+  useEffect(() => {
+    setStudentsPage(1);
+  }, [filterStudentCollegeId, searchStudentQuery]);
+
+  useEffect(() => {
+    setSubmissionsPage(1);
+  }, [filterCollegeId, searchQuery]);
+
+  useEffect(() => {
+    setQuizResultsPage(1);
+  }, [viewingQuizId, quizSearchQuery, quizFilterCollegeId, quizFilterStatus]);
+
   useEffect(() => {
     // Auth Check
     const token = getAuthToken();
@@ -592,27 +612,39 @@ export default function TrainerDashboard() {
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!taskTitle || !taskDesc || !taskDueDate || !selectedCollegeId) {
-      setErrorMsg('All task fields are required');
+    if (!taskTitle || !taskDesc || !taskDueDate) {
+      setErrorMsg('Task title, description, and due date are required');
       return;
     }
     setErrorMsg('');
     setSuccessMsg('');
 
     try {
-      const data = await api.post('/tasks', {
-        title: taskTitle,
-        description: taskDesc,
-        dueDate: taskDueDate,
-        collegeId: selectedCollegeId
-      });
-      setTasks([...tasks, { ...data.task, stats: { totalSubmissions: 0, approved: 0, rejected: 0, pending: 0 } }]);
-      setSuccessMsg(`Task "${data.task.title}" created successfully!`);
+      if (editingTaskId) {
+        const data = await api.put(`/tasks/${editingTaskId}`, {
+          title: taskTitle,
+          description: taskDesc,
+          dueDate: taskDueDate,
+          collegeId: selectedCollegeId || null
+        });
+        setSuccessMsg(`Task "${data.task.title}" updated successfully!`);
+        setEditingTaskId(null);
+      } else {
+        const data = await api.post('/tasks', {
+          title: taskTitle,
+          description: taskDesc,
+          dueDate: taskDueDate,
+          collegeId: selectedCollegeId || null
+        });
+        setSuccessMsg(`Task "${data.task.title}" created successfully!`);
+      }
       setTaskTitle('');
       setTaskDesc('');
       setTaskDueDate('');
+      setSelectedCollegeId('');
+      await fetchDashboardData();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to create task');
+      setErrorMsg(err.message || 'Failed to process task request');
     }
   };
 
@@ -625,11 +657,70 @@ export default function TrainerDashboard() {
 
     try {
       await api.delete(`/tasks/${taskId}`);
-      setTasks(prev => prev.filter(t => t._id !== taskId));
+      await fetchDashboardData();
       setSuccessMsg(`Task "${title}" and all related student submissions deleted successfully.`);
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to delete task');
     }
+  };
+
+  const handleEditClick = (task: Task) => {
+    setEditingTaskId(task._id);
+    setTaskTitle(task.title);
+    setTaskDesc(task.description);
+    setTaskDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+    setSelectedCollegeId((task.college as any)?._id || (task.college as any) || '');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setTaskTitle('');
+    setTaskDesc('');
+    setTaskDueDate('');
+    setSelectedCollegeId('');
+  };
+
+  const handleExportQuizResults = () => {
+    if (selectedQuizResults.length === 0) return;
+    
+    const quizObj = quizzes.find(q => q._id === viewingQuizId);
+    const quizName = quizObj ? quizObj.title : 'Quiz';
+
+    const headers = [
+      'Student Name',
+      'Email',
+      'Score Gained',
+      'Total Points',
+      'Percentage',
+      'Time Taken',
+      'Tab Switches',
+      'Status',
+      'Submission Timestamp'
+    ];
+
+    const rows = selectedQuizResults.map((r: any) => [
+      r.student?.name || 'Unknown',
+      r.student?.email || 'Unknown',
+      r.score,
+      r.totalPoints,
+      r.totalPoints > 0 ? `${Math.round((r.score / r.totalPoints) * 100)}%` : '0%',
+      `${Math.floor(r.timeTakenSeconds / 60)}m ${r.timeTakenSeconds % 60}s`,
+      r.tabSwitchCount,
+      r.isCheated ? 'Cheated (Flagged)' : 'Secure exam',
+      new Date(r.submittedAt).toLocaleString()
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' +
+      [headers.join(','), ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${quizName.replace(/[\s/]+/g, '_')}_Results.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleFileUpload = async (e: React.FormEvent) => {
@@ -837,6 +928,79 @@ export default function TrainerDashboard() {
     return !filterTaskCollegeId || String(task.college?._id) === String(filterTaskCollegeId);
   });
 
+  // Pagination items per page
+  const ITEMS_PER_PAGE = 10;
+
+  // Paginated submissions
+  const totalSubmissionsPages = Math.ceil(filteredSubmissions.length / ITEMS_PER_PAGE) || 1;
+  const paginatedSubmissions = filteredSubmissions.slice((submissionsPage - 1) * ITEMS_PER_PAGE, submissionsPage * ITEMS_PER_PAGE);
+
+  // Paginated students
+  const totalStudentsPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE) || 1;
+  const paginatedStudents = filteredStudents.slice((studentsPage - 1) * ITEMS_PER_PAGE, studentsPage * ITEMS_PER_PAGE);
+
+  // Filtered quizzes
+  const filteredQuizzes = quizzes.filter((quiz: any) => {
+    const matchesSearch = quiz.title.toLowerCase().includes(quizSearchQuery.toLowerCase()) || 
+                          (quiz.description || '').toLowerCase().includes(quizSearchQuery.toLowerCase());
+    const matchesCollege = !quizFilterCollegeId || (quiz.college && String(quiz.college._id) === String(quizFilterCollegeId));
+    const matchesStatus = quizFilterStatus === 'all' || 
+                          (quizFilterStatus === 'active' && quiz.isActive) || 
+                          (quizFilterStatus === 'inactive' && !quiz.isActive);
+    return matchesSearch && matchesCollege && matchesStatus;
+  });
+
+  // Paginated quiz results
+  const totalQuizResultsPages = Math.ceil(selectedQuizResults.length / ITEMS_PER_PAGE) || 1;
+  const paginatedQuizResults = selectedQuizResults.slice((quizResultsPage - 1) * ITEMS_PER_PAGE, quizResultsPage * ITEMS_PER_PAGE);
+
+  const renderPaginationControls = (currentPage: number, totalPages: number, onPageChange: (p: number) => void) => {
+    if (totalPages <= 1) return null;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+        <button
+          disabled={currentPage === 1}
+          type="button"
+          onClick={() => onPageChange(currentPage - 1)}
+          className="btn-glass"
+          style={{
+            padding: '6px 12px',
+            fontSize: '0.8rem',
+            opacity: currentPage === 1 ? 0.4 : 1,
+            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            border: '1px solid var(--border-glass)',
+            borderRadius: '4px',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#fff'
+          }}
+        >
+          Previous
+        </button>
+        <span style={{ fontSize: '0.85rem', color: '#a0aec0', fontFamily: 'monospace' }}>
+          PAGE {currentPage} OF {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          type="button"
+          onClick={() => onPageChange(currentPage + 1)}
+          className="btn-glass"
+          style={{
+            padding: '6px 12px',
+            fontSize: '0.8rem',
+            opacity: currentPage === totalPages ? 0.4 : 1,
+            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            border: '1px solid var(--border-glass)',
+            borderRadius: '4px',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#fff'
+          }}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   // Compute Metrics
   const totalSubCount = submissions.length;
   const pendingSubCount = submissions.filter(s => s.status === 'pending').length;
@@ -1033,57 +1197,60 @@ export default function TrainerDashboard() {
             </div>
           </div>
 
-          {filteredSubmissions.length === 0 ? (
+          {paginatedSubmissions.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: '#718096' }}>
               No submissions found matching your filter criteria.
             </div>
           ) : (
-            <div className="table-container">
-              <table className="glass-table">
-                <thead>
-                  <tr>
-                    <th>Student</th>
-                    <th>College</th>
-                    <th>Task</th>
-                    <th>Submission Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSubmissions.map((sub) => (
-                    <tr key={sub._id}>
-                      <td>
-                        <strong>{sub.student.name}</strong>
-                        <div style={{ fontSize: '0.8rem', color: '#718096' }}>{sub.student.email}</div>
-                      </td>
-                      <td>
-                        <span className="badge badge-not-submitted">{sub.student.college?.code || 'GLBL'}</span>
-                      </td>
-                      <td>{sub.task?.title || 'Unknown Task'}</td>
-                      <td>{new Date(sub.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <span className={`badge badge-${sub.status}`}>
-                          {sub.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          onClick={() => {
-                            setSelectedSubmission(sub);
-                            setReviewFeedback(sub.feedback || '');
-                          }}
-                          className="btn-neon"
-                          style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--neon-secondary)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
-                        >
-                          Review proof
-                        </button>
-                      </td>
+            <>
+              <div className="table-container">
+                <table className="glass-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>College</th>
+                      <th>Task</th>
+                      <th>Submission Date</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginatedSubmissions.map((sub) => (
+                      <tr key={sub._id}>
+                        <td>
+                          <strong>{sub.student.name}</strong>
+                          <div style={{ fontSize: '0.8rem', color: '#718096' }}>{sub.student.email}</div>
+                        </td>
+                        <td>
+                          <span className="badge badge-not-submitted">{sub.student.college?.code || 'GLBL'}</span>
+                        </td>
+                        <td>{sub.task?.title || 'Unknown Task'}</td>
+                        <td>{new Date(sub.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`badge badge-${sub.status}`}>
+                            {sub.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              setSelectedSubmission(sub);
+                              setReviewFeedback(sub.feedback || '');
+                            }}
+                            className="btn-neon"
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--neon-secondary)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+                          >
+                            Review proof
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {renderPaginationControls(submissionsPage, totalSubmissionsPages, setSubmissionsPage)}
+            </>
           )}
         </div>
       )}
@@ -1141,97 +1308,100 @@ export default function TrainerDashboard() {
             </div>
           </div>
 
-          {filteredStudents.length === 0 ? (
+          {paginatedStudents.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: '#718096' }}>
               No students found matching filters.
             </div>
           ) : (
-            <div className="table-container">
-              <table className="glass-table">
-                <thead>
-                  <tr>
-                    <th>Student Name</th>
-                    <th>Email Address</th>
-                    <th>College Portal</th>
-                    <th>Task Progression Status</th>
-                    <th>Metrics</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents.map((stud) => {
-                    const total = stud.stats.totalTasksCount;
-                    const approved = stud.stats.approvedCount;
-                    const rate = total > 0 ? Math.round((approved / total) * 100) : 0;
-                    
-                    return (
-                      <tr key={stud._id}>
-                        <td><strong>{stud.name}</strong></td>
-                        <td style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#a0aec0' }}>{stud.email}</td>
-                        <td>
-                          <span className="badge badge-not-submitted">{stud.college?.code || 'GLBL'}</span>
-                        </td>
-                        <td style={{ width: '25%' }}>
-                          {/* Visual Progress Bar */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{
-                              flex: 1,
-                              height: '8px',
-                              background: 'rgba(255,255,255,0.05)',
-                              borderRadius: '4px',
-                              overflow: 'hidden'
-                            }}>
+            <>
+              <div className="table-container">
+                <table className="glass-table">
+                  <thead>
+                    <tr>
+                      <th>Student Name</th>
+                      <th>Email Address</th>
+                      <th>College Portal</th>
+                      <th>Task Progression Status</th>
+                      <th>Metrics</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedStudents.map((stud) => {
+                      const total = stud.stats.totalTasksCount;
+                      const approved = stud.stats.approvedCount;
+                      const rate = total > 0 ? Math.round((approved / total) * 100) : 0;
+                      
+                      return (
+                        <tr key={stud._id}>
+                          <td><strong>{stud.name}</strong></td>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#a0aec0' }}>{stud.email}</td>
+                          <td>
+                            <span className="badge badge-not-submitted">{stud.college?.code || 'GLBL'}</span>
+                          </td>
+                          <td style={{ width: '25%' }}>
+                            {/* Visual Progress Bar */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <div style={{
-                                width: `${rate}%`,
-                                height: '100%',
-                                background: 'linear-gradient(90deg, var(--neon-blue) 0%, var(--neon-secondary) 100%)',
+                                flex: 1,
+                                height: '8px',
+                                background: 'rgba(255,255,255,0.05)',
                                 borderRadius: '4px',
-                                boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)'
-                              }} />
+                                overflow: 'hidden'
+                              }}>
+                                <div style={{
+                                  width: `${rate}%`,
+                                  height: '100%',
+                                  background: 'linear-gradient(90deg, var(--neon-blue) 0%, var(--neon-secondary) 100%)',
+                                  borderRadius: '4px',
+                                  boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)'
+                                }} />
+                              </div>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 600, width: '35px' }}>{rate}%</span>
                             </div>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600, width: '35px' }}>{rate}%</span>
-                          </div>
-                        </td>
-                         <td>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
-                              ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
-                            </span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span>⭐ {stud.points || 0} XP</span>
-                              <span style={{ color: 'rgba(255,255,255,0.1)' }}>•</span>
-                              <span>🏅 {(stud.badgesUnlocked || []).length} Badges</span>
-                            </span>
-                          </div>
-                        </td>
-                        <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <button
-                            onClick={() => setSelectedStudent(stud)}
-                            className="btn-neon"
-                            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                          >
-                            Analyze
-                          </button>
-                          <button
-                            onClick={() => handleDeleteStudent(stud._id, stud.name)}
-                            className="btn-glass"
-                            style={{ 
-                              padding: '6px 12px', 
-                              fontSize: '0.8rem',
-                              background: 'rgba(255, 0, 85, 0.05)',
-                              border: '1px solid rgba(255, 0, 85, 0.2)',
-                              color: 'var(--neon-red)',
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
+                                ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
+                              </span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span>⭐ {stud.points || 0} XP</span>
+                                <span style={{ color: 'rgba(255,255,255,0.1)' }}>•</span>
+                                <span>🏅 {(stud.badgesUnlocked || []).length} Badges</span>
+                              </span>
+                            </div>
+                          </td>
+                          <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button
+                              onClick={() => setSelectedStudent(stud)}
+                              className="btn-neon"
+                              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                            >
+                              Analyze
+                            </button>
+                            <button
+                              onClick={() => handleDeleteStudent(stud._id, stud.name)}
+                              className="btn-glass"
+                              style={{ 
+                                padding: '6px 12px', 
+                                fontSize: '0.8rem',
+                                background: 'rgba(255, 0, 85, 0.05)',
+                                border: '1px solid rgba(255, 0, 85, 0.2)',
+                                color: 'var(--neon-red)',
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {renderPaginationControls(studentsPage, totalStudentsPages, setStudentsPage)}
+            </>
           )}
         </div>
       )}
@@ -1240,7 +1410,9 @@ export default function TrainerDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
           {/* Create Task Form */}
           <div className="glass-panel">
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>Add New Milestone Task</h3>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>
+              {editingTaskId ? 'Edit Milestone Task' : 'Add New Milestone Task'}
+            </h3>
             <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Task Title</label>
@@ -1267,12 +1439,11 @@ export default function TrainerDashboard() {
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>Target College Code</label>
                 <select
-                  required
                   className="glass-input"
                   value={selectedCollegeId}
                   onChange={(e) => setSelectedCollegeId(e.target.value)}
                 >
-                  <option value="">-- Select Target College --</option>
+                  <option value="">-- All Colleges (Global Task) --</option>
                   {colleges.map((col) => (
                     <option key={col._id} value={col._id}>
                       {col.name} ({col.code})
@@ -1290,9 +1461,28 @@ export default function TrainerDashboard() {
                   onChange={(e) => setTaskDueDate(e.target.value)}
                 />
               </div>
-              <button type="submit" className="btn-neon">
-                Deploy Task
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button type="submit" className="btn-neon" style={{ flex: 1 }}>
+                  {editingTaskId ? 'Update Task' : 'Deploy Task'}
+                </button>
+                {editingTaskId && (
+                  <button
+                    type="button"
+                    className="btn-glass"
+                    onClick={handleCancelEdit}
+                    style={{
+                      padding: '10px 16px',
+                      color: 'var(--text-secondary)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      border: '1px solid var(--border-glass)',
+                      background: 'rgba(255,255,255,0.05)'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -1330,7 +1520,7 @@ export default function TrainerDashboard() {
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                         <strong>{t.title}</strong>
-                        <span className="badge badge-not-submitted" style={{ fontSize: '0.7rem' }}>{t.college?.code}</span>
+                        <span className="badge badge-not-submitted" style={{ fontSize: '0.7rem' }}>{t.college?.code || 'Global'}</span>
                       </div>
                       <p style={{ fontSize: '0.85rem', color: '#a0aec0', lineHeight: '1.4', marginBottom: '8px' }}>{t.description}</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#718096', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '8px' }}>
@@ -1338,21 +1528,40 @@ export default function TrainerDashboard() {
                           <span style={{ display: 'block' }}>Due: {new Date(t.dueDate).toLocaleDateString()}</span>
                           <span style={{ color: 'var(--neon-secondary)', display: 'block', marginTop: '2px' }}>Submissions: {t.stats.totalSubmissions} ({t.stats.approved} approved)</span>
                         </div>
-                        <button
-                          onClick={() => handleDeleteTask(t._id, t.title)}
-                          className="btn-glass"
-                          style={{
-                            padding: '4px 10px',
-                            fontSize: '0.75rem',
-                            background: 'rgba(255, 0, 85, 0.05)',
-                            border: '1px solid rgba(255, 0, 85, 0.2)',
-                            color: 'var(--neon-red)',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Delete Task
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleEditClick(t)}
+                            className="btn-glass"
+                            style={{
+                              padding: '4px 10px',
+                              fontSize: '0.75rem',
+                              background: 'rgba(0, 255, 135, 0.05)',
+                              border: '1px solid rgba(0, 255, 135, 0.2)',
+                              color: 'var(--neon-secondary)',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTask(t._id, t.title)}
+                            className="btn-glass"
+                            style={{
+                              padding: '4px 10px',
+                              fontSize: '0.75rem',
+                              background: 'rgba(255, 0, 85, 0.05)',
+                              border: '1px solid rgba(255, 0, 85, 0.2)',
+                              color: 'var(--neon-red)',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1861,9 +2070,44 @@ export default function TrainerDashboard() {
           <div className="glass-panel">
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>Active Deployed Quizzes</h3>
             
-            {quizzes.length === 0 ? (
+            {/* Filters Row */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem', alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="Search quizzes..."
+                className="glass-input"
+                style={{ flex: 1, minWidth: '200px', padding: '6px 12px', fontSize: '0.85rem' }}
+                value={quizSearchQuery}
+                onChange={(e) => setQuizSearchQuery(e.target.value)}
+              />
+              <select
+                className="glass-input"
+                style={{ width: '180px', padding: '6px 12px', fontSize: '0.85rem' }}
+                value={quizFilterCollegeId}
+                onChange={(e) => setQuizFilterCollegeId(e.target.value)}
+              >
+                <option value="">-- Filter by College --</option>
+                {colleges.map((col) => (
+                  <option key={col._id} value={col._id}>
+                    {col.code}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="glass-input"
+                style={{ width: '150px', padding: '6px 12px', fontSize: '0.85rem' }}
+                value={quizFilterStatus}
+                onChange={(e) => setQuizFilterStatus(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+              </select>
+            </div>
+
+            {filteredQuizzes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
-                No active quizzes deployed. Drop spreadsheet templates above to schedule exams.
+                No quizzes found matching your filter criteria.
               </div>
             ) : (
               <div className="table-container">
@@ -1879,7 +2123,7 @@ export default function TrainerDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {quizzes.map((quiz: any) => (
+                    {filteredQuizzes.map((quiz: any) => (
                       <tr key={quiz._id}>
                         <td>
                           <strong>{quiz.title}</strong>
@@ -1887,7 +2131,7 @@ export default function TrainerDashboard() {
                             {quiz.description || 'No description'}
                           </span>
                         </td>
-                        <td>{quiz.college?.name} ({quiz.college?.code})</td>
+                        <td>{quiz.college ? `${quiz.college.name} (${quiz.college.code})` : 'All Colleges (Global)'}</td>
                         <td>{quiz.durationMinutes} mins</td>
                         <td>{quiz.questions?.length} Qs</td>
                         <td>
@@ -1926,83 +2170,139 @@ export default function TrainerDashboard() {
           </div>
 
           {/* Quiz submissions analytics reports table */}
-          {viewingQuizId && (
-            <div className="glass-panel" style={{ border: '1px solid var(--border-glass-hover)', boxShadow: 'var(--glow-primary)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Quiz Results Directory</h3>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Telemetric grading logs and blur switch monitoring reports
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewingQuizId(null);
-                    setSelectedQuizResults([]);
-                  }}
-                  style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.25rem' }}
-                >
-                  &times;
-                </button>
-              </div>
+          {viewingQuizId && (() => {
+            const totalQuizAttempts = selectedQuizResults.length;
+            const quizAvgScore = totalQuizAttempts > 0 
+              ? Math.round(selectedQuizResults.reduce((acc, curr) => acc + (curr.score / (curr.totalPoints || 1)), 0) / totalQuizAttempts * 100) 
+              : 0;
+            
+            const quizPassCount = selectedQuizResults.filter((r: any) => (r.totalPoints > 0 ? (r.score / r.totalPoints) >= 0.5 : false)).length;
+            const quizPassRate = totalQuizAttempts > 0 ? Math.round((quizPassCount / totalQuizAttempts) * 100) : 0;
+            
+            const quizCheatedCount = selectedQuizResults.filter((r: any) => r.isCheated).length;
+            const quizAvgTime = totalQuizAttempts > 0 
+              ? Math.round(selectedQuizResults.reduce((acc, curr) => acc + (curr.timeTakenSeconds || 0), 0) / totalQuizAttempts) 
+              : 0;
 
-              {selectedQuizResults.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2.5rem', color: '#718096' }}>
-                  No students have submitted attempts for this quiz environment yet.
+            return (
+              <div className="glass-panel" style={{ border: '1px solid var(--border-glass-hover)', boxShadow: 'var(--glow-primary)', marginTop: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', margin: 0 }}>Quiz Results Directory</h3>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Telemetric grading logs and blur switch monitoring reports
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    {totalQuizAttempts > 0 && (
+                      <button
+                        onClick={handleExportQuizResults}
+                        className="btn-neon"
+                        style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                      >
+                        Download CSV Report
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setViewingQuizId(null);
+                        setSelectedQuizResults([]);
+                      }}
+                      style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '1.25rem' }}
+                    >
+                      &times;
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <div className="table-container">
-                  <table className="glass-table">
-                    <thead>
-                      <tr>
-                        <th>Student Details</th>
-                        <th>Score Gained</th>
-                        <th>Time Elapsed</th>
-                        <th>Warnings count</th>
-                        <th>Telemetric Status</th>
-                        <th>Submission Timestamp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedQuizResults.map((res: any) => (
-                        <tr key={res._id}>
-                          <td>
-                            <strong>{res.student?.name}</strong>
-                            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                              {res.student?.email}
-                            </span>
-                          </td>
-                          <td>
-                            <strong style={{ color: res.isCheated ? 'var(--neon-red)' : 'var(--neon-green)' }}>
-                              {res.score} / {res.totalPoints}
-                            </strong>
-                            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                              ({res.totalPoints > 0 ? Math.round((res.score / res.totalPoints) * 100) : 0}%)
-                            </span>
-                          </td>
-                          <td>
-                            {Math.floor(res.timeTakenSeconds / 60)}m {res.timeTakenSeconds % 60}s
-                          </td>
-                          <td style={{ color: res.tabSwitchCount >= 3 ? '#ef4444' : 'var(--text-primary)' }}>
-                            {res.tabSwitchCount} / 3 warnings
-                          </td>
-                          <td>
-                            {res.isCheated ? (
-                              <span className="badge badge-rejected" style={{ fontSize: '0.7rem' }}>Cheated (Flagged)</span>
-                            ) : (
-                              <span className="badge badge-approved" style={{ fontSize: '0.7rem' }}>Secure exam</span>
-                            )}
-                          </td>
-                          <td>{new Date(res.submittedAt).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
+
+                {totalQuizAttempts > 0 && (
+                  <div className="dashboard-grid" style={{ marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+                    <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>TOTAL_ATTEMPTS</p>
+                      <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-primary)', margin: '4px 0 0' }}>{totalQuizAttempts}</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_SCORE</p>
+                      <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-secondary)', margin: '4px 0 0' }}>{quizAvgScore}%</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>PASS_RATE</p>
+                      <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: '#00ff87', margin: '4px 0 0' }}>{quizPassRate}%</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>ANTI_CHEAT_FLAGS</p>
+                      <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: '#ff0055', margin: '4px 0 0' }}>{quizCheatedCount} Flagged</h4>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                      <p style={{ color: '#a0aec0', fontSize: '0.7rem', fontFamily: 'monospace', margin: 0 }}>AVG_TIME_SPENT</p>
+                      <h4 style={{ fontSize: '1.3rem', marginTop: '0.25rem', color: 'var(--neon-secondary)', margin: '4px 0 0' }}>
+                        {Math.floor(quizAvgTime / 60)}m {quizAvgTime % 60}s
+                      </h4>
+                    </div>
+                  </div>
+                )}
+
+                {paginatedQuizResults.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#718096' }}>
+                    No students have submitted attempts for this quiz environment yet.
+                  </div>
+                ) : (
+                  <>
+                    <div className="table-container">
+                      <table className="glass-table">
+                        <thead>
+                          <tr>
+                            <th>Student Details</th>
+                            <th>Score Gained</th>
+                            <th>Time Elapsed</th>
+                            <th>Warnings count</th>
+                            <th>Telemetric Status</th>
+                            <th>Submission Timestamp</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedQuizResults.map((res: any) => (
+                            <tr key={res._id}>
+                              <td>
+                                <strong>{res.student?.name}</strong>
+                                <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                  {res.student?.email}
+                                </span>
+                              </td>
+                              <td>
+                                <strong style={{ color: res.isCheated ? 'var(--neon-red)' : 'var(--neon-green)' }}>
+                                  {res.score} / {res.totalPoints}
+                                </strong>
+                                <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                  ({res.totalPoints > 0 ? Math.round((res.score / res.totalPoints) * 100) : 0}%)
+                                </span>
+                              </td>
+                              <td>
+                                {Math.floor(res.timeTakenSeconds / 60)}m {res.timeTakenSeconds % 60}s
+                              </td>
+                              <td style={{ color: res.tabSwitchCount >= 3 ? '#ef4444' : 'var(--text-primary)' }}>
+                                {res.tabSwitchCount} / 3 warnings
+                              </td>
+                              <td>
+                                {res.isCheated ? (
+                                  <span className="badge badge-rejected" style={{ fontSize: '0.7rem' }}>Cheated (Flagged)</span>
+                                ) : (
+                                  <span className="badge badge-approved" style={{ fontSize: '0.7rem' }}>Secure exam</span>
+                                )}
+                              </td>
+                              <td>{new Date(res.submittedAt).toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {renderPaginationControls(quizResultsPage, totalQuizResultsPages, setQuizResultsPage)}
+                  </>
+                )}
+              </div>
+            );
+          })()}
 
         </div>
       )}

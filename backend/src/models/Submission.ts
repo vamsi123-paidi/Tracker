@@ -22,4 +22,8 @@ const SubmissionSchema = new mongoose.Schema<ISubmission>({
   createdAt: { type: Date, default: Date.now }
 });
 
+SubmissionSchema.index({ task: 1 });
+SubmissionSchema.index({ student: 1 });
+SubmissionSchema.index({ status: 1 });
+
 export const Submission = mongoose.models.Submission || mongoose.model<ISubmission>('Submission', SubmissionSchema);
