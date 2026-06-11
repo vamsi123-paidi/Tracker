@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, removeAuthToken, getAuthToken } from '@/utils/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { QuantumLoader } from '@/components/QuantumLoader';
 import Editor from '@monaco-editor/react';
 
 interface College {
@@ -488,157 +489,6 @@ const CompilerTabPanel = memo(({ lang, isFullscreen, onLangChange, onFullscreenT
 }, (prevProps, nextProps) => prevProps.lang === nextProps.lang && prevProps.isFullscreen === nextProps.isFullscreen);
 CompilerTabPanel.displayName = 'CompilerTabPanel';
 
-// Cybernetic Telemetry Loading Overlay
-const QuantumLoader: React.FC<{ message?: string }> = ({ message }) => {
-  const [logIndex, setLogIndex] = useState(0);
-  const telemetryLogs = [
-    'INITIALIZING SECURE PROTOCOLS...',
-    'ESTABLISHING HANDSHAKE WITH VERIFIER CORES...',
-    'COMPILING DEPLOYED BINDINGS AND DEPENDENCY SCHEMAS...',
-    'EVALUATING DOM & FUNCTIONAL SYNTAX TREE...',
-    'COMPUTING COMPLEXITY SCORES AND TELEMETRY TELEPORT...',
-    'TRANSMITTING ENCRYPTED BYTE ARRAYS TO API DATABASE...',
-    'CALIBRATING PORTAL RANKS & COMPLETED MILESTONES...',
-    'INTEGRATING LEDGER INDEX UPDATES...',
-    'FINISHING DATA TRANSCEIVER HANDSHAKE...',
-    'SYNC COMPLETE. REDIRECTING...'
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLogIndex((prev) => (prev < telemetryLogs.length - 1 ? prev + 1 : prev));
-    }, 550);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(2, 2, 7, 0.93)',
-      backdropFilter: 'blur(16px)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 999999,
-      padding: '2rem'
-    }}>
-      {/* Dynamic 3D Concentric Ring Spinner */}
-      <div style={{ position: 'relative', width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', marginBottom: '2.5rem' }}>
-        {/* Outer clockwise circle */}
-        <div style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          border: '3px dashed var(--neon-primary)',
-          animation: 'rotateCW 10s linear infinite',
-          boxShadow: 'inset 0 0 15px rgba(245, 158, 11, 0.1)',
-          opacity: 0.8
-        }} />
-        
-        {/* Middle counter-clockwise circle */}
-        <div style={{
-          position: 'absolute',
-          width: '80%',
-          height: '80%',
-          borderRadius: '50%',
-          border: '2px dotted var(--neon-secondary)',
-          animation: 'rotateCCW 6s linear infinite',
-          boxShadow: '0 0 15px rgba(16, 185, 129, 0.15)',
-          opacity: 0.7
-        }} />
-
-        {/* Inner clockwise circle */}
-        <div style={{
-          position: 'absolute',
-          width: '60%',
-          height: '60%',
-          borderRadius: '50%',
-          border: '3px double var(--neon-blue)',
-          animation: 'rotateCW 3s linear infinite',
-          boxShadow: 'inset 0 0 10px rgba(255, 107, 53, 0.2)',
-          opacity: 0.6
-        }} />
-
-        {/* Pulsing Core */}
-        <div style={{
-          width: '28px',
-          height: '28px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%)',
-          boxShadow: 'var(--glow-primary)',
-          animation: 'pulseScale 1.5s ease-in-out infinite'
-        }} />
-
-        {/* Scanning laser line overlay */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '3px',
-          background: 'linear-gradient(90deg, transparent, var(--neon-green), transparent)',
-          boxShadow: 'var(--glow-green)',
-          opacity: 0.7,
-          animation: 'scanVertically 3.5s ease-in-out infinite',
-          pointerEvents: 'none'
-        }} />
-      </div>
-
-      {/* Upload Telemetry Message */}
-      <h3 style={{
-        fontSize: '1.25rem',
-        fontWeight: 700,
-        color: '#fff',
-        letterSpacing: '1px',
-        marginBottom: '0.75rem',
-        fontFamily: 'var(--font-mono)',
-        textTransform: 'uppercase',
-        textShadow: '0 0 10px rgba(255, 255, 255, 0.2)'
-      }}>
-        {message || 'SYNCING WITH SECURE DATABASE'}
-      </h3>
-
-      {/* Terminal Readout Logs */}
-      <div className="glass-panel" style={{
-        width: '100%',
-        maxWidth: '480px',
-        background: 'rgba(0, 0, 0, 0.4)',
-        borderColor: 'var(--border-glass)',
-        padding: '1rem 1.25rem',
-        borderRadius: '10px',
-        fontFamily: 'monospace',
-        fontSize: '0.8rem',
-        lineHeight: '1.5',
-        color: 'var(--text-muted)'
-      }}>
-        <div style={{ color: 'var(--neon-green)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-          <span>🛰️ CORE_NODE_STATUS</span>
-          <span style={{ animation: 'pulseScale 1s infinite' }}>ONLINE</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {telemetryLogs.slice(0, logIndex + 1).map((log, idx) => (
-            <div key={idx} style={{
-              color: idx === logIndex ? 'var(--neon-primary)' : 'var(--text-muted)',
-              display: 'flex',
-              gap: '6px',
-              textShadow: idx === logIndex ? '0 0 6px rgba(245, 158, 11, 0.3)' : 'none'
-            }}>
-              <span>&gt;</span>
-              <span>{log}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const MERN_QUESTIONS: any[] = [];
 
 const mernProjects = [
@@ -803,6 +653,7 @@ const getInterviewFileMeta = (file: any) => {
 
 export default function StudentDashboard() {
   const router = useRouter();
+  const [isPageLoading, setIsPageLoading] = useState(true);
   
   // Auth & Student Details
   const [studentName, setStudentName] = useState('');
@@ -1068,13 +919,20 @@ export default function StudentDashboard() {
           setBadgesUnlocked(user.badgesUnlocked || []);
           setPoints(user.points || 0);
           
-          fetchStudentTasks();
-          fetchActiveQuizzes();
-          fetchAssessments();
-          fetchLeaderboard();
+          Promise.all([
+            fetchStudentTasks(),
+            fetchActiveQuizzes(),
+            fetchAssessments(),
+            fetchLeaderboard()
+          ]).finally(() => {
+            setIsPageLoading(false);
+          });
         }
       })
-      .catch(() => router.push('/login'));
+      .catch(() => {
+        router.push('/login');
+        setIsPageLoading(false);
+      });
 
     // Client-side localstorage initializers
     if (typeof window !== 'undefined') {
@@ -2357,7 +2215,7 @@ export default function StudentDashboard() {
           
           {/* TAB 1: MILESTONES (Tasks Listing & Stats) */}
           {activeTab === 'milestones' && (
-            <div>
+            <div className="animated-entry">
               {/* Stats Counters */}
               <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
                 <div className="glass-panel">
@@ -2408,8 +2266,10 @@ export default function StudentDashboard() {
               </h3>
 
               {paginatedTasks.length === 0 ? (
-                <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
-                  No tasks found for your college. Check back later or ask your trainer.
+                <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📂</span>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Active Tasks</h4>
+                  <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No milestones or deliverables have been deployed to your college workspace code. Relax or check with your instructor!</p>
                 </div>
               ) : (
                 <>
@@ -2498,7 +2358,7 @@ export default function StudentDashboard() {
 
           {/* TAB 2: QUIZ HUB */}
           {activeTab === 'quizzes' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="animated-entry" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
@@ -2580,8 +2440,10 @@ export default function StudentDashboard() {
                     Loading active examinations...
                   </div>
                 ) : quizzes.length === 0 ? (
-                  <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
-                    No active quizzes scheduled for your college code. Check back later.
+                  <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🛡️</span>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Active Quizzes</h4>
+                    <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No proctored examination environments are scheduled for your college at this time. Check back later.</p>
                   </div>
                 ) : (
                   <div className="dashboard-grid">
@@ -2644,8 +2506,10 @@ export default function StudentDashboard() {
                     Retrieving exam submissions history...
                   </div>
                 ) : myQuizResults.length === 0 ? (
-                  <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', color: '#718096' }}>
-                    No completed quiz attempts recorded in this portal.
+                  <div className="glass-panel animated-entry delay-2" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📊</span>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Attempt Records</h4>
+                    <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>You have not submitted any exam or quiz deliverables yet.</p>
                   </div>
                 ) : (
                   <div className="table-container">
@@ -3088,7 +2952,7 @@ export default function StudentDashboard() {
 
           {/* TAB: ASSESSMENTS */}
           {activeTab === 'assessments' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className="animated-entry" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               
               {/* Assessments Header & Overall Stats */}
               <div className="glass-panel" style={{
@@ -3817,8 +3681,10 @@ export default function StudentDashboard() {
                       Accessing server analytics...
                     </div>
                   ) : leaderboardList.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
-                      No submissions recorded on the leaderboard. Be the first to solve a challenge!
+                    <div className="glass-panel animated-entry delay-3" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🏆</span>
+                      <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>Empty Leaderboard</h4>
+                      <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>Be the first to solve a coding challenge and claim the top rank!</p>
                     </div>
                   ) : (
                     <div className="table-container" style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-glass)' }}>
@@ -3928,7 +3794,7 @@ export default function StudentDashboard() {
 
           {/* TAB 4: MAKE A NOTE WORKSPACE */}
           {activeTab === 'tools' && (
-            <div style={{ width: '100%' }}>
+            <div className="animated-entry" style={{ width: '100%' }}>
               
               {/* Client-side Study Notes Workspace (Full Width) */}
               <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '680px' }}>
@@ -4273,7 +4139,7 @@ export default function StudentDashboard() {
 
           {/* TAB 5: ACHIEVEMENTS BADGE SHELF */}
           {activeTab === 'achievements' && (
-            <div className="glass-panel">
+            <div className="glass-panel animated-entry">
               <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontFamily: 'monospace', color: 'var(--neon-secondary)' }}>
                 Achievement Shelf
               </h3>
@@ -4340,7 +4206,7 @@ export default function StudentDashboard() {
 
           {/* TAB 6: MERN HUB WORKSPACE */}
           {activeTab === 'mern' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', animation: 'fadeIn 0.4s ease' }}>
+            <div className="animated-entry" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', padding: '1.5rem' }}>
                 <div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--neon-primary)', fontFamily: 'monospace', letterSpacing: '1px' }}>SPARK_STUDY_CENTER</span>
@@ -5817,6 +5683,11 @@ export default function StudentDashboard() {
         </button>
       </div>
 
+      {/* Global Page Buffer */}
+      {isPageLoading && (
+        <QuantumLoader message="Synchronizing Workspace Data Cores" />
+      )}
+
       {/* Dynamic Telemetry Loading Portal */}
       {(isSubmitting || isSubmittingQuiz || isSubmittingAssessment || isUpdatingProfile) && (
         <QuantumLoader
@@ -5830,14 +5701,6 @@ export default function StudentDashboard() {
               : "Calibrating User Account Settings"
           }
         />
-      )}
-
-      {/* Initial Page Loaders */}
-      {isAssessmentsLoading && assessmentsList.length === 0 && (
-        <QuantumLoader message="Synchronizing Coding Challenges Database" />
-      )}
-      {isLoadingQuizzes && quizzes.length === 0 && (
-        <QuantumLoader message="Connecting to Quiz Proctor Gateway" />
       )}
 
       <style jsx global>{`

@@ -1,68 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* Default Dark Theme variables - Charcoal Void & Solar Gold & Plasma Emerald */
+/* Default Dark Theme variables - Royal Violet & Ocean Cyan */
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #030305;
-  --bg-glass: rgba(10, 10, 15, 0.65);
-  --bg-glass-hover: rgba(15, 15, 22, 0.78);
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-glass-hover: rgba(245, 158, 11, 0.45);
+  --bg-dark: #06060c;
+  --bg-glass: rgba(10, 10, 15, 0.6);
+  --bg-glass-hover: rgba(15, 15, 22, 0.72);
+  --border-glass: rgba(255, 255, 255, 0.05);
+  --border-glass-hover: rgba(139, 92, 246, 0.4);
 
-  --neon-primary: #f59e0b;       /* Solar Gold */
-  --neon-secondary: #10b981;     /* Plasma Emerald */
-  --neon-blue: #ff6b35;          /* Vibrant Coral Orange (Replaced Blue/Magenta) */
-  --neon-green: #10b981;         /* Emerald */
-  --neon-red: #ef4444;           /* Crimson */
-  --neon-yellow: #f59e0b;        /* Amber */
+  --neon-primary: #8b5cf6;       /* Royal Violet */
+  --neon-secondary: #06b6d4;     /* Ocean Cyan */
+  --neon-blue: #3b82f6;          /* Sapphire Blue */
+  --neon-green: #10b981;         /* Plasma Emerald */
+  --neon-red: #f43f5e;           /* Crimson Rose */
+  --neon-yellow: #fbbf24;        /* Sun Glow Amber */
 
   --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;     /* Soft lavender */
-  --text-muted: #94a3b8;         /* Muted lavender */
+  --text-secondary: #cbd5e1;     /* Soft slate */
+  --text-muted: #64748b;         /* Muted slate */
 
-  --glow-primary: 0 0 25px rgba(245, 158, 11, 0.55), 0 0 10px rgba(245, 158, 11, 0.2);
-  --glow-secondary: 0 0 25px rgba(16, 185, 129, 0.55), 0 0 10px rgba(16, 185, 129, 0.2);
-  --glow-green: 0 0 25px rgba(16, 185, 129, 0.5), 0 0 10px rgba(16, 185, 129, 0.2);
-  --glow-red: 0 0 25px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.2);
-  --glow-yellow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 10px rgba(245, 158, 11, 0.2);
+  --glow-primary: 0 0 22px rgba(139, 92, 246, 0.4), 0 0 8px rgba(139, 92, 246, 0.15);
+  --glow-secondary: 0 0 22px rgba(6, 182, 212, 0.4), 0 0 8px rgba(6, 182, 212, 0.15);
+  --glow-green: 0 0 22px rgba(16, 185, 129, 0.4), 0 0 8px rgba(16, 185, 129, 0.15);
+  --glow-red: 0 0 22px rgba(244, 63, 94, 0.4), 0 0 8px rgba(244, 63, 94, 0.15);
+  --glow-yellow: 0 0 22px rgba(251, 191, 36, 0.4), 0 0 8px rgba(251, 191, 36, 0.15);
 
-  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(255, 255, 255, 0.01);
-  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(245, 158, 11, 0.05);
-  --modal-overlay: rgba(4, 2, 9, 0.9);
+  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(255, 255, 255, 0.01);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(139, 92, 246, 0.04);
+  --modal-overlay: rgba(3, 2, 7, 0.85);
 }
 
-/* Light Theme overrides - Pearl White & Coral Orange & Ocean Teal */
+/* Light Theme overrides - Premium Slate White & Royal Violet & Ocean Cyan */
 :root.light {
-  --bg-dark: #fafaff;
-  --bg-glass: rgba(255, 255, 255, 0.8);
-  --bg-glass-hover: rgba(255, 255, 255, 0.94);
-  --border-glass: rgba(0, 0, 0, 0.07);
-  --border-glass-hover: rgba(255, 87, 34, 0.45);
+  --bg-dark: #f8fafc;
+  --bg-glass: rgba(255, 255, 255, 0.72);
+  --bg-glass-hover: rgba(255, 255, 255, 0.88);
+  --border-glass: rgba(15, 23, 42, 0.06);
+  --border-glass-hover: rgba(124, 58, 237, 0.4);
 
-  --neon-primary: #ff5722;       /* Coral Orange */
-  --neon-secondary: #10b981;     /* Vibrant Green (Replaced Teal/Blue) */
-  --neon-blue: #ff1744;          /* Vibrant Red (Replaced Blue) */
-  --neon-green: #00c853;         /* Vibrant Green */
-  --neon-red: #ff1744;           /* Vibrant Red */
-  --neon-yellow: #ffc400;        /* Vibrant Yellow */
+  --neon-primary: #7c3aed;       /* Deep Royal Violet */
+  --neon-secondary: #0891b2;     /* Deep Ocean Cyan */
+  --neon-blue: #2563eb;          /* Royal Blue */
+  --neon-green: #059669;         /* Vibrant Green */
+  --neon-red: #dc2626;           /* Vibrant Red */
+  --neon-yellow: #d97706;        /* Vibrant Amber */
 
-  --text-primary: #111625;
-  --text-secondary: #344256;
-  --text-muted: #8a9bb0;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
 
-  --glow-primary: 0 0 18px rgba(255, 87, 34, 0.35);
-  --glow-secondary: 0 0 18px rgba(16, 185, 129, 0.35);
-  --glow-green: 0 0 18px rgba(0, 200, 83, 0.35);
-  --glow-red: 0 0 18px rgba(255, 23, 68, 0.35);
-  --glow-yellow: 0 0 18px rgba(255, 196, 0, 0.35);
+  --glow-primary: 0 0 14px rgba(124, 58, 237, 0.22);
+  --glow-secondary: 0 0 14px rgba(8, 145, 178, 0.22);
+  --glow-green: 0 0 14px rgba(5, 150, 105, 0.22);
+  --glow-red: 0 0 14px rgba(220, 38, 38, 0.22);
+  --glow-yellow: 0 0 14px rgba(217, 119, 6, 0.22);
 
-  --card-shadow: 0 20px 40px rgba(26, 38, 57, 0.05);
-  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(255, 87, 34, 0.05);
-  --modal-overlay: rgba(240, 243, 248, 0.88);
+  --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(124, 58, 237, 0.04);
+  --modal-overlay: rgba(241, 245, 249, 0.85);
 }
 
 * {
@@ -76,10 +76,10 @@
 body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(160, 45%, 6%, 1) 0, transparent 55%),
-    radial-gradient(at 50% 0%, hsla(38, 45%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(160, 40%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 100%, hsla(38, 40%, 5%, 1) 0, transparent 55%);
+    radial-gradient(at 0% 0%, hsla(258, 45%, 6%, 1) 0, transparent 55%),
+    radial-gradient(at 50% 0%, hsla(190, 45%, 5%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(258, 40%, 5%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(190, 40%, 5%, 1) 0, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -91,9 +91,9 @@ body {
 :root.light body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(255, 87, 34, 0.06) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.06) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.04) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.05) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(8, 145, 178, 0.05) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.03) 0, transparent 50%);
 }
 
 /* Aurora Background container */
@@ -244,7 +244,7 @@ body {
 
 .glass-panel:hover {
   border-color: var(--border-glass-hover);
-  box-shadow: 0 20px 45px rgba(245, 158, 11, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 45px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Interactive Card - 3D Tilt Hover */
@@ -255,7 +255,7 @@ body {
 .tilt-card:hover {
   transform: translateY(-8px) scale(1.02);
   border-color: var(--border-glass-hover);
-  box-shadow: 0 25px 50px rgba(245, 158, 11, 0.12);
+  box-shadow: 0 25px 50px rgba(6, 182, 212, 0.12);
 }
 
 /* Theme Toggle Button */
@@ -809,4 +809,41 @@ body {
   0% { transform: scale(1); }
   50% { transform: scale(0.85); }
   100% { transform: scale(1.1); }
+}
+
+/* Card Panel Entry Transitions & Staggered Animations */
+.animated-entry {
+  animation: panelEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes panelEntry {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.delay-1 { animation-delay: 0.06s; }
+.delay-2 { animation-delay: 0.12s; }
+.delay-3 { animation-delay: 0.18s; }
+.delay-4 { animation-delay: 0.24s; }
+.delay-5 { animation-delay: 0.3s; }
+.delay-6 { animation-delay: 0.36s; }
+.delay-7 { animation-delay: 0.42s; }
+.delay-8 { animation-delay: 0.48s; }
+
+/* Interactive Hover Scale Transitions for buttons/inputs */
+.interactive-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.interactive-hover:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.interactive-hover:active {
+  transform: translateY(1px) scale(0.98);
 }

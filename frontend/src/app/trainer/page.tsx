@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, removeAuthToken, getAuthToken } from '@/utils/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { QuantumLoader } from '@/components/QuantumLoader';
 
 interface College {
   _id: string;
@@ -77,6 +78,7 @@ export default function TrainerDashboard() {
 
   // User info
   const [trainerName, setTrainerName] = useState('');
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   // Data lists
   const [colleges, setColleges] = useState<College[]>([]);
@@ -200,15 +202,19 @@ export default function TrainerDashboard() {
 
     // Fetch Initial Data
     api.get('/auth/me')
-      .then((user) => {
+      .then(async (user) => {
         if (user.role !== 'trainer') {
           router.push('/student');
         } else {
           setTrainerName(user.name);
-          fetchDashboardData();
+          await fetchDashboardData();
+          setIsPageLoading(false);
         }
       })
-      .catch(() => router.push('/login'));
+      .catch(() => {
+        router.push('/login');
+        setIsPageLoading(false);
+      });
   }, [router]);
 
   useEffect(() => {
@@ -1010,7 +1016,7 @@ export default function TrainerDashboard() {
   return (
     <main style={{ padding: '2rem 1.5rem', maxWidth: '1200px', margin: '0 auto', zIndex: 1 }}>
       {/* Top Bar */}
-      <header className="glass-panel" style={{
+      <header className="glass-panel animated-entry" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -1062,26 +1068,26 @@ export default function TrainerDashboard() {
 
       {/* Metrics Row */}
       <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry delay-1">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>ACTIVE_TASKS</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: 'var(--neon-primary)' }}>{tasks.length}</h3>
         </div>
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry delay-2">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>PENDING_VERIFICATION</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#ffd000' }}>{pendingSubCount}</h3>
         </div>
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry delay-3">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>TOTAL_SUBMISSIONS</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#10b981' }}>{totalSubCount}</h3>
         </div>
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry delay-4">
           <p style={{ color: '#a0aec0', fontSize: '0.85rem', fontFamily: 'monospace' }}>APPROVAL_RATE</p>
           <h3 style={{ fontSize: '2rem', marginTop: '0.5rem', color: '#00ff87' }}>{approvalRate}%</h3>
         </div>
       </div>
 
       {/* Analytics Chart Panel */}
-      <div className="glass-panel" style={{ marginBottom: '2rem' }}>
+      <div className="glass-panel animated-entry delay-5" style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h3 style={{ fontFamily: 'monospace', color: 'var(--neon-secondary)', fontSize: '0.95rem' }}>
             3D_ANALYTICS_MATRIX ({chartViewMode === 'tasks' ? 'Tasks View' : 'Colleges View'})
@@ -1159,7 +1165,7 @@ export default function TrainerDashboard() {
 
       {/* View Panels */}
       {activeTab === 'submissions' && (
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry">
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -1198,8 +1204,10 @@ export default function TrainerDashboard() {
           </div>
 
           {paginatedSubmissions.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: '#718096' }}>
-              No submissions found matching your filter criteria.
+            <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📭</span>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Submissions Found</h4>
+              <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>All caught up! No student task submissions are waiting for your review.</p>
             </div>
           ) : (
             <>
@@ -1256,7 +1264,7 @@ export default function TrainerDashboard() {
       )}
 
       {activeTab === 'students' && (
-        <div className="glass-panel">
+        <div className="glass-panel animated-entry">
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -1309,8 +1317,10 @@ export default function TrainerDashboard() {
           </div>
 
           {paginatedStudents.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: '#718096' }}>
-              No students found matching filters.
+            <div className="glass-panel animated-entry delay-1" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>👥</span>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Students Found</h4>
+              <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No registered student profiles match your selected search or college filters.</p>
             </div>
           ) : (
             <>
@@ -1407,7 +1417,7 @@ export default function TrainerDashboard() {
       )}
 
       {activeTab === 'tasks' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+        <div className="animated-entry" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
           {/* Create Task Form */}
           <div className="glass-panel">
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>
@@ -1507,9 +1517,11 @@ export default function TrainerDashboard() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '380px', overflowY: 'auto' }}>
                 {filteredTasks.length === 0 ? (
-                  <span style={{ color: '#718096', fontSize: '0.9rem', textAlign: 'center', padding: '1rem' }}>
-                    No active tasks deployed.
-                  </span>
+                  <div className="glass-panel animated-entry delay-2" style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--text-muted)', width: '100%' }}>
+                    <span style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.75rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📂</span>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#fff', marginBottom: '0.4rem' }}>No Active Tasks</h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Use the "Deploy Milestone Task" console above to assign tasks.</p>
+                  </div>
                 ) : (
                   filteredTasks.map((t) => (
                     <div key={t._id} style={{
@@ -1605,7 +1617,7 @@ export default function TrainerDashboard() {
       )}
 
       {activeTab === 'onboarding' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+        <div className="animated-entry" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
           {/* Left Column: Bulk Onboarding */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div className="glass-panel">
@@ -1770,7 +1782,7 @@ export default function TrainerDashboard() {
       )}
 
       {activeTab === 'quizzes' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="animated-entry" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* Top Row: Excel Download & Deploy Forms */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -2106,8 +2118,10 @@ export default function TrainerDashboard() {
             </div>
 
             {filteredQuizzes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#718096' }}>
-                No quizzes found matching your filter criteria.
+              <div className="glass-panel animated-entry delay-2" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>🛡️</span>
+                <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Quizzes Found</h4>
+                <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No examination models exist for the selected filters. Upload a spreadsheet or write questions to deploy one.</p>
               </div>
             ) : (
               <div className="table-container">
@@ -2244,8 +2258,10 @@ export default function TrainerDashboard() {
                 )}
 
                 {paginatedQuizResults.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '2.5rem', color: '#718096' }}>
-                    No students have submitted attempts for this quiz environment yet.
+                  <div className="glass-panel animated-entry delay-3" style={{ padding: '4.5rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '1.25rem', filter: 'drop-shadow(var(--glow-primary))', animation: 'pulseScale 2s infinite' }}>📊</span>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#fff', marginBottom: '0.5rem' }}>No Submissions Yet</h4>
+                    <p style={{ fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>No students have submitted completed grading responses for this quiz environment yet.</p>
                   </div>
                 ) : (
                   <>
@@ -2774,6 +2790,11 @@ export default function TrainerDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Global Page Buffer */}
+      {isPageLoading && (
+        <QuantumLoader message="Calibrating Trainer Control Hub" />
       )}
 
       <style jsx global>{`
