@@ -1,68 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* Default Dark Theme variables - Royal Violet & Ocean Cyan */
+/* Default Dark Theme variables - Carbon & Liquid Platinum */
 :root {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
 
-  --bg-dark: #06060c;
-  --bg-glass: rgba(10, 10, 15, 0.6);
-  --bg-glass-hover: rgba(15, 15, 22, 0.72);
-  --border-glass: rgba(255, 255, 255, 0.05);
-  --border-glass-hover: rgba(139, 92, 246, 0.4);
+  --bg-dark: #09090f;
+  --bg-glass: rgba(15, 15, 22, 0.65);
+  --bg-glass-hover: rgba(22, 22, 32, 0.78);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --border-glass-hover: rgba(255, 255, 255, 0.25);
 
-  --neon-primary: #8b5cf6;       /* Royal Violet */
-  --neon-secondary: #06b6d4;     /* Ocean Cyan */
-  --neon-blue: #3b82f6;          /* Sapphire Blue */
-  --neon-green: #10b981;         /* Plasma Emerald */
-  --neon-red: #f43f5e;           /* Crimson Rose */
-  --neon-yellow: #fbbf24;        /* Sun Glow Amber */
+  --neon-primary: #f8fafc;       /* Liquid White */
+  --neon-secondary: #94a3b8;     /* Cyber Silver */
+  --neon-blue: #cbd5e1;          /* Cool Slate Light */
+  --neon-green: #ffffff;         /* Pure Platinum */
+  --neon-red: #e2e8f0;           /* Soft Platinum */
+  --neon-yellow: #cbd5e1;        /* Muted Platinum */
 
   --text-primary: #ffffff;
   --text-secondary: #cbd5e1;     /* Soft slate */
   --text-muted: #64748b;         /* Muted slate */
 
-  --glow-primary: 0 0 22px rgba(139, 92, 246, 0.4), 0 0 8px rgba(139, 92, 246, 0.15);
-  --glow-secondary: 0 0 22px rgba(6, 182, 212, 0.4), 0 0 8px rgba(6, 182, 212, 0.15);
-  --glow-green: 0 0 22px rgba(16, 185, 129, 0.4), 0 0 8px rgba(16, 185, 129, 0.15);
-  --glow-red: 0 0 22px rgba(244, 63, 94, 0.4), 0 0 8px rgba(244, 63, 94, 0.15);
-  --glow-yellow: 0 0 22px rgba(251, 191, 36, 0.4), 0 0 8px rgba(251, 191, 36, 0.15);
+  --glow-primary: 0 0 16px rgba(255, 255, 255, 0.25), 0 0 4px rgba(255, 255, 255, 0.1);
+  --glow-secondary: 0 0 16px rgba(148, 163, 184, 0.2), 0 0 4px rgba(148, 163, 184, 0.08);
+  --glow-green: 0 0 16px rgba(255, 255, 255, 0.2), 0 0 4px rgba(255, 255, 255, 0.08);
+  --glow-red: 0 0 16px rgba(226, 232, 240, 0.2), 0 0 4px rgba(226, 232, 240, 0.08);
+  --glow-yellow: 0 0 16px rgba(203, 213, 225, 0.2), 0 0 4px rgba(203, 213, 225, 0.08);
 
-  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(255, 255, 255, 0.01);
-  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(139, 92, 246, 0.04);
-  --modal-overlay: rgba(3, 2, 7, 0.85);
+  --card-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(255, 255, 255, 0.01);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(255, 255, 255, 0.02);
+  --modal-overlay: rgba(3, 3, 5, 0.9);
 }
 
-/* Light Theme overrides - Premium Slate White & Royal Violet & Ocean Cyan */
+/* Light Theme overrides - Premium Light Slate & Dark Contrast Panels */
 :root.light {
-  --bg-dark: #f8fafc;
-  --bg-glass: rgba(255, 255, 255, 0.72);
-  --bg-glass-hover: rgba(255, 255, 255, 0.88);
-  --border-glass: rgba(15, 23, 42, 0.06);
-  --border-glass-hover: rgba(124, 58, 237, 0.4);
+  --bg-dark: #f1f5f9;
+  --bg-glass: #ffffff;
+  --bg-glass-hover: #f8fafc;
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-hover: rgba(15, 23, 42, 0.16);
 
-  --neon-primary: #7c3aed;       /* Deep Royal Violet */
-  --neon-secondary: #0891b2;     /* Deep Ocean Cyan */
-  --neon-blue: #2563eb;          /* Royal Blue */
-  --neon-green: #059669;         /* Vibrant Green */
-  --neon-red: #dc2626;           /* Vibrant Red */
-  --neon-yellow: #d97706;        /* Vibrant Amber */
+  --neon-primary: #0f172a;       /* Deep Charcoal */
+  --neon-secondary: #475569;     /* Medium Slate */
+  --neon-blue: #334155;          /* Cool Charcoal */
+  --neon-green: #1e293b;         /* Dark Slate */
+  --neon-red: #334155;
+  --neon-yellow: #475569;
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-muted: #627289;
 
-  --glow-primary: 0 0 14px rgba(124, 58, 237, 0.22);
-  --glow-secondary: 0 0 14px rgba(8, 145, 178, 0.22);
-  --glow-green: 0 0 14px rgba(5, 150, 105, 0.22);
-  --glow-red: 0 0 14px rgba(220, 38, 38, 0.22);
-  --glow-yellow: 0 0 14px rgba(217, 119, 6, 0.22);
+  --glow-primary: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --glow-secondary: 0 2px 8px rgba(71, 85, 105, 0.08);
+  --glow-green: 0 2px 8px rgba(30, 41, 59, 0.08);
+  --glow-red: 0 2px 8px rgba(51, 65, 85, 0.08);
+  --glow-yellow: 0 2px 8px rgba(71, 85, 105, 0.08);
 
-  --card-shadow: 0 20px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
-  --grid-line: rgba(124, 58, 237, 0.04);
-  --modal-overlay: rgba(241, 245, 249, 0.85);
+  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --glass-glare: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
+  --grid-line: rgba(15, 23, 42, 0.015);
+  --modal-overlay: rgba(15, 23, 42, 0.4);
 }
 
 * {
@@ -76,10 +76,10 @@
 body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(258, 45%, 6%, 1) 0, transparent 55%),
-    radial-gradient(at 50% 0%, hsla(190, 45%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(258, 40%, 5%, 1) 0, transparent 50%),
-    radial-gradient(at 50% 100%, hsla(190, 40%, 5%, 1) 0, transparent 55%);
+    radial-gradient(at 0% 0%, hsla(240, 6%, 6%, 1) 0, transparent 55%),
+    radial-gradient(at 50% 0%, hsla(220, 6%, 5%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(240, 4%, 5%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(220, 4%, 4%, 1) 0, transparent 55%);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
@@ -91,9 +91,9 @@ body {
 :root.light body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.05) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(8, 145, 178, 0.05) 0, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.03) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(148, 163, 184, 0.05) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(71, 85, 105, 0.04) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(148, 163, 184, 0.03) 0, transparent 50%);
 }
 
 /* Aurora Background container */
@@ -846,4 +846,54 @@ body {
 }
 .interactive-hover:active {
   transform: translateY(1px) scale(0.98);
+}
+
+/* Dark Header navbar in light mode for strong contrast */
+:root.light .glass-panel-header {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
+}
+
+:root.light .glass-panel-header * {
+  color: #f8fafc !important;
+}
+
+:root.light .glass-panel-header button.theme-toggle {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+:root.light .glass-panel-header button.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Sidebar navigation panels for strong contrast in light mode */
+:root.light .glass-panel-sidebar {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.light .glass-panel-sidebar * {
+  color: #cbd5e1 !important;
+}
+
+:root.light .glass-panel-sidebar .sidebar-btn {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+:root.light .glass-panel-sidebar .sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+:root.light .glass-panel-sidebar .sidebar-btn.active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
 }

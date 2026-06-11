@@ -1965,7 +1965,7 @@ export default function StudentDashboard() {
     <main style={{ padding: '2rem 1.5rem', maxWidth: '1200px', margin: '0 auto', zIndex: 1 }}>
       
       {/* Top Header Row */}
-      <header className="glass-panel" style={{
+      <header className="glass-panel glass-panel-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -2088,7 +2088,7 @@ export default function StudentDashboard() {
       )}
 
       {/* Sleek Top Horizontal Navigation Bar */}
-      <nav className="glass-panel" style={{
+      <nav className="glass-panel glass-panel-sidebar" style={{
         display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'center',

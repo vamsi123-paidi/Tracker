@@ -23,7 +23,7 @@ export default function Home() {
       padding: '0 0 4rem 0'
     }}>
       {/* 1. Floating Header Navbar */}
-      <header className="glass-panel" style={{
+      <header className="glass-panel glass-panel-header" style={{
         position: 'sticky',
         top: '1rem',
         width: 'calc(100% - 2rem)',

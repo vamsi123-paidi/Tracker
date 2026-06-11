@@ -1016,7 +1016,7 @@ export default function TrainerDashboard() {
   return (
     <main style={{ padding: '2rem 1.5rem', maxWidth: '1200px', margin: '0 auto', zIndex: 1 }}>
       {/* Top Bar */}
-      <header className="glass-panel animated-entry" style={{
+      <header className="glass-panel glass-panel-header animated-entry" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
