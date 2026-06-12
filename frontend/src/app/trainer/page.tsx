@@ -311,12 +311,12 @@ export default function TrainerDashboard() {
       // 1. Chart View Mode: Tasks View
       const barWidth = Math.min(60, chartWidth / (tasks.length * 1.8));
       const gap = (chartWidth - barWidth * tasks.length) / (tasks.length + 1);
-      const maxSubmissions = Math.max(...tasks.map(t => t.stats.totalSubmissions), 5);
+      const maxSubmissions = Math.max(...tasks.map(t => t.stats?.totalSubmissions || 0), 5);
 
       tasks.forEach((task, idx) => {
         const x = margin.left + gap + idx * (barWidth + gap);
-        const total = task.stats.totalSubmissions;
-        const approved = task.stats.approved;
+        const total = task.stats?.totalSubmissions || 0;
+        const approved = task.stats?.approved || 0;
 
         const scale = total / maxSubmissions;
         const totalBarHeight = chartHeight * scale;
@@ -390,7 +390,7 @@ export default function TrainerDashboard() {
       // 2. Chart View Mode: Colleges View
       // Group submission states by College
       const collegeMetrics = colleges.map((col) => {
-        const colSubs = submissions.filter(s => s.student.college?.code === col.code);
+        const colSubs = submissions.filter(s => s.student?.college?.code === col.code);
         const approved = colSubs.filter(s => s.status === 'approved').length;
         return {
           code: col.code,
@@ -622,7 +622,7 @@ export default function TrainerDashboard() {
     try {
       const data = await api.post('/colleges', { name: colName, code: colCode });
       setColleges([...colleges, data.college]);
-      setSuccessMsg(`College "${data.college.name}" created successfully!`);
+      setSuccessMsg(`College "${data.college?.name || 'Unknown'}" created successfully!`);
       setColName('');
       setColCode('');
     } catch (err: any) {
@@ -647,7 +647,7 @@ export default function TrainerDashboard() {
           dueDate: taskDueDate,
           collegeId: selectedCollegeId || null
         });
-        setSuccessMsg(`Task "${data.task.title}" updated successfully!`);
+        setSuccessMsg(`Task "${data.task?.title || 'Unknown'}" updated successfully!`);
         setEditingTaskId(null);
       } else {
         const data = await api.post('/tasks', {
@@ -656,7 +656,7 @@ export default function TrainerDashboard() {
           dueDate: taskDueDate,
           collegeId: selectedCollegeId || null
         });
-        setSuccessMsg(`Task "${data.task.title}" created successfully!`);
+        setSuccessMsg(`Task "${data.task?.title || 'Unknown'}" created successfully!`);
       }
       setTaskTitle('');
       setTaskDesc('');
@@ -781,7 +781,7 @@ export default function TrainerDashboard() {
         password: manualStudentPassword,
         collegeId: manualStudentCollegeId
       });
-      setSuccessMsg(`Student "${data.student.name}" registered successfully!`);
+      setSuccessMsg(`Student "${data.student?.name || 'Unknown'}" registered successfully!`);
       setManualStudentName('');
       setManualStudentEmail('');
       setManualStudentPassword('');
@@ -900,11 +900,11 @@ export default function TrainerDashboard() {
       s.email,
       s.college?.code || 'N/A',
       s.college?.name || 'N/A',
-      s.stats.totalTasksCount,
-      s.stats.approvedCount,
-      s.stats.pendingCount,
-      s.stats.rejectedCount,
-      `${s.stats.totalTasksCount > 0 ? Math.round((s.stats.approvedCount / s.stats.totalTasksCount) * 100) : 0}%`
+      s.stats?.totalTasksCount || 0,
+      s.stats?.approvedCount || 0,
+      s.stats?.pendingCount || 0,
+      s.stats?.rejectedCount || 0,
+      `${(s.stats?.totalTasksCount || 0) > 0 ? Math.round(((s.stats?.approvedCount || 0) / (s.stats?.totalTasksCount || 1)) * 100) : 0}%`
     ]);
 
     const csvContent = 
@@ -922,11 +922,11 @@ export default function TrainerDashboard() {
 
   // Filter verification queue
   const filteredSubmissions = submissions.filter((sub) => {
-    const matchesCollege = !filterCollegeId || String(sub.student.college?._id) === String(filterCollegeId);
+    const matchesCollege = !filterCollegeId || String(sub.student?.college?._id || '') === String(filterCollegeId);
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch = !searchQuery || 
-      sub.student.name.toLowerCase().includes(searchLower) ||
-      sub.student.email.toLowerCase().includes(searchLower) ||
+      (sub.student?.name || '').toLowerCase().includes(searchLower) ||
+      (sub.student?.email || '').toLowerCase().includes(searchLower) ||
       (sub.task?.title || '').toLowerCase().includes(searchLower);
 
     return matchesCollege && matchesSearch;
@@ -1241,11 +1241,11 @@ export default function TrainerDashboard() {
                     {paginatedSubmissions.map((sub) => (
                       <tr key={sub._id}>
                         <td>
-                          <strong>{sub.student.name}</strong>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sub.student.email}</div>
+                          <strong>{sub.student?.name || 'Deleted Student'}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sub.student?.email || 'N/A'}</div>
                         </td>
                         <td>
-                          <span className="badge badge-not-submitted">{sub.student.college?.code || 'GLBL'}</span>
+                          <span className="badge badge-not-submitted">{sub.student?.college?.code || 'GLBL'}</span>
                         </td>
                         <td>{sub.task?.title || 'Unknown Task'}</td>
                         <td>{new Date(sub.createdAt).toLocaleDateString()}</td>
@@ -1352,8 +1352,8 @@ export default function TrainerDashboard() {
                   </thead>
                   <tbody>
                     {paginatedStudents.map((stud) => {
-                      const total = stud.stats.totalTasksCount;
-                      const approved = stud.stats.approvedCount;
+                      const total = stud.stats?.totalTasksCount || 0;
+                      const approved = stud.stats?.approvedCount || 0;
                       const rate = total > 0 ? Math.round((approved / total) * 100) : 0;
                       
                       return (
@@ -1387,7 +1387,7 @@ export default function TrainerDashboard() {
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                                ✅ {approved} / ⏳ {stud.stats.pendingCount} / ❌ {stud.stats.rejectedCount} (Total: {total})
+                                ✅ {approved} / ⏳ {stud.stats?.pendingCount || 0} / ❌ {stud.stats?.rejectedCount || 0} (Total: {total})
                               </span>
                               <span style={{ fontSize: '0.75rem', color: 'var(--neon-secondary)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <span>⭐ {stud.points || 0} XP</span>
@@ -2364,7 +2364,7 @@ export default function TrainerDashboard() {
               <div>
                 <span style={{ fontSize: '0.8rem', color: 'var(--neon-secondary)', fontFamily: 'monospace' }}>VERIFY_SUBMISSION</span>
                 <h3 style={{ fontSize: '1.25rem' }}>{selectedSubmission.task?.title || 'Task Milestone'}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Submitted by: {selectedSubmission.student.name}</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Submitted by: {selectedSubmission.student?.name || 'Deleted Student'}</p>
               </div>
               <button
                 onClick={() => setSelectedSubmission(null)}
@@ -2542,7 +2542,7 @@ export default function TrainerDashboard() {
                           fill="none"
                           stroke="url(#gradGoldGreen)"
                           strokeWidth="3.5"
-                          strokeDasharray={`${selectedStudent.stats.totalTasksCount > 0 ? (selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100 : 0}, 100`}
+                          strokeDasharray={`${(selectedStudent.stats?.totalTasksCount || 0) > 0 ? ((selectedStudent.stats?.approvedCount || 0) / (selectedStudent.stats?.totalTasksCount || 1)) * 100 : 0}, 100`}
                         />
                         <defs>
                           <linearGradient id="gradGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -2559,7 +2559,7 @@ export default function TrainerDashboard() {
                         textAlign: 'center'
                       }}>
                         <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                          {selectedStudent.stats.totalTasksCount > 0 ? Math.round((selectedStudent.stats.approvedCount / selectedStudent.stats.totalTasksCount) * 100) : 0}%
+                          {(selectedStudent.stats?.totalTasksCount || 0) > 0 ? Math.round(((selectedStudent.stats?.approvedCount || 0) / (selectedStudent.stats?.totalTasksCount || 1)) * 100) : 0}%
                         </span>
                         <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Approved</p>
                       </div>
@@ -2571,19 +2571,19 @@ export default function TrainerDashboard() {
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px' }}>
                     <div style={{ background: 'rgba(0, 255, 135, 0.05)', border: '1px solid rgba(0, 255, 135, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.9rem', color: '#00ff87', fontWeight: 600 }}>Approved Tasks</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.approvedCount}</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats?.approvedCount || 0}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 208, 0, 0.05)', border: '1px solid rgba(255, 208, 0, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.9rem', color: '#ffd000', fontWeight: 600 }}>Awaiting Review</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.pendingCount}</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats?.pendingCount || 0}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 0, 85, 0.05)', border: '1px solid rgba(255, 0, 85, 0.1)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.9rem', color: '#ef4444', fontWeight: 600 }}>Rejected / Revision</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.rejectedCount}</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats?.rejectedCount || 0}</span>
                     </div>
                     <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Total Assigned Tasks</span>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats.totalTasksCount}</span>
+                      <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>{selectedStudent.stats?.totalTasksCount || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -2595,7 +2595,7 @@ export default function TrainerDashboard() {
                     <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem' }}>No tasks assigned to this student's college.</div>
                   ) : (
                     tasks.filter(t => String(t.college?._id) === String(selectedStudent.college?._id)).map((task) => {
-                      const sub = submissions.find(s => s.task?._id === task._id && s.student._id === selectedStudent._id);
+                      const sub = submissions.find(s => s.task?._id === task._id && s.student?._id === selectedStudent._id);
                       const status = sub ? sub.status : 'not_submitted';
 
                       let statusText = 'Not Submitted';
