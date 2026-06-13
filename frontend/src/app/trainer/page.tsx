@@ -2486,9 +2486,16 @@ export default function TrainerDashboard() {
               <div>
                 <span style={{ fontSize: '0.8rem', color: '#10b981', fontFamily: 'monospace' }}>STUDENT_PERFORMANCE_METRICS</span>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700 }}>{selectedStudent.name}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '2px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '2px', marginBottom: '1rem' }}>
                   {selectedStudent.email} • {selectedStudent.college?.name || 'Global Portal'}
                 </p>
+                <button
+                  onClick={() => router.push(`/trainer/interview/${selectedStudent._id}`)}
+                  className="glass-button primary"
+                  style={{ padding: '6px 16px', fontSize: '0.85rem' }}
+                >
+                  <span style={{ marginRight: '6px' }}>📹</span> Start Interview
+                </button>
               </div>
               <button
                 onClick={() => setSelectedStudent(null)}

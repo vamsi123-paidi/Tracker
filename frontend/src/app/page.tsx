@@ -67,11 +67,11 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <ThemeToggle />
           {isLoggedIn ? (
-            <Link href="/student" className="btn-neon" style={{ padding: '8px 18px', fontSize: '0.8rem', textDecoration: 'none', borderRadius: '8px' }}>
+            <Link href="/student" className="glass-button primary" style={{ padding: '8px 18px', fontSize: '0.8rem', textDecoration: 'none', borderRadius: '8px' }}>
               Dashboard
             </Link>
           ) : (
-            <Link href="/login" className="btn-neon" style={{ padding: '8px 18px', fontSize: '0.8rem', textDecoration: 'none', borderRadius: '8px' }}>
+            <Link href="/login" className="glass-button primary" style={{ padding: '8px 18px', fontSize: '0.8rem', textDecoration: 'none', borderRadius: '8px' }}>
               Secure Access
             </Link>
           )}
@@ -125,15 +125,15 @@ export default function Home() {
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {isLoggedIn ? (
-              <Link href="/student" className="btn-neon" style={{ textDecoration: 'none', padding: '12px 24px' }}>
+              <Link href="/student" className="glass-button primary" style={{ textDecoration: 'none', padding: '12px 24px' }}>
                 Enter Portal Workspace →
               </Link>
             ) : (
               <>
-                <Link href="/login" className="btn-neon" style={{ textDecoration: 'none', padding: '12px 24px' }}>
+                <Link href="/login" className="glass-button primary" style={{ textDecoration: 'none', padding: '12px 24px' }}>
                   Secure Sign In
                 </Link>
-                <a href="#features" className="btn-glass" style={{ textDecoration: 'none', padding: '12px 24px' }}>
+                <a href="#features" className="glass-button secondary" style={{ textDecoration: 'none', padding: '12px 24px' }}>
                   Explore Platform Features
                 </a>
               </>

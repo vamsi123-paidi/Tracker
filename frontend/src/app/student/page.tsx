@@ -2040,6 +2040,14 @@ export default function StudentDashboard() {
           <ThemeToggle />
           
           <button 
+            onClick={() => router.push('/student/interview')}
+            className="glass-button primary"
+            style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+          >
+            <span style={{ marginRight: '6px' }}>📹</span> Join Interview
+          </button>
+          
+          <button 
             onClick={() => {
               setEditName(studentName);
               setEditEmail(studentEmail);
@@ -2047,7 +2055,7 @@ export default function StudentDashboard() {
               setEditProfileFile(null);
               setIsProfileModalOpen(true);
             }} 
-            className="btn-glass" 
+            className="glass-button secondary" 
             style={{ padding: '8px 16px', fontSize: '0.85rem' }}
           >
             Settings
